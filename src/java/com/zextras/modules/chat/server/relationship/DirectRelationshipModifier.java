@@ -1,0 +1,146 @@
+package com.zextras.modules.chat.server.relationship;
+
+import com.google.inject.Inject;
+import com.zextras.lib.log.ChatLog;
+import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.db.modifiers.UserModifier;
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import org.openzal.zal.Utils;
+/**
+ * Class provides user's direct-relationship's modifier methods.
+ * @see DirectRelationshipProvider
+ */
+public class DirectRelationshipModifier
+  implements RelationshipModifier
+{
+  private final UserModifier               mUserModifier;
+  private final DirectRelationshipProvider mDirectRelationshipProvider;
+  
+  @Inject
+  public DirectRelationshipModifier(UserModifier userModifier,
+                                    DirectRelationshipProvider directRelationshipProvider)
+    throws
+    ChatDbException
+  {
+    mUserModifier = userModifier;
+    mDirectRelationshipProvider = directRelationshipProvider;
+  }
+  
+  @Override
+  public void updateBuddyNickname(int userId,
+                                  SpecificAddress buddyAddress,
+                                  String newNickName)
+  {
+    //if buddy is only in the buddyGroupRelationship, it memorize the
+    // nickname in a relationship (addRelationship())
+    Relationship targetRelationship = mDirectRelationshipProvider.assertUserRelationshipByBuddyAddress(
+      userId,
+      buddyAddress
+    );
+    targetRelationship.updateVolatileNickname(newNickName);
+    updateStoredRelationship(targetRelationship,
+                             userId);
+  }
+  
+  @Override
+  public void updateBuddyGroup(int userId,
+                               SpecificAddress buddyAddress,
+                               String newGroupName)
+  {
+    Relationship targetRelationship = mDirectRelationshipProvider.assertUserRelationshipByBuddyAddress(
+      userId,
+      buddyAddress
+    );
+    targetRelationship.updateVolatileGroup(newGroupName);
+    updateStoredRelationship(targetRelationship,
+                             userId);
+  }
+  
+  @Override
+  public void updateRelationshipType(int userId,
+                                     SpecificAddress buddyAddress,
+                                     Relationship.RelationshipType newType)
+  {
+    Relationship targetRelationship = mDirectRelationshipProvider.assertUserRelationshipByBuddyAddress(
+      userId,
+      buddyAddress
+    );
+    targetRelationship.updateVolatileType(newType);
+    updateStoredRelationship(targetRelationship,
+                             userId);
+  }
+  
+  @Override
+  public void addRelationship(int userId,
+                              SpecificAddress buddyAddress,
+                              Relationship.RelationshipType type,
+                              String buddyNickname,
+                              String group)
+  {
+    if (mDirectRelationshipProvider.getUserRelationshipByBuddyAddress(userId,
+                                                                      buddyAddress) != null)
+    {
+      return;
+    }
+
+    Relationship newRelationship = new Relationship(userId,
+                                                    buddyAddress,
+                                                    type,
+                                                    buddyNickname,
+                                                    group);
+    try
+    {
+      mUserModifier.addRelationship(userId,
+                                    newRelationship.getType(),
+                                    newRelationship.getBuddyAddress(),
+                                    newRelationship.getBuddyNickname(),
+                                    newRelationship.getGroup());
+    }
+    catch (Exception e)
+    {
+      ChatLog.log.warn("Cannot add relationship from " + newRelationship
+        .getBuddyAddress() + " to user with id " + userId +
+                            ": " +
+                            e.getMessage());
+      ChatLog.log.debug(Utils.exceptionToString(e));
+      throw new RuntimeException(e);
+    }
+  }
+  
+  @Override
+  public void removeRelationship(int userId,
+                                 SpecificAddress buddyAddress)
+  {
+    Relationship targetRelationship = mDirectRelationshipProvider.assertUserRelationshipByBuddyAddress(userId,
+                                                                                                       buddyAddress);
+    try
+    {
+      mUserModifier.removeRelationship(userId,
+                                       targetRelationship.getBuddyAddress());
+    }
+    catch (Exception e)
+    {
+      ChatLog.log.warn("Cannot remove relationship " + buddyAddress + " from  " +
+                      userId + ": " + e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
+  
+  private void updateStoredRelationship(Relationship updatedRelationship,
+                                        int userId)
+  {
+    try
+    {
+      mUserModifier.updateRelationship(userId,
+                                       updatedRelationship);
+    }
+    catch (Exception e)
+    {
+      ChatLog.log.warn("Cannot update relationship of user with id " +
+                      userId + " " +
+                      "with " + updatedRelationship.getBuddyAddress() + ": " + e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
+}

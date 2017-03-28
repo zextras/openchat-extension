@@ -1,0 +1,3 @@
+[submodule "extensionlib"]
+	path = extensionlib
+	url = ssh://git@dev.zextras.com:7999/zx/extensionlib.git

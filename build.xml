@@ -1,1453 +1,268 @@
-<project name="ZeXtras" default="help" basedir=".">
-
-  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
-    <classpath>
-      <pathelement location="build-commons/ant-contrib/ant-contrib-1.0b3.jar"/>
-    </classpath>
-  </taskdef>
+<project name="OpenChat" default="jar" basedir=".">
 
   <description>OpenChat</description>
 
+  <loadfile property="version" srcFile="version"/>
+
+  <property name="zimbra-version" value="8.7.5"/>
+  <property name="zal-version" value="1.11"/>
+  <property name="required-zal-version" value="1.11.8"/>
+
+  <property name="extensionlib" value="extensionlib"/>
+
   <property name="src" location="src/java"/>
-  <property name="resdir" location="res"/>
-  <property name="ant-lib" value="" />
-  <property name="debug" value="no" />
-  <property name="build_commons" value="../build-commons/" />
+  <property name="lib" value="lib" />
+  <property name="zal" value="zal.jar" />
 
-  <path id="ant-lib">
-      <fileset dir="${build_commons}/ant-contrib" >
-        <include name="*.jar"/>
-      </fileset>
-  </path>
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${lib}/ant-contrib-1.0b3.jar"/>
+    </classpath>
+  </taskdef>
 
-  <path id="zextras-libs">
-      <fileset dir="${build_commons}/lib/" >
-        <include name="*.jar"/>
-      </fileset>
-  </path>
+  <target name="download-zal">
+    <mkdir dir="${lib}"/>
+    <if>
+      <available file="${lib}/${zal}"/>
+      <then>
+        <echo> Using ZAL ${lib}/${zal} </echo>
+      </then>
+      <else>
+        <echo> Downloading ZAL ${zal-version} for Zimbra ${zimbra-version} ... </echo>
+        <get src="https://openzal.org/${zal-version}/zal-${zal-version}-${zimbra-version}.jar"
+            dest="${lib}/${zal}" usetimestamp="true"/>
+      </else>
+    </if>
+  </target>
 
   <property name="COMPILER_ARGS" value="-Xlint"/>
   <!-- <property name="COMPILER_ARGS" value="-Xlint:none -Xmaxerrs 1000" /> -->
 
-  <target name="init">
+  <target name="init" depends="download-zal,dependencies">
     <tstamp />
-    <echo> Building Open Chat 1.0 </echo>
+    <echo> Building OpenChat ${version} </echo>
   </target>
 
-
-
-
-<path id="zimbra-jars-8.0.0">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.0/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.0"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.0" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.1">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.1/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.1"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.1" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.1/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.1/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.2">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.2/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.2"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.2" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.2/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.2/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.3">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.3/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.3"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.3" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.3/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.3/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.4">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.4/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.4"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.4" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.4/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.4/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.5">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.5/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.5"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.5" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.5/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.5/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.6">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.6/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.6"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.6" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.6/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.6/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.7">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.7/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.7"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.7" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.7/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.7/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.8">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.8/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.8"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.8" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.8/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.8/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.0.9">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.0.9/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.0.9"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.0.9" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.0.9/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.0.9/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.5.0">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.5.0/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.5.0"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.5.0" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.5.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.5.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.5.1">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.5.1/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.5.1"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.5.1" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.5.1/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.5.1/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.6.0">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.6.0/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.6.0"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.6.0" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.6.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.6.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.7.0">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.7.0/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.7.0"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.7.0" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.7.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.7.0/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.7.1">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.7.1/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.7.1"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.7.1" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.7.1/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.7.1/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.7.2">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.7.2/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.7.2"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.7.2" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.7.2/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.7.2/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.7.3">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.7.3/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.7.3"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.7.3" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.7.3/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.7.3/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-<path id="zimbra-jars-8.7.4">
-    <fileset dir="${build_commons}/zimbra-jars/zimbra-jars-8.7.4/" >
-      <include name="*.jar"/>
-    </fileset>
-</path>
-
-<target name="jar-8.7.4"  depends="init" description="create jar">
-
-  <property name="build" value="build/jar/" />
-  <property name="dist"  value="dist/" />
-
-  <condition property="JarName" value="openchat">
-     <not>
-        <isset property="JarName"/>
-     </not>
-  </condition>
-
-  <mkdir dir="${build}"/>
-  <mkdir dir="${dist}"/>
-
-  <ant antfile="build.xml" dir="../zal/" target="zal-8.7.4" inheritAll="false" useNativeBasedir="false" />
-
-  <echo>Creating OpenChat JAR ... </echo>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="../extensionlib/src/java/" destdir="../extensionlib/build/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../zal/dist/8.7.4/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
-    <classpath>
-      <path refid="zextras-libs" />
-      <pathelement location="../extensionlib/build/" />
-      <pathelement location="../zal/dist/8.7.4/zal.jar" />
-    </classpath>
-   <compilerarg value="-Xlint:none" />
-  </javac>
-
-  <jar jarfile="${dist}/${JarName}.jar" compress="true">
-    <manifest>
-      <attribute name="Specification-Title" value="ZeXtras Core" />
-      <attribute name="Specification-Version" value="1.0" />
-      <attribute name="Specification-Vendor" value="${Vendor}" />
-      <attribute name="Created-By" value="ZeXtras" />
-      <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-      <attribute name="ZAL-Required-Version" value="1.11.6" />
-    </manifest>
-    <fileset dir="${build}" />
-    <fileset dir="../extensionlib/build" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-annotations-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-core-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/lib/jackson/" includes="jackson-databind-2.6.7.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-4.0-no_aop.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="javax.inject.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="jsr305-2.0.1.jar" />
-    <zipgroupfileset dir="../build-commons/guice/" includes="guice-assistedinject-4.0.jar" />
-    <zipgroupfileset dir="../build-commons/sentry/" includes="guava-18.0.jar" />
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="stax2-api-3.1.1.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-core-asl-4.2.0.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="woodstox-msv-rng-datatype-20020414.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="msv-core-2010.2.jar"/>
-    <zipgroupfileset dir="../build-commons/woodstox/" includes="xsdlib-2010.1.jar"/>
-    <zipgroupfileset dir="../build-commons/netty/" includes="netty-all-4.0.44.Final.jar" />
-    <zipgroupfileset dir="../build-commons/apache-commons/commons-lang3-3.1/" includes="commons-lang3-3.1.jar" />
-    <fileset dir="../res/" defaultexcludes="yes" includes="xmpp/" />
-    <!--<zipfileset src="${build_commons}/lib/zextras-lib.jar" />-->
-  </jar>
-</target>
-
-
-  <target name="clean" description="clean up" >
-    <ant antfile="build.xml" dir="../zal/" target="clean" inheritAll="false" useNativeBasedir="false" />
-    <delete includeemptydirs="true">
-      <fileset dir="dist/" includes="**/*" />
+  <target name="jar"  depends="init" description="create jar">
+    <mkdir dir="${lib}"/>
+
+    <property name="build" value="build/jar" />
+    <property name="dist"  value="dist/" />
+
+    <mkdir dir="${extensionlib}/build/"/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${dist}"/>
+
+    <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${extensionlib}/src/" destdir="${extensionlib}/build/" target="1.6" source="1.6">
+      <classpath>
+        <fileset dir="${lib}">
+          <include name="*.jar" />
+        </fileset>
+      </classpath>
+     <compilerarg value="-Xlint:none" />
+    </javac>
+
+    <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
+      <classpath>
+        <pathelement location="${extensionlib}/build/" />
+        <pathelement location="${lib}/${zal}" />
+        <fileset dir="${lib}">
+          <include name="*.jar" />
+        </fileset>
+      </classpath>
+     <compilerarg value="-Xlint:none" />
+    </javac>
+
+    <jar jarfile="${dist}/openchat.jar" compress="true">
+      <manifest>
+        <attribute name="Specification-Title" value="OpenChat" />
+        <attribute name="Specification-Version" value="${version}" />
+        <attribute name="Created-By" value="ZeXtras" />
+        <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
+        <attribute name="ZAL-Required-Version" value="${zal-version}" />
+      </manifest>
+      <fileset dir="${build}" />
+      <fileset dir="${extensionlib}/build" />
+      <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.6.7.jar" />
+      <zipgroupfileset dir="${lib}/" includes="jackson-core-2.6.7.jar" />
+      <zipgroupfileset dir="${lib}/" includes="jackson-databind-2.6.7.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-lang3-3.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="guice-4.0-no_aop.jar" />
+      <zipgroupfileset dir="${lib}/" includes="javax.inject.jar" />
+      <zipgroupfileset dir="${lib}/" includes="jsr305-2.0.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="guice-assistedinject-4.0.jar" />
+      <zipgroupfileset dir="${lib}/" includes="guava-18.0.jar" />
+      <zipgroupfileset dir="${lib}/" includes="stax2-api-3.1.1.jar"/>
+      <zipgroupfileset dir="${lib}/" includes="woodstox-core-asl-4.2.0.jar"/>
+      <zipgroupfileset dir="${lib}/" includes="relaxngDatatype-2011.1.jar"/>
+      <zipgroupfileset dir="${lib}/" includes="msv-core-2010.2.jar"/>
+      <zipgroupfileset dir="${lib}/" includes="xsdlib-2010.1.jar"/>
+      <zipgroupfileset dir="${lib}/" includes="netty-all-4.0.44.Final.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-lang3-3.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="log4j-1.2.15.jar" />
+      <zipgroupfileset dir="${lib}/" includes="annotations-13.0.jar" />
+      <zipgroupfileset dir="${lib}/" includes="mail-1.4.2.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-codec-1.10.jar" />
+      <fileset dir="res/" defaultexcludes="yes" includes="xmpp/" />
+    </jar>
+  </target>
+
+  <target name="dependencies" description="download dependencies">
+    <if>
+      <available file="${lib}/common-codec-1.10.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/commons-codec/commons-codec/1.10/commons-codec-1.10.jar"
+             dest="${lib}/common-codec-1.10.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/mail-1.4.2.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/javax/mail/mail/1.4.2/mail-1.4.2.jar"
+             dest="${lib}/mail-1.4.2.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/log4j-1.2.15.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/log4j/log4j/1.2.15/log4j-1.2.15.jar"
+             dest="${lib}/log4j-1.2.15.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/annotations-13.0.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar"
+             dest="${lib}/annotations-13.0.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/netty-all-4.0.44.Final.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/io/netty/netty-all/4.0.44.Final/netty-all-4.0.44.Final.jar"
+             dest="${lib}/netty-all-4.0.44.Final.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/xsdlib-2010.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/sun/msv/datatype/xsd/xsdlib/2010.1/xsdlib-2010.1.jar"
+             dest="${lib}/xsdlib-2010.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+   <if>
+      <available file="${lib}/msv-core-2010.2.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/net/java/dev/msv/msv-core/2010.2/msv-core-2010.2.jar"
+             dest="${lib}/msv-core-2010.2.jar" usetimestamp="true"/>
+     </else>
+   </if>
+   <if>
+      <available file="${lib}/relaxngDatatype-2011.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/github/relaxng/relaxngDatatype/2011.1/relaxngDatatype-2011.1.jar"
+             dest="${lib}/relaxngDatatype-2011.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/woodstox-core-asl-4.2.0.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/codehaus/woodstox/woodstox-core-asl/4.2.0/woodstox-core-asl-4.2.0.jar"
+             dest="${lib}/woodstox-core-asl-4.2.0.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/stax2-api-3.1.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/codehaus/woodstox/stax2-api/3.1.1/stax2-api-3.1.1.jar"
+             dest="${lib}/stax2-api-3.1.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/guava-18.0.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/google/guava/guava/18.0/guava-18.0.jar"
+             dest="${lib}/guava-18.0.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/guava-18.0.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/google/guava/guava/18.0/guava-18.0.jar"
+             dest="${lib}/guava-18.0.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/guava-18.0.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/google/guava/guava/18.0/guava-18.0.jar"
+             dest="${lib}/guava-18.0.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/guice-assistedinject-4.0.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/google/inject/extensions/guice-assistedinject/4.0/guice-assistedinject-4.0.jar"
+             dest="${lib}/guice-assistedinject-4.0.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/jsr305-2.0.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/google/code/findbugs/jsr305/2.0.1/jsr305-2.0.1.jar"
+             dest="${lib}/jsr305-2.0.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/java-inject.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar"
+             dest="${lib}/java-inject.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/guice-4.0-no_aop.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/google/inject/guice/4.0/guice-4.0-no_aop.jar"
+             dest="${lib}/guice-4.0-no_aop.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/jackson-core-2.6.7.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.6.7/jackson-core-2.6.7.jar"
+             dest="${lib}/jackson-core-2.6.7.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/jackson-databind-2.6.7.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.6.7/jackson-databind-2.6.7.jar"
+             dest="${lib}/jackson-databind-2.6.7.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/jackson-annotations-2.6.7.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.6.7/jackson-annotations-2.6.7.jar"
+             dest="${lib}/jackson-annotations-2.6.7.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/commons-lang3-3.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/apache/commons/commons-lang3/3.1/commons-lang3-3.1.jar"
+             dest="${lib}/commons-lang3-3.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+  </target>
+
+  <target name="clean">
+    <delete includeemptydirs="true" quiet="true">
+      <fileset dir="extensionlib/build/" includes="**/*" />
       <fileset dir="build/" includes="**/*" />
-      <fileset dir="test_tmpsrc/" includes="**/*" />
+      <fileset dir="dist/" includes="**/*" />
     </delete>
-    <echo>deleted dist/ build/ test_tmpsrc/</echo>
   </target>
-
-  <target name="jar-last" depends="jar-8.7.4" />
-  <!-- jar-version is defined in version_template -->
-  <target name="jar-common" depends="jar-8.0.0,jar-8.0.9,jar-8.6.0,jar-8.7.4" />
-  <target name="jar-all" depends="jar-8.0.0,jar-8.0.1,jar-8.0.2,jar-8.0.3,jar-8.0.4,jar-8.0.5,jar-8.0.6,jar-8.0.7,jar-8.0.8,jar-8.0.9,jar-8.5.0,jar-8.5.1,jar-8.6.0,jar-8.7.0,jar-8.7.1,jar-8.7.2,jar-8.7.3,jar-8.7.4" />
-
-  <target name="jar-zimbra-last">
-    <antcall target="jar-last">
-      <param name="Vendor" value="zimbra"/>
-      <param name="JarName" value="zimbra_suite_plus"/>
-    </antcall>
-  </target>
-
-<!--
-  <target name="jar-test-class" description="create jar and run specific unit test">
-    <fail unless="test_class">test_class not defined!, please run ant with -Dtest_class=com.example.test</fail>
-    <antcall target="jar" />
-    <antcall target="only-test" />
-  </target>
--->
-
-  <target name="help">
-    <echo>
-      - build -
-
-      You can specify -Dvendor=zimbra to build the zimbra/synacor version
-
-      jar-last              - build zextras + zal + it for last available version of zimbra
-      jar-${version}        - build zextras + zal + it for ${version} version of zimbra
-      jar-common            - build zextras + zal + it for common versions of zimbra
-      jar-all               - build zextras + zal + it for all versions of zimbra
-      jar-zimbra-last       - build zextras + zal + it with vendor name 'zimbra'
-      jar-zimbra-${version} - build zextras + zal + it with vendor name 'zimbra'
-
-      - testing -
-
-      In both unit and integration tests you may specificy -Dtest_class=com.example.Test
-      to limit the test to that class, you can also specify -Ddebug=true to stop testing
-      whenever a single test fails
-
-                            - xml results in test-out/unit/${version}
-      ut-last               - only run unit tests against last zimbra version
-      ut-${version}         - only run unit tests against ${version} zimbra version
-      ut-common             - only run unit tests against common zimbra versions
-      ut-all                - only run unit tests against all zimbra versions
-
-                            - xml results in test-out/it/${version}
-      it-last               - only run integration tests against last zimbra version
-      it-${version}         - only run integration tests against ${version} zimbra version
-      it-common             - only run integration tests against common zimbra versions
-      it-all                - only run integration tests against all zimbra versions
-
-      - checks -
-
-      class-version-check   - check compatibility with java 1.6 [zextras.jar with embedded libs, and all built zal artifacts]
-      findbug               - build jar-last with findbug output enabled
-
-      - utils -
-
-      coffee-error-code     - create and copy ZxErrorCode coffee file
-      clean                 - clear all artifacts and temporary files
-      help                  - shows this help
-      ant -p                - list all available ant targets
-
-      ./chat_deploy         - deploy com_zextras_chat zimlet (@deprecated)
-      ./client_deploy       - deploy com_zextras_client zimlet
-      ./deploy              - deploy zextras core
-
-    </echo>
-  </target>
-
 </project>
 

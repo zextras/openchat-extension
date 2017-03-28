@@ -103,11 +103,61 @@
       <zipgroupfileset dir="${lib}/" includes="annotations-13.0.jar" />
       <zipgroupfileset dir="${lib}/" includes="mail-1.4.2.jar" />
       <zipgroupfileset dir="${lib}/" includes="commons-codec-1.10.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-io-2.4.jar" />
       <fileset dir="res/" defaultexcludes="yes" includes="xmpp/" />
     </jar>
   </target>
 
   <target name="dependencies" description="download dependencies">
+    <if>
+      <available file="${lib}/httpmime-4.5.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/apache/httpcomponents/httpmime/4.5.1/httpmime-4.5.1.jar"
+             dest="${lib}/httpmime-4.5.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/commons-logging-1.2.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
+             dest="${lib}/common-logging-1.2.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/httpclient-cache-4.5.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/apache/httpcomponents/httpclient-cache/4.5.1/httpclient-cache-4.5.1.jar"
+             dest="${lib}/httpclient-cache-4.5.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/httpcore-4.4.3.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.3/httpcore-4.4.3.jar"
+             dest="${lib}/httpcore-4.4.3.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/fluent-hc-4.5.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/apache/httpcomponents/fluent-hc/4.5.1/fluent-hc-4.5.1.jar"
+             dest="${lib}/fluent-hc-4.5.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/httpclient-4.5.1.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.1/httpclient-4.5.1.jar"
+             dest="${lib}/httpclient-4.5.1.jar" usetimestamp="true"/>
+     </else>
+   </if>
+    <if>
+      <available file="${lib}/common-io-2.4.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"
+             dest="${lib}/common-io-2.4.jar" usetimestamp="true"/>
+     </else>
+   </if>
     <if>
       <available file="${lib}/common-codec-1.10.jar" />
       <else>

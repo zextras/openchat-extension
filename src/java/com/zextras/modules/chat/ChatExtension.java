@@ -19,6 +19,8 @@ package com.zextras.modules.chat;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.zextras.lib.activities.ActivityManager;
+import com.zextras.lib.json.JSONObject;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.log.SeverityLevel;
 import com.zextras.lib.log.writers.ZELogWriterZimbraLog;
@@ -38,6 +40,14 @@ import com.zextras.modules.chat.server.xmpp.netty.ChatXmppService;
 import com.zextras.modules.chat.services.ChatSoapService;
 import com.zextras.modules.chat.services.LocalXmppService;
 import com.zextras.modules.core.services.NettyService;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 import org.openzal.zal.extension.ZalExtension;
 import org.openzal.zal.extension.ZalExtensionController;
@@ -45,10 +55,18 @@ import org.openzal.zal.extension.Zimbra;
 import org.openzal.zal.lib.ZimbraVersion;
 import org.openzal.zal.log.ZimbraLog;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 
 public class ChatExtension implements ZalExtension
 {
+  private static final String NETWORK_JAR   = "/opt/zimbra/lib/ext/network/zimbranetwork.jar";
+  private static final String UPDATE_URL    = "https://update.zextras.com/openchat";
+  private static final long   MILLIS_IN_DAY = 1000L * 60L * 60L * 24L;
+
   private ServiceSwitch mLocalServerDestination = null;
   private ServiceSwitch mLocalXmppService = null;
   private ServiceSwitch mChatSoapServiceSwitch = null;
@@ -59,6 +77,7 @@ public class ChatExtension implements ZalExtension
   private ServiceSwitch mChatHistorySwitch = null;
   private ServiceSwitch mNettyService = null;
   private ZEChatDebugLogWriter mChatLog = null;
+  private ServiceSwitch mActivityManagerService = null;
 
   @Override
   public String getBuildId()
@@ -75,11 +94,11 @@ public class ChatExtension implements ZalExtension
   @Override
   public void startup(ZalExtensionController extensionController, WeakReference<ClassLoader> previousExtension)
   {
-    if (ZimbraVersion.current.lessThan(8,7, 6))
+    /* if (ZimbraVersion.current.lessThan(8,7, 6))
     {
-      ZimbraLog.mailbox.info("OpenChat extension cannot start: Zimbra 8.7.6 or later is required.");
+      ZimbraLog.mailbox.info("OpenChat extension not supported: Zimbra 8.7.6 or later is required.");
       return;
-    }
+    } */
     ZimbraLog.mailbox.info("OpenChat starting ...");
 
     Zimbra zimbra = new Zimbra();
@@ -159,6 +178,14 @@ public class ChatExtension implements ZalExtension
         )
       );
 
+      ActivityManager activityManager = injector.getInstance(ActivityManager.class);
+      mActivityManagerService = new MandatoryServiceSwitch(
+        new SimpleServiceSwitch(
+        "activity-manager",
+          activityManager
+        )
+      );
+
       try
       {
         mChatLog.start();
@@ -171,13 +198,69 @@ public class ChatExtension implements ZalExtension
         mLocalXmppService.turnOn(conditionNotification);
         mLocalServerDestination.turnOn(conditionNotification);
         mChatXmppService.turnOn(conditionNotification);
+        mActivityManagerService.turnOn(conditionNotification);
+
+        final Provisioning provisioning = injector.getInstance(Provisioning.class);
+        activityManager.scheduleActivityAtFixedRate(
+          new Runnable()
+          {
+            @Override
+            public void run()
+            {
+              try
+              {
+                JSONObject json = new JSONObject();
+                json.put("zimbraVersion", ZimbraVersion.current);
+                json.put("isNetwork", new File(NETWORK_JAR).exists());
+                json.put("serverName", provisioning.getLocalServer().getName());
+
+                ChatLog.log.info("OpenChat version available: " + requestUpdateInfo(json));
+              }
+              catch (Throwable ignore)
+              {
+                //ChatLog.log.err("Cannot check available OpenChat version: " + Utils.exceptionToString(t));
+              }
+            }
+          },
+          0L,
+          MILLIS_IN_DAY
+        );
+
         ChatLog.log.info("OpenChat started.");
       }
       catch (Exception e)
       {
-        ChatLog.log.err("OpenChat cannot start:" + Utils.exceptionToString(e));
+        ChatLog.log.err("################## OpenChat cannot start:" + Utils.exceptionToString(e));
         throw new RuntimeException(e);
       }
+    }
+  }
+
+  private String requestUpdateInfo(JSONObject json) throws IOException
+  {
+    HttpPost postMethod = new HttpPost(UPDATE_URL);
+    postMethod.setHeader("Content-Type", "application/json; charset=UTF-8");
+    postMethod.setEntity(new StringEntity(json.toString(), "UTF-8"));
+
+    CloseableHttpClient httpclient = HttpClients.createDefault();
+    CloseableHttpResponse response;
+    try
+    {
+      response = httpclient.execute(postMethod);
+      if (response.getStatusLine().getStatusCode() == 200)
+      {
+        InputStream inputStream = response.getEntity().getContent();
+        Charset charset = ContentType.getOrDefault(response.getEntity()).getCharset();
+        return new String(IOUtils.toByteArray(inputStream), charset);
+      }
+      else
+      {
+        throw new IOException("invalid status code " + response.getStatusLine().getStatusCode());
+      }
+    }
+    finally
+    {
+      httpclient.close();
     }
   }
 

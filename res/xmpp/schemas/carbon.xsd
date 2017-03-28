@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<xs:schema
+    xmlns:xs='http://www.w3.org/2001/XMLSchema'
+    targetNamespace='urn:xmpp:carbons:2'
+    xmlns='urn:xmpp:carbons:2'
+    elementFormDefault='qualified'>
+
+  <xs:element name='disable' type='empty'/>
+
+  <xs:element name='enable' type='empty'/>
+
+  <xs:element name='private' type='empty'/>
+
+  <xs:element name='received' type='forward-container'/>
+
+  <xs:element name='sent' type='forward-container'/>
+
+  <xs:simpleType name='empty' abstract='true'>
+    <xs:restriction base='xs:string'>
+      <xs:enumeration value=''/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name='foward-container' abstract='true'>
+    <xs:choice>
+      <xs:element name='forwarded'
+                  namespace='urn:xmpp:forward:0'
+                  minOccurs='1'
+                  maxOccurs='1'/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

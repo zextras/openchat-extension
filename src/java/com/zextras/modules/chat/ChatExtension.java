@@ -43,7 +43,6 @@ import com.zextras.modules.core.services.NettyService;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -56,10 +55,8 @@ import org.openzal.zal.lib.ZimbraVersion;
 import org.openzal.zal.log.ZimbraLog;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.nio.charset.Charset;
 
 public class ChatExtension implements ZalExtension
 {
@@ -207,18 +204,15 @@ public class ChatExtension implements ZalExtension
             @Override
             public void run()
             {
-              try
-              {
-                JSONObject json = new JSONObject();
-                json.put("zimbraVersion", ZimbraVersion.current);
-                json.put("isNetwork", new File(NETWORK_JAR).exists());
-                json.put("serverName", provisioning.getLocalServer().getName());
+              JSONObject json = new JSONObject();
+              json.put("zimbraVersion", ZimbraVersion.current);
+              json.put("isNetwork", new File(NETWORK_JAR).exists());
+              json.put("serverName", provisioning.getLocalServer().getName());
 
-                ChatLog.log.info("OpenChat version available: " + requestUpdateInfo(json));
-              }
-              catch (Throwable ignore)
+              String newVersion = requestUpdateInfo(json);
+              if (!newVersion.isEmpty())
               {
-                //ChatLog.log.err("Cannot check available OpenChat version: " + Utils.exceptionToString(t));
+                ChatLog.log.info("OpenChat version available: " + newVersion);
               }
             }
           },
@@ -236,32 +230,29 @@ public class ChatExtension implements ZalExtension
     }
   }
 
-  private String requestUpdateInfo(JSONObject json) throws IOException
+  private String requestUpdateInfo(JSONObject json)
   {
     HttpPost postMethod = new HttpPost(UPDATE_URL);
     postMethod.setHeader("Content-Type", "application/json; charset=UTF-8");
     postMethod.setEntity(new StringEntity(json.toString(), "UTF-8"));
 
     CloseableHttpClient httpclient = HttpClients.createDefault();
-    CloseableHttpResponse response;
     try
     {
-      response = httpclient.execute(postMethod);
+      CloseableHttpResponse response = httpclient.execute(postMethod);
       if (response.getStatusLine().getStatusCode() == 200)
       {
         InputStream inputStream = response.getEntity().getContent();
-        Charset charset = ContentType.getOrDefault(response.getEntity()).getCharset();
-        return new String(IOUtils.toByteArray(inputStream), charset);
-      }
-      else
-      {
-        throw new IOException("invalid status code " + response.getStatusLine().getStatusCode());
+        JSONObject jsonResponse = JSONObject.fromString(IOUtils.toString(inputStream));
+        return jsonResponse.getString("version");
       }
     }
+    catch (Exception ignore) {}
     finally
     {
-      httpclient.close();
+      IOUtils.closeQuietly(httpclient);
     }
+    return "";
   }
 
   @Override

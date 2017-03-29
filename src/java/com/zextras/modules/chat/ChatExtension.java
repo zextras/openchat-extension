@@ -318,6 +318,11 @@ public class ChatExtension implements ZalExtension
       mNettyService.turnOff();
       mNettyService = null;
     }
+    if ( mActivityManagerService != null)
+    {
+      mActivityManagerService.turnOff();
+      mActivityManagerService = null;
+    }
     ChatLog.log.removeAllLogWriters(false);
   }
 }

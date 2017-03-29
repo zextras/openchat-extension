@@ -2,9 +2,13 @@
 
   <description>OpenChat</description>
 
-  <loadfile property="version" srcFile="version"/>
+  <loadfile property="version" srcFile="version">
+    <filterchain>
+        <striplinebreaks/>
+    </filterchain>
+  </loadfile>
 
-  <property name="zimbra-version" value="8.7.5"/>
+    <property name="zimbra-version" value="8.7.5"/>
   <property name="zal-version" value="1.11"/>
   <property name="required-zal-version" value="1.11.9"/>
 
@@ -84,26 +88,33 @@
       <fileset dir="${build}" />
       <fileset dir="${extensionlib}/build" />
       <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.6.7.jar" />
+      <zipgroupfileset dir="${lib}/" includes="annotations-13.0.jar" />
+      <zipgroupfileset dir="${lib}/" includes="ant-contrib-1.0b3.jar" />
+      <zipgroupfileset dir="${lib}/" includes="common-codec-1.10.jar" />
+      <zipgroupfileset dir="${lib}/" includes="common-io-2.4.jar" />
+      <zipgroupfileset dir="${lib}/" includes="common-logging-1.2.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-lang3-3.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="fluent-hc-4.5.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="guava-18.0.jar" />
+      <zipgroupfileset dir="${lib}/" includes="guice-4.0-no_aop.jar" />
+      <zipgroupfileset dir="${lib}/" includes="guice-assistedinject-4.0.jar" />
+      <zipgroupfileset dir="${lib}/" includes="httpclient-4.5.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="httpclient-cache-4.5.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="httpcore-4.4.3.jar" />
+      <zipgroupfileset dir="${lib}/" includes="httpmime-4.5.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.6.7.jar" />
       <zipgroupfileset dir="${lib}/" includes="jackson-core-2.6.7.jar" />
       <zipgroupfileset dir="${lib}/" includes="jackson-databind-2.6.7.jar" />
-      <zipgroupfileset dir="${lib}/" includes="commons-lang3-3.1.jar" />
-      <zipgroupfileset dir="${lib}/" includes="guice-4.0-no_aop.jar" />
-      <zipgroupfileset dir="${lib}/" includes="javax.inject.jar" />
+      <zipgroupfileset dir="${lib}/" includes="java-inject.jar" />
       <zipgroupfileset dir="${lib}/" includes="jsr305-2.0.1.jar" />
-      <zipgroupfileset dir="${lib}/" includes="guice-assistedinject-4.0.jar" />
-      <zipgroupfileset dir="${lib}/" includes="guava-18.0.jar" />
-      <zipgroupfileset dir="${lib}/" includes="stax2-api-3.1.1.jar"/>
-      <zipgroupfileset dir="${lib}/" includes="woodstox-core-asl-4.2.0.jar"/>
-      <zipgroupfileset dir="${lib}/" includes="relaxngDatatype-2011.1.jar"/>
-      <zipgroupfileset dir="${lib}/" includes="msv-core-2010.2.jar"/>
-      <zipgroupfileset dir="${lib}/" includes="xsdlib-2010.1.jar"/>
-      <zipgroupfileset dir="${lib}/" includes="netty-all-4.0.44.Final.jar" />
-      <zipgroupfileset dir="${lib}/" includes="commons-lang3-3.1.jar" />
-      <zipgroupfileset dir="${lib}/" includes="log4j-1.2.15.jar" />
-      <zipgroupfileset dir="${lib}/" includes="annotations-13.0.jar" />
       <zipgroupfileset dir="${lib}/" includes="mail-1.4.2.jar" />
-      <zipgroupfileset dir="${lib}/" includes="commons-codec-1.10.jar" />
-      <zipgroupfileset dir="${lib}/" includes="commons-io-2.4.jar" />
+      <zipgroupfileset dir="${lib}/" includes="msv-core-2010.2.jar" />
+      <zipgroupfileset dir="${lib}/" includes="netty-all-4.0.44.Final.jar" />
+      <zipgroupfileset dir="${lib}/" includes="relaxngDatatype-2011.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="stax2-api-3.1.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="woodstox-core-asl-4.2.0.jar" />
+      <zipgroupfileset dir="${lib}/" includes="xsdlib-2010.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="zal.jar" />
       <fileset dir="res/" defaultexcludes="yes" includes="xmpp/" />
     </jar>
   </target>
@@ -170,13 +181,6 @@
       <else>
         <get src="http://central.maven.org/maven2/javax/mail/mail/1.4.2/mail-1.4.2.jar"
              dest="${lib}/mail-1.4.2.jar" usetimestamp="true"/>
-     </else>
-   </if>
-    <if>
-      <available file="${lib}/log4j-1.2.15.jar" />
-      <else>
-        <get src="http://central.maven.org/maven2/log4j/log4j/1.2.15/log4j-1.2.15.jar"
-             dest="${lib}/log4j-1.2.15.jar" usetimestamp="true"/>
      </else>
    </if>
     <if>

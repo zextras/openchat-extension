@@ -31,7 +31,6 @@ Guava
 Javax.inject
 FindBugs Jsr305
 Stax2 API
-Log4j
 
 ** External libraries and software components released under the BSD License **
 

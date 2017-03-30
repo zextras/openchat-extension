@@ -89,7 +89,6 @@
       <fileset dir="${extensionlib}/build" />
       <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.6.7.jar" />
       <zipgroupfileset dir="${lib}/" includes="annotations-13.0.jar" />
-      <zipgroupfileset dir="${lib}/" includes="ant-contrib-1.0b3.jar" />
       <zipgroupfileset dir="${lib}/" includes="common-codec-1.10.jar" />
       <zipgroupfileset dir="${lib}/" includes="common-io-2.4.jar" />
       <zipgroupfileset dir="${lib}/" includes="common-logging-1.2.jar" />
@@ -102,19 +101,16 @@
       <zipgroupfileset dir="${lib}/" includes="httpclient-cache-4.5.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="httpcore-4.4.3.jar" />
       <zipgroupfileset dir="${lib}/" includes="httpmime-4.5.1.jar" />
-      <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.6.7.jar" />
       <zipgroupfileset dir="${lib}/" includes="jackson-core-2.6.7.jar" />
       <zipgroupfileset dir="${lib}/" includes="jackson-databind-2.6.7.jar" />
       <zipgroupfileset dir="${lib}/" includes="java-inject.jar" />
       <zipgroupfileset dir="${lib}/" includes="jsr305-2.0.1.jar" />
-      <zipgroupfileset dir="${lib}/" includes="mail-1.4.2.jar" />
       <zipgroupfileset dir="${lib}/" includes="msv-core-2010.2.jar" />
       <zipgroupfileset dir="${lib}/" includes="netty-all-4.0.44.Final.jar" />
       <zipgroupfileset dir="${lib}/" includes="relaxngDatatype-2011.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="stax2-api-3.1.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="woodstox-core-asl-4.2.0.jar" />
       <zipgroupfileset dir="${lib}/" includes="xsdlib-2010.1.jar" />
-      <zipgroupfileset dir="${lib}/" includes="zal.jar" />
       <fileset dir="res/" defaultexcludes="yes" includes="xmpp/" />
     </jar>
   </target>

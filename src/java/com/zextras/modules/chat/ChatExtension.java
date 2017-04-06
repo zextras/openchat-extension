@@ -61,7 +61,7 @@ import java.lang.ref.WeakReference;
 public class ChatExtension implements ZalExtension
 {
   private static final String NETWORK_JAR   = "/opt/zimbra/lib/ext/network/zimbranetwork.jar";
-  private static final String UPDATE_URL    = "https://update.zextras.com/openchat";
+  private static final String UPDATE_URL    = "https://updates.zextras.com/openchat";
   private static final long   MILLIS_IN_DAY = 1000L * 60L * 60L * 24L;
 
   private ServiceSwitch mLocalServerDestination = null;

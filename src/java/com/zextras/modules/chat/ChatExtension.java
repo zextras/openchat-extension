@@ -205,7 +205,7 @@ public class ChatExtension implements ZalExtension
             public void run()
             {
               JSONObject json = new JSONObject();
-              json.put("zimbraVersion", ZimbraVersion.current);
+              json.put("zimbraVersion", ZimbraVersion.current.toString());
               json.put("isNetwork", new File(NETWORK_JAR).exists());
               json.put("serverName", provisioning.getLocalServer().getName());
 

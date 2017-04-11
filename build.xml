@@ -89,9 +89,9 @@
       <fileset dir="${extensionlib}/build" />
       <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.6.7.jar" />
       <zipgroupfileset dir="${lib}/" includes="annotations-13.0.jar" />
-      <zipgroupfileset dir="${lib}/" includes="common-codec-1.10.jar" />
-      <zipgroupfileset dir="${lib}/" includes="common-io-2.4.jar" />
-      <zipgroupfileset dir="${lib}/" includes="common-logging-1.2.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-codec-1.10.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-io-2.4.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-logging-1.2.jar" />
       <zipgroupfileset dir="${lib}/" includes="commons-lang3-3.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="fluent-hc-4.5.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="guava-18.0.jar" />
@@ -127,7 +127,7 @@
       <available file="${lib}/commons-logging-1.2.jar" />
       <else>
         <get src="http://central.maven.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
-             dest="${lib}/common-logging-1.2.jar" usetimestamp="true"/>
+             dest="${lib}/commons-logging-1.2.jar" usetimestamp="true"/>
      </else>
    </if>
     <if>
@@ -159,17 +159,17 @@
      </else>
    </if>
     <if>
-      <available file="${lib}/common-io-2.4.jar" />
+      <available file="${lib}/commons-io-2.4.jar" />
       <else>
         <get src="http://central.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"
-             dest="${lib}/common-io-2.4.jar" usetimestamp="true"/>
+             dest="${lib}/commons-io-2.4.jar" usetimestamp="true"/>
      </else>
    </if>
     <if>
-      <available file="${lib}/common-codec-1.10.jar" />
+      <available file="${lib}/commons-codec-1.10.jar" />
       <else>
         <get src="http://central.maven.org/maven2/commons-codec/commons-codec/1.10/commons-codec-1.10.jar"
-             dest="${lib}/common-codec-1.10.jar" usetimestamp="true"/>
+             dest="${lib}/commons-codec-1.10.jar" usetimestamp="true"/>
      </else>
    </if>
     <if>

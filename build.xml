@@ -305,6 +305,13 @@
              dest="${lib}/commons-lang3-3.1.jar" usetimestamp="true"/>
      </else>
    </if>
+    <if>
+      <available file="${lib}/log4j-1.2.15.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/log4j/log4j/1.2.15/log4j-1.2.15.jar"
+             dest="${lib}/log4j-1.2.15.jar" usetimestamp="true"/>
+     </else>
+   </if>
   </target>
 
   <target name="clean">

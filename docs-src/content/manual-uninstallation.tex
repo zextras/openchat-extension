@@ -1,0 +1,28 @@
+\chapterimage{manual-uninstallation.png}
+\chapter{Manual Uninstallation}
+
+\noindent This chapter will guide the administrator through the uninstallation of the OpenChat.
+
+\section{Remove the zimlet}
+\begin{verbatim}
+# As zimbra
+zmzimletctl undeploy com_zextras_chat_open
+\end{verbatim}
+
+\section{Remove the Zimbra Extension}
+\begin{verbatim}
+# As root
+rm -rf /opt/zimbra/lib/ext/openchat
+\end{verbatim}
+Once the packages are removed is required a mailbox restart to fully unload the extension:
+\begin{verbatim}
+# As zimbra
+zmmailboxdctl restart
+\end{verbatim}
+
+\section{Cleanup the Database}
+\begin{verbatim}
+mysql <<EOF     
+	DROP DATABASE chat;
+EOF
+\end{verbatim}

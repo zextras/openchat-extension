@@ -1,0 +1,17 @@
+\chapter{Scalability}
+
+Being a simple and efficient the server can scale very well.
+
+On the latests tests the server can manage up to 2,000 active clients per mailboxd, with up to 130,000 stanza (events)
+ per second with a modest server. % TODO: Describe the "modest" server
+
+Huge bottleneck in the history writing, at each message a mime message is either created or updated, meaning few kb are
+ read or written and some database queries are performed for each message sent or received. With history enabled the
+ messages dropped down to 2,000 per second.
+
+To alleviate this issue the server does queue messages and update the mime just once if several messages are queued,
+ in case of overload it shouldn't worsen the situation but actually stabile the load.
+
+We suggest to disable history in very large deployments.
+
+Server to server communication are created lazily and at the moment they aren't any cause of corner regarding scalability.

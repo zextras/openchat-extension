@@ -1,0 +1,92 @@
+\chapter{Configuration}
+
+OpenChat extension is easily configurable through the Zimbra CLI, all of the congurations are store in LDAP.\\
+
+\noindent To edit an account configuration, for example run these commands:
+\begin{verbatim}
+# As zimbra
+zmprov modifyAccount account@example.tld {configName} {value}
+\end{verbatim}
+
+\section{List of the configurations}
+\begin{description}
+\item [zimbraChatServiceEnabled] \verb![boolean]!, Default value: \verb!true!.
+
+Enable the Chat Service.
+
+Can be applied to:
+\begin{itemize}
+\item Global
+\item Server
+\end{itemize}
+
+\item [zimbraChatHistoryEnabled] \verb![boolean]!, Default value: \verb!true!, requires a mailbox restart to be applied.
+
+Enable the chat history writing inside the chat folder.
+
+Can be applied to:
+\begin{itemize}
+\item Cos
+\item Account
+\end{itemize}
+
+\item [zimbraChatConversationAuditEnabled] \verb![boolean]!, Default value: \verb!false!.
+
+Enable the dedicated log for the chat conversations.
+
+Can be applied to:
+\begin{itemize}
+\item Global
+\item Domain
+\end{itemize}
+
+\item [zimbraChatXmppSslPortEnabled] \verb![boolean]!, Default value: \verb!false!, requires a mailbox restart to be applied.
+
+Enable the XMPP legacy SSL port.
+
+Can be applied to:
+\begin{itemize}
+\item Global
+\item Server
+\end{itemize}
+
+\item [zimbraChatAllowUnencryptedPassword] \verb![boolean]!, Default value: \verb!false!.
+
+Allow unencrypted password login via XMPP.
+
+Can be applied to:
+\begin{itemize}
+\item Global
+\item Server
+\end{itemize}
+
+\item [zimbraChatXmppPort] \verb![port]!, Default value: \verb!5222!, requires a mailbox restart to be applied.
+
+The XMPP standard port, usually used with StartTLS.
+
+Can be applied to:
+\begin{itemize}
+\item Global
+\item Server
+\end{itemize}
+
+\item [zimbraChatXmppSslPort] \verb![port]!, Default value: \verb!5223!, requires a mailbox restart to be applied.
+
+The XMPP legacy SSL port.
+
+Can be applied to:
+\begin{itemize}
+\item Global
+\item Server
+\end{itemize}
+
+\item [zimbraChatAllowDlMemberAddAsFriend] \verb![boolean]!, optional.
+
+Make members of the distribution lists as friends.
+
+Can be applied to:
+\begin{itemize}
+\item Distribution list
+\end{itemize}
+
+\end{description}

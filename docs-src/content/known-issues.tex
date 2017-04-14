@@ -1,7 +1,7 @@
 \chapter{Known issues, trubleshooting}
 
 When an unexcepted behaviour occurs the standard way of debugging is to append to zimbra url a \verb!?dev=1!, which allow
- Zimbra to return each unminified javascript and will activate chat debug messages in the browser console.
+ Zimbra to return each unminified javascript and will activate chat debug messages in the browser console.\\
 
 Each information received is called Event, and will be shown on the console. Any error will be shown in the console with
  reference to the source code.
@@ -13,16 +13,16 @@ zmprov flushCache -a zimlet com_zextras_chat_open
 \end{verbatim}
 
 \subsection{Server-to-server events are not delivered}
-Can be caused by connections issues between two mailboxes.
+Can be caused by connections issues between two mailboxes.\\
 
-Please check if the port \verb!5269! is opened and listening. Try to connect to it using Telnet or some similar software.
+Please check if the port \verb!5269! is opened and listening. Try to connect to it using Telnet or some similar software.\\
 
 If everything seems to work, keep a \verb!mailbox.log! of both servers open while trying to send a message from one user
 to the other, if no meaningful error message is shown please open a ticket.
 
 \subsection{Zimlet does not start with an error toast}
 First you should know that chat will not be available when using a delegated access (eg. using the 'View Mail' on the Admin UI)
-for privacy reasons.
+for privacy reasons.\\
 
 Check that the openchat extension is loaded correctly in the mailboxd, by checking the presence of these lines in the
 \verb!mailbox.log! on the last mailbox boot:

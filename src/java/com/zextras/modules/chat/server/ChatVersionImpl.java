@@ -1,8 +1,5 @@
 /*
- * ZAL - The abstraction layer for Zimbra.
  * Copyright (C) 2017 ZeXtras S.r.l.
- *
- * This file is part of ZAL.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,16 +11,25 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with ZAL. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License.
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.zextras.modules.chat.server;
 
 import org.openzal.zal.lib.Version;
 
-public interface ChatVersion
+public class ChatVersionImpl implements ChatVersion
 {
-  Version getServerChatVersion();
-  Version getRequiredZimletVersion();
+  @Override
+  public Version getServerChatVersion()
+  {
+    return new Version(8, 8, 0);
+  }
+
+  @Override
+  public Version getRequiredZimletVersion()
+  {
+    return new Version(8, 8, 0);
+  }
 }

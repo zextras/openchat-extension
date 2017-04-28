@@ -1,12 +1,3 @@
-\chapter{Overview}
-
-Zimbra Open Chat is included in Zimbra since version 8.7.6 as beta, its goal is to allow a simple and direct text-only chat
-between zimbra accounts, it is composed by a zimlet and a zimbra extension.
-It can be used through the Zimbra UI or using a standard XMPP client.\\
-
-This document target are system administrator, it aims to provide a in-depth view of the product architecture to
-simplify troubleshooting and the knowledge for solid customizations.
-
 \section{Zimlet}
 The zimlet is the client component which the final user is using.\\
 Its source code is available under GPLv2 license on github: \url{http://github.com/ZeXtras/openchat-zimlet}
@@ -47,19 +38,19 @@ Its source code is available under GPLv2 license on github: \url{http://github.c
 
 \ifdefined\INTERNALDOC % Rendered only when an internal documentation is built
 \subsection{XMPP Server}
-Zimbra Open Chat does implement a simple and standard XMPP server which can be used by any standard XMPP client.
+Zimbra OpenChat does implement a simple and standard XMPP server which can be used by any standard XMPP client.
 
 The server only implements few of the hundreds possible XEP (Xmpp Extension protocol, \url{http://xmpp.org/extensions/index.html} for XMPP,
  most relevant is carbon copy, which is useful for copy your own messages from web client to mobile xmpp application.
 
-The server starts when your mailboxd starts and will listen to port \verb!5222!, which is the original unencrypted port
- which support StartTLS and the \verb!5223! port, which is the legacy SSL only port.
+The server starts when your mailboxd starts and will listen to port \verb+5222+, which is the original unencrypted port
+ which support StartTLS and the \verb+5223+ port, which is the legacy SSL only port.
 
 These ports can be configured using zimbraChatXmppSslPortEnabled. % TODO: Improve this part
 
 The authentication is against zimbra account password, and does by default require encryption to be enabled before authenticating.
 
-When multiple mailboxd are involved events (or stanzas, in XMPP language) are sent through the port \verb!5269!,
+When multiple mailboxd are involved events (or stanzas, in XMPP language) are sent through the port \verb+5269+,
  which is the official XMPP port for server to server communication.
  This port is not configurable and it only allow messages coming from the same zimbra infrastructure, XMPP federation is currently unsupported.
 \fi

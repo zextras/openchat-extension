@@ -2,7 +2,6 @@
 The zimlet is the client component which the final user is using.\\
 Its source code is available under GPLv2 license on github: \url{http://github.com/ZeXtras/openchat-zimlet}
 
-\ifdefined\INTERNALDOC % Rendered only when an internal documentation is built
 \subsection{Architecture}
 The OpenChat Zimlet was designed to be semantically compatible with XMPP but it uses SOAP requests to communicate with
  the OpenChat Extension.
@@ -30,13 +29,11 @@ If multiple computers (or browser tabs) are opened on the same zimbra account, t
  the client shows the 'most available' status of every session.
 
 Any action taken by the client will issue its own SOAP request, such as status change and new messages.
-\fi
 
 \section{Extension}
 The zimbra extension is the server component, it handle the SOAP service and the XMPP services.\\
 Its source code is available under GPLv2 license on github: \url{http://github.com/ZeXtras/openchat-extension}
 
-\ifdefined\INTERNALDOC % Rendered only when an internal documentation is built
 \subsection{XMPP Server}
 Zimbra OpenChat does implement a simple and standard XMPP server which can be used by any standard XMPP client.
 
@@ -46,11 +43,10 @@ The server only implements few of the hundreds possible XEP (Xmpp Extension prot
 The server starts when your mailboxd starts and will listen to port \verb+5222+, which is the original unencrypted port
  which support StartTLS and the \verb+5223+ port, which is the legacy SSL only port.
 
-These ports can be configured using zimbraChatXmppSslPortEnabled. % TODO: Improve this part
+These ports can be configured using the `zimbraChatXmppSslPortEnabled' configuration.
 
 The authentication is against zimbra account password, and does by default require encryption to be enabled before authenticating.
 
 When multiple mailboxd are involved events (or stanzas, in XMPP language) are sent through the port \verb+5269+,
  which is the official XMPP port for server to server communication.
  This port is not configurable and it only allow messages coming from the same zimbra infrastructure, XMPP federation is currently unsupported.
-\fi

@@ -1,0 +1,33 @@
+\section{Logs}
+\label{sect:logs}
+
+\subsection{mailbox.log}
+\label{sect:mailboxlog}
+
+    Mailbox log is a standard Log4j log, there there is some example rows of a the \verb+mailbox.log+:
+    \begin{lstlisting}[breaklines]
+xxxx-xx-xx xx:xx:xx,xxx INFO  [qtp1912962767-310:https://123.123.123.123:8443/service/soap/ModifyPropertiesRequest] [name=user@example.com;mid=6;ip=172.17.0.2;ua=ZimbraWebClient - GC58 (Linux)/8.6.0_GA_1153;] soap - ModifyPropertiesRequest elapsed=4
+xxxx-xx-xx xx:xx:xx,xxx INFO  [qtp1912962767-310:https://123.123.123.123:8443/service/soap/ZxChatRequest] [] extensions - user@example.com changed status to AVAILABLE
+xxxx-xx-xx xx:xx:xx,xxx INFO  [qtp1912962767-310:https://123.123.123.123:8443/service/soap/ZxChatRequest] [] soap - ZxChatRequest elapsed=24
+    \end{lstlisting}
+    Each row is composed by these elements:
+    \begin{description}
+        \item [xxxx-xx-xx xx:xx:xx,xxx] Timestamp of the log row.
+        \item [INFO] The type of the log row.
+        \item [qtp\ldots{}ModifyPropertiesRequest] Information on the the threads which has requested to write the log row.
+            Usually the handled which have triggered the log row.
+        \item [name=\ldots{}] Information
+            on the user session.
+        \item [soap -] Source of the log row.
+        \item [ModifyPropertiesRequest elapsed=4] The content of the log row.
+    \end{description}
+
+\subsection{zmmailboxd.out}
+\label{sect:zmmailboxdout}
+
+    Mailbox log is a standard Log4j log, there there is some example rows of a the \verb+zmmailboxd.out+:
+    \begin{lstlisting}[breaklines]
+xxxx-xx-xx xx:xx:xx.xxx:INFO:oejs.SetUIDListener:main: Opened ServerConnector@397fbdb{HTTP/1.1}{0.0.0.0:8080}
+xxxx-xx-xx xx:xx:xx.xxx:INFO:oejs.SetUIDListener:main: Opened ServerConnector@36ebc363{SSL-http/1.1}{0.0.0.0:8443}
+xxxx-xx-xx xx:xx:xx.xxx:INFO:oejs.SetUIDListener:main: Opened ServerConnector@54d9d12d{SSL-http/1.1}{0.0.0.0:7071}
+    \end{lstlisting}

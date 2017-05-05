@@ -1,0 +1,103 @@
+\section{F.A.Q.}
+\label{sect:faq}
+
+    \subsection[Zimlet Issues]{OpenChat Zimlet Issues}
+
+    \subsubsection{The OpenChatZimlet is not working after the user login and I see some JavaScript Errors, what can I do?}
+        Most commonly is caused by caching issues, refresh all the caches with these commands:
+        \begin{verbatim}
+# As zimbra
+zmprov flushCache -a zimlet com_zextras_chat_open
+        \end{verbatim}
+        If the problem persists, escalate the issue.
+
+    \subsubsection{OpenChat Zimlet doesn’t start at login and a popup appears informing the user that the server is not
+    available, what can I do?}
+        \begin{info}
+            Remeber that the OpenChat Zimlet will not start if the logged user is logged into using the delegated access
+            feature (eg. View Mail button from the admin console) to protect the privacy of the user.
+        \end{info}
+
+        Check if the openchat extension is loaded correctly in the \verb+mailbox.log+ (see in \autoref{sect:mailboxlog}
+        how to read the \verb+mailbox.log+).
+
+        The loading of the Zimbra Extension is granted by the following lines at the mailbbox startup:
+        \begin{verbatim}
+xxxx-xx-xx xx:xx:xx,xxx INFO  [main] [] mailbox - OpenChat starting ...
+xxxx-xx-xx xx:xx:xx,xxx INFO  [main] [] extensions - OpenChat started
+        \end{verbatim}
+        Otherwise an exception, escalate the issue sending the exception to the support team.
+
+    \subsubsection{Another Zimlet is using the sidebar and a user can not see the OpenChat's buddy list, what can I do?}
+        OpenChat Zimlet uses a container which can be used by other Zimlets. To void collisions the OpenChat Zimlet try
+        to detect if that container is used or not.
+
+        OpenChat Zimlet use an internal `black list' to detect the incompatible zimlets and disable the sidebar mode, switching
+        to the docked mode.
+
+        The detection may fails if the Zimlet which are using the sidebar container is not indexed into the internal
+        blacklist.
+
+        Please escalate the issue to the support team sending us the package name of the zimlet.
+
+        If a user is stuck in the sidebar mode and anoter Zimlet has took the control of the siedebar You can reset the
+        Zimlet user setting to use the docked mode with these commands:
+        \begin{verbatim}
+# As zimbra
+# Reset the involved zimlet user preference:
+zmprov modifyAccount user@example.com \
+    -zimbraZimletUserProperties "com_zextras_chat_open:zxchat_pref_dockmode:FALSE"
+zmprov modifyAccount user@example.com \
+    -zimbraZimletUserProperties "com_zextras_chat_open:zxchat_pref_dockmode:TRUE"
+# Set the zimlet user preference to dock mode:
+zmprov modifyAccount user@example.com \
+    +zimbraZimletUserProperties "com_zextras_chat_open:zxchat_pref_dockmode:TRUE"
+        \end{verbatim}
+
+        Then reload the Zimbra Web Client to apply the sttings modifications.
+
+        If the problem persists, escalate the issue.
+
+    \subsection[Extension Issues]{OpenChat Extension Issues}
+
+    \subsubsection{Server to server messages are not delivered between two server, what can I do?}
+        This issue can be caused by connections issues between two mailboxes. Verify if the port \verb+5269+ is opened on
+        each server and the servers can connect to each other.
+
+        In order to verify if the port is opened on the server, a simple check can be done trying to connecto to the \verb+5269+
+        port using a telnet client.
+
+        If everything seems to work properly, open the \verb+mailbox.log+ (see in \autoref{sect:mailboxlog} how to read
+        the \verb+mailbox.log+) on both server and try to send an event (eg. a text message should be enough). If an
+        exception appear take a look at that to give an hint on the error. If no meaningful exception, escalate the issue
+        sending the exception to the support team.
+
+    \subsection[Escalate an issue]{How to escalate an issue}
+    \label{sect:how_to_escalate_an_issue}
+        In case You have found an issue and You are not able to fix it, contact the support team with these informations:
+        \begin{itemize}
+            \item A detailed description of the issue: What you are expecting and what is really happening.
+            \item A detailed description of the steps to reproduce the issue.
+            \item A detailed description of the installation and the environment: (see \autoref{sect:gatheringinfo})
+            \begin{itemize}
+                \item Server information: Cpu, Ram, Number of the servers and for each server:
+                \begin{itemize}
+                    \item Zimbra Version (see \autoref{sect:gatheringinfo-zversion})
+                    \item OpenChat Version
+                    \item List of the installed zimlets (see \autoref{sect:gatheringinfo-listzimlets})
+                \end{itemize}
+                \item Client information:
+                \begin{itemize}
+                    \item Browser name and version
+                    \item Connectivity used between the servers and the client
+                    \item Client Skin (theme)
+                    \item Client Language
+                    \item List of the Zimlets enabled on the user (see \autoref{sect:gatheringinfo-userzimlets})
+                \end{itemize}
+            \end{itemize}
+            \item Any log envolved by the issue:
+            \begin{itemize}
+                \item \verb+mailbox.log+ (see \autoref{sect:mailboxlog})
+            \end{itemize}
+            You can remove any personal information to protect Your and Your Users privacy.
+        \end{itemize}

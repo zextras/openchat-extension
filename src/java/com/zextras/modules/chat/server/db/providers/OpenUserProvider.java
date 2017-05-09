@@ -74,9 +74,16 @@ public class OpenUserProvider implements UserProvider
     mUserInfoIteratorMapper = userInfoIteratorMapper;
     mDirectRelationshipProvider = directRelationshipProvider;
   }
-  
+
   @Override
   public InternalUser getUser(SpecificAddress address)
+          throws ChatDbException
+  {
+    return getUser(address,false);
+  }
+
+  @Override
+  public InternalUser getUser(SpecificAddress address,boolean skipLocalHostCheck)
     throws ChatDbException
   {
     InternalUser userInstance = getUserFromCache(address);
@@ -87,7 +94,8 @@ public class OpenUserProvider implements UserProvider
     Account account;
     try {
       account = mProvisioning.getAccountByName(address.toString());
-      if( account == null || !mProvisioning.onLocalServer(account) ) {
+      if( account == null || (!skipLocalHostCheck && !mProvisioning.onLocalServer(account)) )
+      {
         throw new RuntimeException("Invalid request for account " + address.toString());
       }
     } catch (ZimbraException e) {

@@ -1,17 +1,16 @@
-\chapter{Uninstallation}
+\section{Manual Uninstallation}
 
 \begin{warning}
+    Manual installation is not supported.
     Please consider to disable the Zimbra OpenChat (see \autoref{sect:confkeys}) instead of uninstalling it.
 
-    Any modification to the package/database may lead to a fail during the Zimbra Upgrade.
-
-    Support for any Zimbra version prior to 8.8.0 is not provided.
+    Any modification to the installed zimbra packages or to the database may lead to a fail during the Zimbra upgrade.
 \end{warning}
 
 This chapter will guide the administrator through the manual uninstallation of the OpenChat and
 the cleanup the system.
 
-\section{Remove the packages}
+\subsection{Remove the packages}
     \begin{verbatim}
 # As zimbra
 zmzimletctl undeploy com_zextras_chat_open
@@ -25,7 +24,7 @@ rm -rf /opt/zimbra/lib/ext/openchat/
 zmmailboxdctl restart
     \end{verbatim}
 
-\section{Cleanup the Database}
+\subsection{Cleanup the Database}
     To completely clean the Zimbra database, drop the Zimbra OpenChat table:
     \begin{verbatim}
 # As zimbra

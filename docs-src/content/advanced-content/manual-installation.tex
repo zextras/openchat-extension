@@ -1,11 +1,11 @@
-\chapter{Installation}
+\section{Manual Installation}
 
 \begin{warning}
-    The OpenChat Zimlet and Extension are already installed in the default Zimbra installation starting from Zimbra 8.8.0.
+    Manual installation is not supported.
 
-    Any modification to the package/database may lead to a fail during the Zimbra Upgrade.
+    The OpenChat Zimlet and Extension are installed during the the Zimbra installation.
 
-    Support for any Zimbra version prior to 8.8.0 is not provided.
+    Any modification to the installed zimbra packages or to the database may lead to a fail during the Zimbra upgrade.
 \end{warning}
 
 This chapter will guide the administrator through the manual installation of Zimbra OpenChat.
@@ -13,7 +13,7 @@ This chapter will guide the administrator through the manual installation of Zim
 Zimbra OpenChat is designed specifically for Zimbra 8.8.0+, otherwise should be considered at `beta'
 stage and you should not install it in a production environment.
 
-\section{Requirements}
+\subsection{Requirements}
     \begin{itemize}
         \item Zimbra 8.8.0+
         \item 25MB of free space on disk
@@ -21,11 +21,11 @@ stage and you should not install it in a production environment.
         \item A modern browser (like Firefox 35+ or Google Chrome 45+)
     \end{itemize}
 
-\section{Preliminary setup}
+\subsection{Preliminary setup}
 
     Get and build the sources as described in the \autoref{sect:buildfromsrcs}.
 
-\subsection{Networking}
+\subsubsection{Networking}
 
     Make sure these ports are opened and exposed for a fully functional OpenChat server:
     \begin{description}
@@ -36,7 +36,7 @@ stage and you should not install it in a production environment.
 
     If the mailbox is into a multi-server installation, make sure the servers can see and connect to each other.
 
-\subsection{Database}
+\subsubsection{Database}
 
     Zimbra OpenChat Extension uses the Zimbra database to store some informations like:
     \begin{itemize}
@@ -78,7 +78,7 @@ mysql <<\EOF
 EOF
     \end{verbatim}
 
-\section{Installation of the packages}
+\subsection{Installation of the packages}
 \label{sect:installpkgs}
 
     To install the Extension packages copy them into the Zimbra class path. The Zimlet package need to be installed like

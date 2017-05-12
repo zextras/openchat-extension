@@ -13,6 +13,14 @@ to collect useful system information required to correctly escalate an issue to 
 zmcontrol -v
         \end{verbatim}
 
+    \subsection{Extension and Zimlet version}
+    \label{sect:gatheringinfo-extension}
+        To see the version of the Extension and the Zimlet
+        \begin{verbatim}
+# As zimbra
+java -cp /opt/zimbra/lib/ext/openchat/openchat.jar com.zextras.lib.OpenChat
+        \end{verbatim}
+
     \subsection{List of the deployed zimlets}
     \label{sect:gatheringinfo-listzimlets}
         To see the list of the deployed zimlets type this command:

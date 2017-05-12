@@ -21,7 +21,9 @@
 package com.zextras.modules.chat.server.soap.encoders;
 
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.modules.chat.server.ChatVersion;
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.encoding.EncoderFactory;
 import com.zextras.modules.chat.server.events.*;
@@ -31,6 +33,14 @@ import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
 @Singleton
 public class SoapEncoderFactoryImpl implements SoapEncoderFactory
 {
+  private final ChatVersion mChatVersion;
+
+  @Inject
+  public SoapEncoderFactoryImpl(ChatVersion chatVersion)
+  {
+    mChatVersion = chatVersion;
+  }
+
   //common events
   @Override
   public Encoder interpret(EventIsWriting eventIsWriting)
@@ -222,7 +232,7 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
   @Override
   public Encoder interpret(EventSoapSessionRegistred eventSoapSessionRegistred)
   {
-    return new EventSoapSessionRegistredEncoder(eventSoapSessionRegistred);
+    return new EventSoapSessionRegistredEncoder(eventSoapSessionRegistred, mChatVersion);
   }
 
   @Override

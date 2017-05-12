@@ -31,10 +31,15 @@ import org.openzal.zal.lib.Version;
 public class EventSoapSessionRegistredEncoder implements SoapEncoder
 {
   private final EventSoapSessionRegistred mEventRegister;
+  private final ChatVersion mChatVersion;
 
-  public EventSoapSessionRegistredEncoder(EventSoapSessionRegistred eventRegister)
+  public EventSoapSessionRegistredEncoder(
+    EventSoapSessionRegistred eventRegister,
+    ChatVersion chatVersion
+  )
   {
     mEventRegister = eventRegister;
+    mChatVersion = chatVersion;
   }
 
   public void encode(ChatSoapResponse response, SpecificAddress target)
@@ -42,8 +47,8 @@ public class EventSoapSessionRegistredEncoder implements SoapEncoder
     final JSONObject registerResponse = new JSONObject();
 
     registerResponse.put("session_id", mEventRegister.getSessionId().toString());
-    registerResponse.put("server_version", ChatVersion.CHAT_VERSION.toString());
-    registerResponse.put("required_zimlet_version", ChatVersion.REQUIRED_ZIMLET.toString());
+    registerResponse.put("server_version", mChatVersion.getServerChatVersion().toString());
+    registerResponse.put("required_zimlet_version", mChatVersion.getRequiredZimletVersion().toString());
     registerResponse.put("history_enabled",  mEventRegister.isHistoryEnabled());
     /*registerResponse.put("remove_brand", mEventRegister.removeBrand());
     registerResponse.put("videochat_enabled", mEventRegister.isVideoChatEnabled());*/

@@ -27,6 +27,9 @@ public interface UserProvider
   int INVALID_USER_ID = -1;
 
   User getUser(SpecificAddress address)
+          throws ChatDbException;
+
+  User getUser(SpecificAddress address,boolean skipLocalHostCheck)
     throws ChatDbException;
 
   void visitAllUsers(UserVisitor visitor) throws ChatDbException;

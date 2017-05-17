@@ -20,9 +20,11 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
@@ -46,11 +48,6 @@ public class MessageParser extends XmppParser
     return mTo;
   }
 
-  public String getType()
-  {
-    return mType;
-  }
-
   public String getId()
   {
     return mId;
@@ -61,10 +58,10 @@ public class MessageParser extends XmppParser
     return mBody;
   }
 
-  private String mTo   = "";
-  private String mType = "";
-  private String mId   = "";
-  private String mBody = "";
+  private String           mTo           = "";
+  private String           mType         = "";
+  private String           mId           = "";
+  private String           mBody         = "";
 
   public MessageParser(InputStream xmlInput, SchemaProvider schemaProvider)
   {

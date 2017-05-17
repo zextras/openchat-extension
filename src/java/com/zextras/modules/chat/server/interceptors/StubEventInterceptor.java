@@ -25,6 +25,8 @@ import com.zextras.modules.chat.server.events.EventManager;
 
 public class StubEventInterceptor implements EventInterceptor
 {
+  public static final EventInterceptor sInstance = new StubEventInterceptor();
+
   @Override
   public void intercept(EventManager eventManager, SpecificAddress target)
   {

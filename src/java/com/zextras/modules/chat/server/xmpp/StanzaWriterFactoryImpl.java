@@ -37,7 +37,7 @@ public class StanzaWriterFactoryImpl implements StanzaWriterFactory
 
   @Inject
   public StanzaWriterFactoryImpl(
-    XmppEncoderFactoryImpl encoderFactory,
+    XmppEncoderFactory encoderFactory,
     EventManager eventManager
   )
   {
@@ -48,7 +48,7 @@ public class StanzaWriterFactoryImpl implements StanzaWriterFactory
   @Override
   public StanzaWriter create(StanzaProcessor.XmppConnectionHandler connectionHandler)
   {
-    XmppEventInterceptorFactory xmppEventInterceptorFactory = new XmppEventInterceptorFactory(connectionHandler);
+    XmppEventInterceptorFactory xmppEventInterceptorFactory = new XmppEventInterceptorFactoryImpl(connectionHandler);
     return new StanzaWriterImp(mEncoderFactory, connectionHandler, mEventManager, xmppEventInterceptorFactory);
   }
 }

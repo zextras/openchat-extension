@@ -36,6 +36,7 @@ import com.zextras.modules.chat.server.soap.SoapSession;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactoryImpl;
+import org.openzal.zal.Provisioning;
 import org.openzal.zal.lib.Version;
 import org.openzal.zal.soap.SoapResponse;
 
@@ -47,12 +48,14 @@ public class RegisterSoapSession implements ChatOperation
   private       SoapSessionFactory mSoapSessionFactory;
   private final String             mClientVersion;
   private final boolean            mSilentErrorReportingEnabled;
-  private final SessionUUID        mNewSessionId;
+  private final Provisioning       mProvisioning;
+  private final SessionUUID mNewSessionId;
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
   private final SpecificAddress    mSenderAddress;
 
   public RegisterSoapSession(
+    Provisioning provisioning,
     SessionUUID newSessionId,
     SoapResponse soapResponse,
     SoapEncoderFactory soapEncoderFactory,
@@ -62,6 +65,7 @@ public class RegisterSoapSession implements ChatOperation
     boolean silentErrorReportingEnabled
   )
   {
+    mProvisioning = provisioning;
     mNewSessionId = newSessionId;
     mSoapResponse = soapResponse;
     mSoapEncoderFactory = soapEncoderFactory;
@@ -106,7 +110,8 @@ public class RegisterSoapSession implements ChatOperation
       newSession.getId(),
       version,
       mSilentErrorReportingEnabled,
-      true
+      true,
+      new SpecificAddress(mProvisioning.getLocalServer().getName())
     );
 
     ChatSoapResponse response = new ChatSoapResponse();

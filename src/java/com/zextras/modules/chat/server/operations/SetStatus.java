@@ -125,6 +125,7 @@ public class SetStatus implements ChatOperation
     validateStatus(status);
 
     ChatLog.log.info(session.getMainAddress() + " changed status to " + status.getType());
+    session.setLastStatus(status);
 
     session.setLastStatus(status);
     return createEvents(

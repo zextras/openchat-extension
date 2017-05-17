@@ -20,13 +20,9 @@
 
 package com.zextras.modules.chat.server.events;
 
-//import com.zextras.annotations.VisibleForTesting;
 import org.openzal.zal.lib.Clock;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 
 public class EventMessage extends Event
 {
@@ -45,7 +41,6 @@ public class EventMessage extends Event
     mMessage = message;
   }
 
-  //@VisibleForTesting
   public EventMessage(
     EventId eventId,
     SpecificAddress sender,

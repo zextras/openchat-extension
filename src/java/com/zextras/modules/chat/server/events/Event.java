@@ -25,9 +25,6 @@ import org.openzal.zal.lib.Clock;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 
 public abstract class Event
 {
@@ -82,6 +79,8 @@ public abstract class Event
     return mSender;
   }
 
+  public abstract <T> T interpret(EventInterpreter<T> interpreter);
+
   @Override
   public boolean equals(Object object)
   {
@@ -91,8 +90,6 @@ public abstract class Event
     Event event = (Event) object;
     return mId.equals(event.mId);
   }
-
-  public abstract <T> T interpret(EventInterpreter<T> interpreter);
 
   @Override
   public int hashCode()

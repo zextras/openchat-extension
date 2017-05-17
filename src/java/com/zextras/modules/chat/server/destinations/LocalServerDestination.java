@@ -67,9 +67,20 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
     // ChatLog.log.debug("LocalServerDestination: deliverEvent: "+event.getClass().getName()+" to "+address.resourceAddress());
     try
     {
-      Account account = mProvisioning.getAccountByName(address.toString());
       DestinationQueue destinationQueue;
-      String host = account.getMailHost();
+      String host = null;
+      try
+      {
+        Account account = mProvisioning.getAccountByName(address.toString());
+        host = account.getMailHost();
+      }
+      catch (Exception ignore) {}
+
+      if (host == null)
+      {
+        host = address.getDomain();
+      }
+
       if (mDestinationQueues.containsKey(host))
       {
         destinationQueue = mDestinationQueues.get(host);
@@ -96,13 +107,17 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
     try
     {
       Account account = mProvisioning.getAccountByName(address.toString());
-      return account != null && !mProvisioning.onLocalServer(account);
+      if (account != null)
+      {
+        return !mProvisioning.onLocalServer(account);
+      }
     }
     catch (Exception ex)
     {
       ChatLog.log.warn("Exception: "+ Utils.exceptionToString(ex));
-      return false;
     }
+
+    return !address.getDomain().equals(mProvisioning.getLocalServer().getName());
   }
 
   @Override

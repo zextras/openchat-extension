@@ -44,6 +44,11 @@ public class Target
     mAddresses = Arrays.asList(addresses);
   }
 
+  public Target(Collection<ChatAddress> addresses)
+  {
+    mAddresses = addresses;
+  }
+
   public Set<SpecificAddress> explode(UserProvider openUserProvider)
     throws ChatDbException
   {

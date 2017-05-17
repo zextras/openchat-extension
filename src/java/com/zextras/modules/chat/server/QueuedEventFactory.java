@@ -21,18 +21,18 @@
 package com.zextras.modules.chat.server;
 
 import com.google.inject.Inject;
+import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoderFactory;
 import org.openzal.zal.lib.Clock;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
-import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoderFactoryImpl;
 
 public class QueuedEventFactory
 {
-  private final Clock                  mClock;
-  private final XmppEncoderFactoryImpl mEncoderFactory;
+  private final Clock              mClock;
+  private final XmppEncoderFactory mEncoderFactory;
 
   @Inject
-  public QueuedEventFactory(Clock clock, XmppEncoderFactoryImpl encoderFactory)
+  public QueuedEventFactory(Clock clock, XmppEncoderFactory encoderFactory)
   {
     mClock = clock;
     mEncoderFactory = encoderFactory;

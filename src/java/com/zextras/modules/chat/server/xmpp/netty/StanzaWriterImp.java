@@ -29,6 +29,7 @@ import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
+import com.zextras.modules.chat.server.xmpp.XmppEventInterceptorFactory;
 import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoder;
 import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoderFactory;
 import org.openzal.zal.Utils;
@@ -44,13 +45,13 @@ public class StanzaWriterImp implements StanzaWriter
   private final XmppEncoderFactory                    mEncoderFactory;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
   private final EventManager                          mEventManager;
-  private final EventInterceptorFactory               mXmppEventInterceptorFactory;
+  private final XmppEventInterceptorFactory               mXmppEventInterceptorFactory;
 
   public StanzaWriterImp(
     XmppEncoderFactory encoderFactory,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
     EventManager eventManager,
-    EventInterceptorFactory xmppEventInterceptorFactory
+    XmppEventInterceptorFactory xmppEventInterceptorFactory
   )
   {
     mEncoderFactory = encoderFactory;

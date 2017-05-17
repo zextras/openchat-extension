@@ -59,10 +59,13 @@ public class PresenceParser extends XmppParser
     return mPriority;
   }
 
-  private String mShow     = "chat";
-  private String mFrom     = "";
-  private String mStatus   = "";
-  private int    mPriority = 0;
+  private String  mShow          = "chat";
+  private String  mFrom          = "";
+  private String  mStatus        = "";
+  private boolean mMultiUserChat = false;
+  private int     mPriority      = 0;
+
+  public final static String sProtocolMuc = "http://jabber.org/protocol/muc";
 
   public PresenceParser(InputStream xmlInput, SchemaProvider schemaProvider)
   {
@@ -91,8 +94,8 @@ public class PresenceParser extends XmppParser
       {
         case XMLStreamReader.START_ELEMENT:
         {
-          mFrom = emptyStringWhenNull(sr.getAttributeValue(null,"from")).toLowerCase();
-          mTo = emptyStringWhenNull(sr.getAttributeValue(null,"to")).toLowerCase();
+          mFrom = emptyStringWhenNull(sr.getAttributeValue(null,"from"));
+          mTo = emptyStringWhenNull(sr.getAttributeValue(null,"to"));
           mType = emptyStringWhenNull(sr.getAttributeValue(null,"type")).toLowerCase();
           parsePresenceTag(sr);
           break;
@@ -111,6 +114,11 @@ public class PresenceParser extends XmppParser
         case XMLStreamReader.START_ELEMENT:
         {
           last = sr.getLocalName();
+          if( last.equals("x") )
+          {
+            String xmlns = sr.getNamespaceURI();
+            mMultiUserChat = mMultiUserChat || xmlns.startsWith(sProtocolMuc);
+          }
           break;
         }
 
@@ -142,5 +150,10 @@ public class PresenceParser extends XmppParser
   public String getFrom()
   {
     return mFrom;
+  }
+
+  public boolean isMucPresence()
+  {
+    return mMultiUserChat;
   }
 }

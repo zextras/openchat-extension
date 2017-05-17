@@ -20,6 +20,7 @@
 
 package com.zextras.modules.chat.server.xmpp.encoders;
 
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventStatusChanged;
@@ -61,7 +62,7 @@ busy: dnd
 */
     sw.writeStartElement("", "presence", "jabber:client");
     // sw.writeAttribute("id", mEvent.getId().toString());
-    sw.writeAttribute("to", target.withoutSession().toString());
+    sw.writeAttribute("to", target.resourceAddress());
 
     Status status = mEvent.getStatus();
     if(   status.getType().equals(Status.StatusType.INVISIBLE)

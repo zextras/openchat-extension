@@ -54,10 +54,10 @@ public class XmppIQAuthentication implements ChatOperation
 {
   private final Provisioning                          mProvisioning;
   private final CommonSessionEventInterceptorBuilder  mCommonSessionEventInterceptorBuilder;
-  private final IQAuthXmppParser mParser;
+  private final IQAuthXmppParser                      mParser;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
-  private final XmppFilterOut mXmppFilterOut;
-  private final XmppEventFilter mXmppEventFilter;
+  private final XmppFilterOut                         mXmppFilterOut;
+  private final XmppEventFilter                       mXmppEventFilter;
   private final XmppAuthentication                    mPlainAuthentication;
 
   public XmppIQAuthentication(

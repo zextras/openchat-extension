@@ -20,27 +20,26 @@
 
 package com.zextras.modules.chat.server.events;
 
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
 import org.openzal.zal.lib.Version;
 
 public class EventSoapSessionRegistred extends Event
 {
-  private final SessionUUID   mSessionId;
-  private final Version       mClientVersion;
-  private final boolean       mSilentErrorReportingEnabled;
-  private final boolean mIsHistoryEnabled;
+  private final SessionUUID     mSessionId;
+  private final Version         mClientVersion;
+  private final boolean         mSilentErrorReportingEnabled;
+  private final boolean         mIsHistoryEnabled;
+  private final SpecificAddress mRoomServiceAddress;
 
   public EventSoapSessionRegistred(
     SpecificAddress senderAddress,
     SessionUUID sessionId,
     Version clientVersion,
     boolean silentErrorReportingEnabled,
-    boolean isHistoryEnabled
+    boolean isHistoryEnabled,
+    SpecificAddress roomServiceAddress
   )
   {
     super(senderAddress, new Target());
@@ -48,11 +47,17 @@ public class EventSoapSessionRegistred extends Event
     mClientVersion = clientVersion;
     mSilentErrorReportingEnabled = silentErrorReportingEnabled;
     mIsHistoryEnabled = isHistoryEnabled;
+    mRoomServiceAddress = roomServiceAddress;
   }
 
   public SessionUUID getSessionId()
   {
     return mSessionId;
+  }
+
+  public SpecificAddress getRoomServiceAddress()
+  {
+    return mRoomServiceAddress;
   }
 
   public Version getClientVersion()

@@ -25,25 +25,4 @@ import com.zextras.modules.chat.server.interceptors.StubEventInterceptor;
 
 public interface EventInterceptorFactory extends EventInterpreter<EventInterceptor>
 {
-  EventInterceptor interpret(EventBindResult eventBindResult);
-  EventInterceptor interpret(EventFriendAccepted eventFriendAccepted);
-  EventInterceptor interpret(EventFriendAddedForClient eventFriendAddedForClient);
-  EventInterceptor interpret(EventFriendAdded eventFriendAdded);
-  EventInterceptor interpret(EventFriendRenamed eventFriendRenamed);
-  EventInterceptor interpret(EventIsWriting eventIsWriting);
-  EventInterceptor interpret(EventMessage eventMessage);
-  EventInterceptor interpret(EventMessageBack eventMessage);
-  EventInterceptor interpret(EventGetRelationships eventGetRelationships);
-  EventInterceptor interpret(EventSoapSessionRegistred eventSoapSessionRegistred);
-  EventInterceptor interpret(EventStatusChanged eventStatusChanged);
-  EventInterceptor interpret(EventStatuses eventStatuses);
-  EventInterceptor interpret(EventMessageAck eventMessageAck);
-  EventInterceptor interpret(EventStatusProbe eventStatusProbe);
-  EventInterceptor interpret(EventGetPrivacy eventGetPrivacy);
-  EventInterceptor interpret(EventFriendBackAdded eventFriendBackAdded);
-  EventInterceptor interpret(EventFriendBackAccepted eventFriendBackAccepted);
-  EventInterceptor interpret(EventFriendBackRemove eventFriendBackRemove);
-  EventInterceptor interpret(EventNewClientVersion eventNewClientVersion);
-  EventInterceptor interpret(EventMessageSizeExceeded eventMessageSizeExceeded);
-  EventInterceptor interpret(FriendNotFoundEvent friendNotFoundEvent);
 }

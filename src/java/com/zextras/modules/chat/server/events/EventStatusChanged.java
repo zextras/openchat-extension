@@ -26,6 +26,7 @@ import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.encoding.EncoderFactory;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.status.Status;
+import org.openzal.zal.lib.Clock;
 
 public class EventStatusChanged extends Event
 {
@@ -40,11 +41,18 @@ public class EventStatusChanged extends Event
   }
 
   private final SpecificAddress mSender;
-  private final Status mStatus;
+  private final Status          mStatus;
 
   public EventStatusChanged(SpecificAddress sender, Target target, Status status)
   {
     super(sender, target);
+    mSender = sender;
+    mStatus = status;
+  }
+
+  public EventStatusChanged(EventId eventId, SpecificAddress sender, Target target, Status status, Clock clock)
+  {
+    super(eventId, sender, target, clock);
     mSender = sender;
     mStatus = status;
   }

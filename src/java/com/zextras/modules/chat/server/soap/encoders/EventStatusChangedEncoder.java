@@ -21,6 +21,7 @@
 package com.zextras.modules.chat.server.soap.encoders;
 
 import com.zextras.lib.json.JSONObject;
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.modules.chat.server.address.SpecificAddress;

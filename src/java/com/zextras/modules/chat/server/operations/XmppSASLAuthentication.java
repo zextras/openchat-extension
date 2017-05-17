@@ -54,12 +54,12 @@ import java.util.List;
 public class XmppSASLAuthentication implements ChatOperation
 {
   private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
-  private final Provisioning mProvisioning;
+  private final Provisioning                          mProvisioning;
   private final SASLAuthParser                        mParser;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
   private final UserProvider                          mOpenUserProvider;
-  private final XmppEventFilter mXmppEventFilter;
-  private final XmppFilterOut mXmppFilterOut;
+  private final XmppEventFilter                       mXmppEventFilter;
+  private final XmppFilterOut                         mXmppFilterOut;
   private final XmppAuthentication                    mPlainAuthentication;
   private String mUsername   = "";
   private String mPassword   = "";

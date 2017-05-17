@@ -26,6 +26,7 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
 import com.zextras.modules.chat.server.dispatch.SpecificDispatcher;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 
@@ -126,5 +127,24 @@ public class SpecificAddress implements ChatAddress
   public SpecificAddress withoutSession()
   {
     return this;
+  }
+
+  public SpecificAddress withoutResource()
+  {
+    return new SpecificAddress(mAddress, "");
+  }
+
+  @NotNull
+  public String getDomain()
+  {
+    int idx = mAddress.indexOf('@');
+    if( idx > 0 )
+    {
+      return mAddress.substring(idx+1);
+    }
+    else
+    {
+      return "";
+    }
   }
 }

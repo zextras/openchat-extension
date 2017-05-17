@@ -103,6 +103,7 @@ public class SoapCommandRegister extends SoapCommand
     final SessionUUID newSessionUUID = SessionUUID.randomUUID();
 
     ChatOperation registerSoapSession = new RegisterSoapSession(
+      mProvisioning,
       newSessionUUID,
       mSoapResponse,
       mSoapEncoderFactory,

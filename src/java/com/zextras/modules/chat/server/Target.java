@@ -132,6 +132,16 @@ public class Target
     return mAddresses.iterator().next().toString();
   }
 
+  public String toSingleAddressIncludeResource()
+  {
+    if( mAddresses.size() != 1 )
+    {
+      throw new RuntimeException();
+    }
+
+    return mAddresses.iterator().next().resourceAddress();
+  }
+
   public Collection<ChatAddress> getAddresses()
   {
     return mAddresses;

@@ -28,6 +28,8 @@ import org.codehaus.stax2.validation.XMLValidationSchema;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public abstract class XmppParser
 {
@@ -73,11 +75,25 @@ public abstract class XmppParser
 
   protected String emptyStringWhenNull(String value)
   {
-    if (value == null) {
+    if (value == null)
+    {
       return "";
-    } else {
+    }
+    else
+    {
       return value;
     }
+  }
+
+  protected <T> Collection<T> addString(Collection<T> collection, T newString)
+  {
+    if (collection.isEmpty())
+    {
+      collection = new ArrayList<T>();
+    }
+
+    collection.add(newString);
+    return collection;
   }
 
   public abstract void parse() throws XMLStreamException;

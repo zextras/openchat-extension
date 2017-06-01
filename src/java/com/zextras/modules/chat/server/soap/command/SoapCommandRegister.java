@@ -82,6 +82,7 @@ public class SoapCommandRegister extends SoapCommand
   )
   {
     return new RegisterSoapSession(
+      mProvisioning,
       newSessionUUID,
       mSoapResponse,
       mSoapEncoderFactory,

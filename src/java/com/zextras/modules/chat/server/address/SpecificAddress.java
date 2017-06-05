@@ -32,8 +32,8 @@ import java.util.HashSet;
 
 public class SpecificAddress implements ChatAddress
 {
-  private final String mAddress;
-  private final String mResource;
+  protected final String mAddress;
+  protected final String mResource;
 
   public SpecificAddress(String address)
   {
@@ -64,14 +64,15 @@ public class SpecificAddress implements ChatAddress
 
   public boolean equals(Object object)
   {
-    if(!(object instanceof SpecificAddress))
-    {
-      return false;
-    }
-
-    SpecificAddress specific = (SpecificAddress) object;
-
-    return mAddress.equals(specific.mAddress);
+//    if(!(object instanceof SpecificAddress))
+//    {
+//      return false;
+//    }
+//
+//    SpecificAddress specific = (SpecificAddress) object;
+//
+//    return mAddress.equals(specific.mAddress);
+    return fullyEquals(object);
   }
 
   public boolean fullyEquals(Object object)
@@ -116,7 +117,8 @@ public class SpecificAddress implements ChatAddress
   @Override
   public int hashCode()
   {
-    return mAddress.hashCode();
+    ///return mAddress.hashCode();
+    return resourceAddress().hashCode();
   }
 
   public String resource()

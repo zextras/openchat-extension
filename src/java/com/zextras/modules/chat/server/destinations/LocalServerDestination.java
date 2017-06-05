@@ -64,7 +64,8 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
   @Override
   public void deliverEvent(Event event, SpecificAddress address)
   {
-    // ChatLog.log.debug("LocalServerDestination: deliverEvent: "+event.getClass().getName()+" to "+address.resourceAddress());
+    ChatLog.log.debug("LocalServerDestination: deliverEvent: "+event.getClass().getName()+" to "+address.resourceAddress());
+
     try
     {
       DestinationQueue destinationQueue;
@@ -103,7 +104,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
   @Override
   public boolean canHandle(SpecificAddress address)
   {
-    //ChatLog.log.debug("LocalServerDestination: canHandle: "+address.resourceAddress());
+    ChatLog.log.debug("LocalServerDestination: canHandle: "+address.resourceAddress());
     try
     {
       Account account = mProvisioning.getAccountByName(address.toString());

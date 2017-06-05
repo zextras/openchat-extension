@@ -49,7 +49,7 @@ public class DirectRelationshipProvider
     for (Relationship relationship : mRelationships)
     {
       if (relationship.getBuddyAddress()
-                      .equals(buddyAddress))
+                      .equals(buddyAddress.withoutResource()))
       {
         return relationship;
       }

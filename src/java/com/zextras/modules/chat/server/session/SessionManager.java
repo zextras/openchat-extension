@@ -64,7 +64,7 @@ public class SessionManager implements EventDestinationProvider, Service
     mLock.lock();
     try
     {
-      final ChatAddress sessionAddress = session.getMainAddress();
+      final ChatAddress sessionAddress = session.getMainAddress().withoutResource(); /// todo ??
 
       final List<Session> sessionList;
 
@@ -77,6 +77,7 @@ public class SessionManager implements EventDestinationProvider, Service
         sessionList = new ArrayList<Session>();
       }
 
+      // TODO:  it should check if resource is just logged, if so return error or better terminate old session unfortunately with proxy auth no resource is sent
       if (!sessionList.contains(session))
       {
         sessionList.add(session);
@@ -95,8 +96,29 @@ public class SessionManager implements EventDestinationProvider, Service
     mLock.lock();
     try
     {
-      if(mUserSessionMap.containsKey(address)) {
-        return new ArrayList<Session>(mUserSessionMap.get(address));
+      if(mUserSessionMap.containsKey(address.withoutResource())) // todo ???
+      {
+        List<Session> sessions = mUserSessionMap.get(address.withoutResource());
+        List<Session> rightSessions = new ArrayList<Session>();
+        if (!address.resource().isEmpty())
+        {
+          for (Session session:sessions)
+          {
+            if (session.getExposedAddress().resource().equalsIgnoreCase(address.resource()))
+            {
+              rightSessions.add(session);
+            }
+          }
+        }
+
+        if (!rightSessions.isEmpty())
+        {
+          return rightSessions;
+        }
+        else
+        {
+          return new ArrayList<Session>(mUserSessionMap.get(address.withoutResource()));
+        }
       }
       return Collections.emptyList();
     }

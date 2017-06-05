@@ -102,8 +102,8 @@ public abstract class Event
     return "Event{" +
         "mId=" + mId +
         ", mTimestamp=" + mTimestamp +
-        ", mSender=" + mSender +
-        ", mTarget=" + mTarget +
+        ", mSender=" + mSender.resourceAddress() +
+        ", mTarget=" + mTarget.toString() +
         ", class=" + getClass().toString() +
         '}';
   }

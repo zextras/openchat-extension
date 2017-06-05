@@ -22,6 +22,7 @@ package com.zextras.modules.chat.server.events;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 
@@ -65,6 +66,7 @@ public class EventRouter implements Service
       {
         for( EventDestination destination : provider.getDestinations(address) )
         {
+          //ChatLog.log.info("Routing :  " + destination.getClass().getName() + " " + event.toString());
           destination.deliverEvent(event,address);
         }
       }

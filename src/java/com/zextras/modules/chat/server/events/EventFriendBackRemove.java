@@ -45,7 +45,7 @@ public class EventFriendBackRemove extends Event
   }
 
   public EventFriendBackRemove(EventId eventId, SpecificAddress sender, SpecificAddress friendToRemove) {
-    super(eventId, sender, new Target(sender));
+    super(eventId, sender, new Target(sender.withoutResource()));
     mFriendToRemove = friendToRemove;
   }
 

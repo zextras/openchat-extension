@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.session;
 
 import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.EventFloodControl;
 import com.zextras.modules.chat.server.events.EventFriendAccepted;
 import com.zextras.modules.chat.server.events.EventFriendAdded;
 import com.zextras.modules.chat.server.events.EventInterpreter;
@@ -65,7 +66,20 @@ public class CommonSessionEventInterceptorBuilderImpl implements CommonSessionEv
       {
         return buildInterceptor(eventFriendAccepted, settableBoolean, session);
       }
+
+      public EventInterceptor interpret(EventFloodControl event)
+      {
+        return buildInterceptor(event, settableBoolean);
+      }
     };
+  }
+
+  public EventInterceptor buildInterceptor(EventFloodControl event, AtomicBoolean settableBoolean)
+  {
+    return new FilterEventInterceptor(
+      settableBoolean,
+      true
+    );
   }
 
   public EventInterceptor buildInterceptor(EventFriendAdded eventFriendAdded, AtomicBoolean settableBoolean)

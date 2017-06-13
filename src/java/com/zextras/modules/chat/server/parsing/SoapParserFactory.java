@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.modules.chat.properties.LdapChatProperties;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import org.openzal.zal.Provisioning;
@@ -34,6 +35,7 @@ public class SoapParserFactory implements ParserFactory
   private final SoapSessionFactory mSoapSessionFactory;
   private final LdapChatProperties mChatProperties;
   private final ActivityManager    mActivityManager;
+  private final EventQueueFactory mEventQueueFactory;
 
   @Inject
   public SoapParserFactory(
@@ -41,7 +43,8 @@ public class SoapParserFactory implements ParserFactory
     SoapEncoderFactory soapEncoderFactory,
     SoapSessionFactory soapSessionFactory,
     LdapChatProperties chatProperties,
-    ActivityManager activityManager
+    ActivityManager activityManager,
+    EventQueueFactory eventQueueFactory
   )
   {
     mProvisioning = provisioning;
@@ -49,6 +52,7 @@ public class SoapParserFactory implements ParserFactory
     mSoapSessionFactory = soapSessionFactory;
     mChatProperties = chatProperties;
     mActivityManager = activityManager;
+    mEventQueueFactory = eventQueueFactory;
   }
 
   @Override
@@ -60,6 +64,7 @@ public class SoapParserFactory implements ParserFactory
       mSoapSessionFactory,
       mChatProperties,
       mActivityManager,
+      mEventQueueFactory,
       senderAddress,
       zimbraContext,
       soapResponse

@@ -15,10 +15,29 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server.interceptors;
+package com.zextras.modules.chat.server.events;
 
-import com.zextras.modules.chat.server.events.EventInterpreter;
+import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.NoneAddress;
 
-public interface UserEventInterceptorFactory extends EventInterpreter<EventInterceptor>
+public class EventFloodControl extends Event
 {
+  private final boolean mFloodDetected;
+
+  public EventFloodControl(Target target, boolean floodDetected)
+  {
+    super(new NoneAddress(), target);
+    mFloodDetected = floodDetected;
+  }
+
+  public boolean isFloodDetected()
+  {
+    return mFloodDetected;
+  }
+
+  @Override
+  public <T> T interpret(EventInterpreter<T> interpreter)
+  {
+    return interpreter.interpret(this);
+  }
 }

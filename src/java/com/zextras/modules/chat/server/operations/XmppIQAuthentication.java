@@ -133,6 +133,7 @@ public class XmppIQAuthentication implements ChatOperation
                 new XmppSession(
                   SessionUUID.randomUUID(),
                   mXmppConnectionHandler.getSession().getEventQueue(),
+                  mXmppConnectionHandler.getSocketChannel(),
                   user,
                   specificAddress,
                   mXmppEventFilter,

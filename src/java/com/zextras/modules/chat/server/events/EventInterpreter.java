@@ -82,4 +82,5 @@ public interface EventInterpreter<T>
 
   T interpret(EventXmppDiscovery event);
 
+  T interpret(EventFloodControl event);
 }

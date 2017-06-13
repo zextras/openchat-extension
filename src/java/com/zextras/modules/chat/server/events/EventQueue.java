@@ -20,28 +20,64 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.google.inject.Inject;
+import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.exceptions.EmptyQueueException;
 import com.zextras.modules.chat.server.listener.EventQueueListener;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class EventQueue
 {
+  private final static int START_FLOOD_WARNING_THRESHOLD = 256;
+
   private final ConcurrentLinkedQueue<Event> mEventQueue;
-  private final Lock mLock = new ReentrantLock();
-  private EventQueueListener mEventQueueListener;
+  private final Lock mListenerLock = new ReentrantLock();
+  private final Lock mFilterLock   = new ReentrantLock();
+  private final EventQueueFilterEvent mEventQueueFilterEvent;
+  private final EventManager mEventManager;
+  private final Set<ChatAddress>      mBlockedSenders;
+  private final int mStartFloodWarningThreshold;
+  private final int mStopFloodWarningThreshold;
+  private       EventQueueListener    mEventQueueListener;
   private int mTotalSynchronizedEventsAmount = 0;
 
-  public EventQueue()
+  public EventQueue(EventQueueFilterEvent eventQueueFilterEvent, EventManager eventManager, int threshold)
   {
+    mEventQueueFilterEvent = eventQueueFilterEvent;
+    mEventManager = eventManager;
     mEventQueue = new ConcurrentLinkedQueue<Event>();
     mEventQueueListener = null;
+    mBlockedSenders = new HashSet<ChatAddress>();
+    mStartFloodWarningThreshold = threshold;
+    mStopFloodWarningThreshold = threshold - (threshold/4);
+  }
+
+  @Inject
+  public EventQueue(EventQueueFilterEvent eventQueueFilterEvent, EventManager eventManager)
+  {
+    this(eventQueueFilterEvent, eventManager, START_FLOOD_WARNING_THRESHOLD);
+  }
+
+  public int getStartFloodWarningThreshold()
+  {
+    return mStartFloodWarningThreshold;
+  }
+
+  public int getStopFloodWarningThreshold()
+  {
+    return mStopFloodWarningThreshold;
   }
 
   public List<Event> popAllEvents(int howMany)
@@ -50,7 +86,7 @@ public class EventQueue
     final List<Event> eventList = new ArrayList<Event>(mEventQueue.size());
 
     final EventQueueListener eventQueueListener;
-    mLock.lock();
+    mListenerLock.lock();
     try
     {
       eventQueueListener = getEventQueueListener();
@@ -71,7 +107,7 @@ public class EventQueue
     }
     finally
     {
-      mLock.unlock();
+      mListenerLock.unlock();
     }
 
     if (eventQueueListener != null)
@@ -96,6 +132,26 @@ public class EventQueue
       return;
     }
 
+    if (event.interpret(mEventQueueFilterEvent))
+    {
+      mFilterLock.lock();
+      try
+      {
+        if (mEventQueue.size() >= mStartFloodWarningThreshold || !mBlockedSenders.isEmpty())
+        {
+          if (mBlockedSenders.add(event.getSender()))
+          {
+            notifyFloodControl(Collections.<ChatAddress>singletonList(event.getSender()), true);
+          }
+          return;
+        }
+      }
+      finally
+      {
+        mFilterLock.unlock();
+      }
+    }
+
     mEventQueue.add(event);
 
     final EventQueueListener eventQueueListener = getEventQueueListener();
@@ -107,13 +163,51 @@ public class EventQueue
 
   public @Nullable Event poll()
   {
-    return mEventQueue.poll();
+    Event event = mEventQueue.poll();
+
+    if (event != null && event.interpret(mEventQueueFilterEvent))
+    {
+      Collection<ChatAddress> senders = Collections.<ChatAddress>emptyList();
+      mFilterLock.lock();
+      try
+      {
+        if (!mBlockedSenders.isEmpty() && mEventQueue.size() < mStopFloodWarningThreshold)
+        {
+          senders = new ArrayList<ChatAddress>(mBlockedSenders);
+          mBlockedSenders.clear();
+        }
+      }
+      finally
+      {
+        mFilterLock.unlock();
+      }
+
+      notifyFloodControl(senders, false);
+    }
+
+    return event;
+  }
+
+  private void notifyFloodControl(Collection<ChatAddress> chatAddresses, boolean floodDetected)
+  {
+    if (chatAddresses.isEmpty())
+    {
+      return;
+    }
+
+    Target target = new Target(chatAddresses);
+    mEventManager.dispatchUnfilteredEvents(Collections.<Event>singletonList(
+      new EventFloodControl(
+        target,
+        floodDetected
+      )
+    ));
   }
 
   public Event popEvent()
     throws EmptyQueueException
   {
-    Event event = mEventQueue.poll();
+    Event event = poll();
 
     if(event == null) {
       throw new EmptyQueueException("");
@@ -129,14 +223,14 @@ public class EventQueue
 
   private EventQueueListener getEventQueueListener()
   {
-    mLock.lock();
+    mListenerLock.lock();
     try
     {
       return mEventQueueListener;
     }
     finally
     {
-      mLock.unlock();
+      mListenerLock.unlock();
     }
   }
 
@@ -160,7 +254,7 @@ public class EventQueue
 
   public void addListener(EventQueueListener eventListener)
   {
-    mLock.lock();
+    mListenerLock.lock();
     try
     {
       if (mEventQueueListener != null) {
@@ -171,7 +265,7 @@ public class EventQueue
     }
     finally
     {
-      mLock.unlock();
+      mListenerLock.unlock();
     }
 
     if (hasEvent()) {
@@ -182,7 +276,7 @@ public class EventQueue
   @SuppressWarnings("ObjectEquality")
   public EventQueueListener removeListenerIfEqual(EventQueueListener listener)
   {
-    mLock.lock();
+    mListenerLock.lock();
     try
     {
       if( mEventQueueListener == listener )
@@ -193,13 +287,13 @@ public class EventQueue
     }
     finally
     {
-      mLock.unlock();
+      mListenerLock.unlock();
     }
   }
 
   public EventQueueListener removeListener()
   {
-    mLock.lock();
+    mListenerLock.lock();
     try
     {
       EventQueueListener eventListener = mEventQueueListener;
@@ -208,7 +302,7 @@ public class EventQueue
     }
     finally
     {
-      mLock.unlock();
+      mListenerLock.unlock();
     }
   }
 
@@ -272,18 +366,18 @@ public class EventQueue
   @SuppressWarnings("LockAcquiredButNotSafelyReleased")
   public void lock()
   {
-    mLock.lock();
+    mListenerLock.lock();
   }
 
   public void unlock()
   {
-    mLock.unlock();
+    mListenerLock.unlock();
   }
 
   public void replaceListener(EventQueueListener eventListener)
   {
     EventQueueListener removed;
-    mLock.lock();
+    mListenerLock.lock();
     try
     {
       removed = mEventQueueListener;
@@ -292,7 +386,7 @@ public class EventQueue
     }
     finally
     {
-      mLock.unlock();
+      mListenerLock.unlock();
     }
 
     if( removed != null ) {

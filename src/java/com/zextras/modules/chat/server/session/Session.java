@@ -64,4 +64,6 @@ public interface Session extends Comparable<SessionUUID>, EventDestination
 
   void setLastStatus(Status status);
   Status getLastStatus();
+  void refuseInputEvents();
+  void acceptInputEvents();
 }

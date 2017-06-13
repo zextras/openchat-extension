@@ -22,6 +22,7 @@ package com.zextras.modules.chat.server.xmpp;
 
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
+import io.netty.channel.Channel;
 import org.openzal.zal.lib.Filter;
 import com.zextras.lib.filters.FilterPassAll;
 import com.zextras.modules.chat.server.events.EventQueue;
@@ -39,6 +40,7 @@ public class AnonymousXmppSession extends XmppSession
   public AnonymousXmppSession(
     SessionUUID id,
     EventQueue eventQueue,
+    Channel channel,
     ChatProperties chatProperties,
     XmppEventFilter xmppEventFilter,
     XmppFilterOut xmppFilterOut
@@ -47,6 +49,7 @@ public class AnonymousXmppSession extends XmppSession
     super(
       id,
       eventQueue,
+      channel,
       new AnonymousUser(),
       new SpecificAddress("anonymous@unknown.com"),
       xmppEventFilter,

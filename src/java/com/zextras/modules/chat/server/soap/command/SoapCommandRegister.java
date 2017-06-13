@@ -22,6 +22,7 @@ package com.zextras.modules.chat.server.soap.command;
 
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.Error.DelegatedOrResourcesNotAllowedToChatError;
+import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.NotifyFriendsStatus;
 import com.zextras.modules.chat.server.session.SessionUUID;
@@ -49,6 +50,7 @@ public class SoapCommandRegister extends SoapCommand
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
   private final ChatProperties     mChatProperties;
+  private final EventQueueFactory mEventQueueFactory;
   private       SoapSessionFactory mSoapSessionFactory;
   private final Provisioning       mProvisioning;
   private final ZimbraContext      mZimbraContext;
@@ -61,7 +63,9 @@ public class SoapCommandRegister extends SoapCommand
     SoapSessionFactory soapSessionFactory,
     Provisioning provisioning,
     ZimbraContext zimbraContext,
-    ChatProperties chatProperties)
+    ChatProperties chatProperties,
+    EventQueueFactory eventQueueFactory
+  )
   {
     super(
       senderAddress,
@@ -73,6 +77,7 @@ public class SoapCommandRegister extends SoapCommand
     mProvisioning = provisioning;
     mZimbraContext = zimbraContext;
     mChatProperties = chatProperties;
+    mEventQueueFactory = eventQueueFactory;
   }
 
   public ChatOperation createRegisterSoapSession(
@@ -89,7 +94,8 @@ public class SoapCommandRegister extends SoapCommand
       mSenderAddress,
       mSoapSessionFactory,
       clientVersion,
-      silentErrorReportingEnabled
+      silentErrorReportingEnabled,
+      mEventQueueFactory
     );
   }
 

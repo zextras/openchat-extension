@@ -21,6 +21,7 @@
 package com.zextras.modules.chat.server.soap.command;
 
 import com.zextras.lib.activities.ActivityManager;
+import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.operations.ChatOperation;
@@ -44,6 +45,7 @@ public class SoapCommandPing extends SoapCommand
   private final SoapEncoderFactory mSoapEncoderFactory;
   private final ZimbraContext      mZimbraContext;
   private final ActivityManager    mActivityManager;
+  private final EventQueueFactory mEventQueueFactory;
 
   public SoapCommandPing(
     SoapResponse soapResponse,
@@ -51,7 +53,8 @@ public class SoapCommandPing extends SoapCommand
     SpecificAddress senderAddress,
     Map<String, String> parameters,
     ZimbraContext zimbraContext,
-    ActivityManager activityManager
+    ActivityManager activityManager,
+    EventQueueFactory eventQueueFactory
   )
   {
     super(
@@ -62,6 +65,7 @@ public class SoapCommandPing extends SoapCommand
     mSoapEncoderFactory = soapEncoderFactory;
     mZimbraContext = zimbraContext;
     mActivityManager = activityManager;
+    mEventQueueFactory = eventQueueFactory;
   }
 
   @Override
@@ -82,6 +86,7 @@ public class SoapCommandPing extends SoapCommand
     Continuation continuation = mZimbraContext.getContinuation();
     PingEventQueueListener queueListener = new PingEventQueueListener(
       mActivityManager,
+      mEventQueueFactory,
       mSenderAddress,
       continuation,
       Integer.parseInt(successfullySentEvents)

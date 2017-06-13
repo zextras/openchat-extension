@@ -27,6 +27,7 @@ import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.events.EventInterpreter;
 import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.events.Event;
@@ -42,6 +43,7 @@ public class PingEventQueueListener implements EventQueueListener
   private final SpecificAddress mAddress;
   private final ReentrantLock   mLock;
   private final ActivityManager mActivityManager;
+  private final EventQueueFactory mEventQueueFactory;
   private final int mSuccessfullySentEvents;
   private       boolean         mCanBeResumed;
   private       boolean         mAlreadyReplied;
@@ -51,12 +53,14 @@ public class PingEventQueueListener implements EventQueueListener
 
   public PingEventQueueListener(
     ActivityManager activityManager,
+    EventQueueFactory eventQueueFactory,
     SpecificAddress address,
     Continuation continuation,
     int successFullySentEvents
   )
   {
     mActivityManager = activityManager;
+    mEventQueueFactory = eventQueueFactory;
     mLock = new ReentrantLock();
     mAddress = address;
     mContinuation = continuation;
@@ -81,7 +85,7 @@ public class PingEventQueueListener implements EventQueueListener
   @Override
   public void onDetached(EventQueue eventQueue)
   {
-    mEventQueue = new EventQueue();
+    mEventQueue = mEventQueueFactory.create();
     mDetached = true;
     resumeContinuationAndRemoveListener();
   }
@@ -118,7 +122,7 @@ public class PingEventQueueListener implements EventQueueListener
           public void run()
           {
             mEventQueue.removeListenerIfEqual(PingEventQueueListener.this);
-            mEventQueue = new EventQueue();
+            mEventQueue = mEventQueueFactory.create();
             resumeContinuationAndRemoveListener();
           }
         },

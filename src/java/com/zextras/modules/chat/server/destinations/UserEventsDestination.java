@@ -28,6 +28,7 @@ import com.zextras.modules.chat.server.Priority;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
+import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactory;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
@@ -38,22 +39,22 @@ import java.util.Collection;
 @Singleton
 public class UserEventsDestination implements EventDestination, EventDestinationProvider, Service
 {
-  private final Provisioning            mProvisioning;
-  private final EventInterceptorFactory mEventsInterceptorFactory;
-  private final EventManager            mEventManager;
-  private final EventRouter             mEventRouter;
-  private final Priority                mPriority;
+  private final Provisioning                mProvisioning;
+  private final UserEventInterceptorFactory mUserEventInterceptorFactory;
+  private final EventManager                mEventManager;
+  private final EventRouter                 mEventRouter;
+  private final Priority                    mPriority;
 
   @Inject
   public UserEventsDestination(
     Provisioning provisioning,
-    EventInterceptorFactory eventsInterceptorFactory,
+    UserEventInterceptorFactory userEventInterceptorFactory,
     EventRouter eventRouter,
     EventManager eventManager
   )
   {
     mProvisioning = provisioning;
-    mEventsInterceptorFactory = eventsInterceptorFactory;
+    mUserEventInterceptorFactory = userEventInterceptorFactory;
     mEventRouter = eventRouter;
     mEventManager = eventManager;
     mPriority = new Priority(3);
@@ -83,7 +84,7 @@ public class UserEventsDestination implements EventDestination, EventDestination
 
   @Override
   public void deliverEvent(Event event, SpecificAddress address) {
-    EventInterceptor interceptor = event.interpret(mEventsInterceptorFactory);
+    EventInterceptor interceptor = event.interpret(mUserEventInterceptorFactory);
     try {
       interceptor.intercept(mEventManager, address);
     } catch (Exception ex) {

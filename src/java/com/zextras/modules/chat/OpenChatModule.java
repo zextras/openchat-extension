@@ -35,9 +35,13 @@ import com.zextras.modules.chat.server.db.modifiers.UserModifier;
 import com.zextras.modules.chat.server.db.providers.OpenUserProvider;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.EventInterceptorFactory;
+import com.zextras.modules.chat.server.events.EventQueueFactory;
+import com.zextras.modules.chat.server.events.EventQueueFilterEvent;
+import com.zextras.modules.chat.server.events.EventQueueFilterEventImpl;
 import com.zextras.modules.chat.server.history.HistoryMailManagerFactory;
 import com.zextras.modules.chat.server.history.ImHistoryQueueHandlerFactory;
 import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactory;
+import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.parsing.ParserFactory;
@@ -105,7 +109,7 @@ public class OpenChatModule extends AbstractModule
     bind(ChatProperties.class).to(LdapChatProperties.class);
     bind(StatementsFactory.class).to(OpenStatementsFactory.class);
     bind(ParserFactory.class).to(SoapParserFactory.class);
-    bind(EventInterceptorFactory.class).to(UserEventInterceptorFactory.class);
+    bind(UserEventInterceptorFactory.class).to(UserEventInterceptorFactoryImpl.class);
     bind(CommonSessionEventInterceptorBuilder.class).to(CommonSessionEventInterceptorBuilderImpl.class);
     bind(SoapEncoderFactory.class).to(SoapEncoderFactoryImpl.class);
     bind(UserHistoryInterceptorFactory.class).to(UserHistoryInterceptorFactoryImpl.class);
@@ -125,10 +129,12 @@ public class OpenChatModule extends AbstractModule
     bind(RelationshipModifier.class).to(RelationshipModifierProxy.class);
     bind(ChatVersion.class).to(ChatVersionImpl.class);
     bind(CommonSessionEventFilter.class).to(CommonSessionEventFilterImpl.class);
+    bind(EventQueueFilterEvent.class).to(EventQueueFilterEventImpl.class);
     install(new FactoryModuleBuilder().build(SoapHandlerCreatorFactory.class));
     install(new FactoryModuleBuilder().build(InitialSoapRequestHandlerFactory.class));
     install(new FactoryModuleBuilder().build(SoapSessionFactory.class));
     install(new FactoryModuleBuilder().build(ImHistoryQueueHandlerFactory.class));
     install(new FactoryModuleBuilder().build(HistoryMailManagerFactory.class));
+    install(new FactoryModuleBuilder().build(EventQueueFactory.class));
   }
 }

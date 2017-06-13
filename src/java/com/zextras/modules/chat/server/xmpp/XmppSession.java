@@ -20,6 +20,7 @@
 
 package com.zextras.modules.chat.server.xmpp;
 
+import io.netty.channel.Channel;
 import org.openzal.zal.lib.Filter;
 import com.zextras.modules.chat.server.filters.EventFilter;
 import com.zextras.modules.chat.server.session.BaseSession;
@@ -29,6 +30,7 @@ import com.zextras.modules.chat.server.User;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 
+import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -36,6 +38,7 @@ import java.util.Collections;
 public class XmppSession extends BaseSession
 {
   private final Filter<Event> mOutFiler;
+  private final Channel       mChannel;
   private       boolean       mUsingSSL;
   private String mDomain = "";
   private boolean     mFirstPresence;
@@ -45,6 +48,7 @@ public class XmppSession extends BaseSession
   public XmppSession(
     SessionUUID id,
     EventQueue eventQueue,
+    Channel channel,
     User user,
     SpecificAddress mainAddress,
     XmppEventFilter xmppEventFilter,
@@ -52,6 +56,7 @@ public class XmppSession extends BaseSession
   )
   {
     super(id, eventQueue, user, mainAddress);
+    mChannel = channel;
     mUsingSSL = false;
     mFirstPresence = true;
     mFilter = xmppEventFilter;
@@ -62,6 +67,18 @@ public class XmppSession extends BaseSession
   public EventFilter getEventFilter()
   {
     return mFilter;
+  }
+
+  @Override
+  public void refuseInputEvents()
+  {
+    mChannel.config().setAutoRead(false);
+  }
+
+  @Override
+  public void acceptInputEvents()
+  {
+    mChannel.config().setAutoRead(true);
   }
 
   @Override
@@ -124,9 +141,14 @@ public class XmppSession extends BaseSession
     mIsProxy = isProxy;
   }
 
- /*
-  * This is true for proxy server and account remote host
-  */
+  public Channel getChannel()
+  {
+    return mChannel;
+  }
+
+  /*
+    * This is true for proxy server and account remote host
+    */
   public boolean isProxy()
   {
     return mIsProxy;

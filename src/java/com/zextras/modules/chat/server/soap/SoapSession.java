@@ -87,6 +87,18 @@ public class SoapSession extends BaseSession
     return mEventFilter;
   }
 
+  @Override
+  public void refuseInputEvents()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void acceptInputEvents()
+  {
+    throw new UnsupportedOperationException();
+  }
+
   public Version getClientVersion()
   {
     return mClientVersion;

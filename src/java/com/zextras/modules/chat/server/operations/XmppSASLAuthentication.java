@@ -169,6 +169,7 @@ public class XmppSASLAuthentication implements ChatOperation
       XmppSession xmppSession = new XmppSession(
         SessionUUID.randomUUID(),
         mXmppConnectionHandler.getSession().getEventQueue(),
+        mXmppConnectionHandler.getSocketChannel(),
         user,
         specificAddress,
         mXmppEventFilter,

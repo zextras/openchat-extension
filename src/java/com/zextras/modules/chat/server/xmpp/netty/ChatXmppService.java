@@ -23,6 +23,7 @@ package com.zextras.modules.chat.server.xmpp.netty;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
+import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
@@ -73,6 +74,7 @@ public class ChatXmppService implements Runnable, Service
   private final XmppFilterOut mXmppFilterOut;
   private final XmppEventFilter mXmppEventFilter;
   private final Provisioning mProvisioning;
+  private final EventQueueFactory mEventQueueFactory;
   private       boolean                              mStopped;
   private       Promise<Boolean>                     mInitializationPromise;
   private final ReentrantLock    mLock      = new ReentrantLock();
@@ -91,7 +93,8 @@ public class ChatXmppService implements Runnable, Service
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter,
-    Provisioning provisioning
+    Provisioning provisioning,
+    EventQueueFactory eventQueueFactory
   )
   {
     mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
@@ -105,6 +108,7 @@ public class ChatXmppService implements Runnable, Service
     mXmppFilterOut = xmppFilterOut;
     mXmppEventFilter = xmppEventFilter;
     mProvisioning = provisioning;
+    mEventQueueFactory = eventQueueFactory;
     mStopped = false;
   }
 
@@ -276,7 +280,8 @@ public class ChatXmppService implements Runnable, Service
             mNettyService,
             mProxyAuthRequestEncoder,
             mXmppEventFilter,
-            mXmppFilterOut
+            mXmppFilterOut,
+            mEventQueueFactory
           );
           ch.pipeline().addAfter("SubTagTokenizer", "FirstTags", firstTagsHandler);
         }

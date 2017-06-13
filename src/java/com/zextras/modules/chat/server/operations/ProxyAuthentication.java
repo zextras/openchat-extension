@@ -107,6 +107,7 @@ public class ProxyAuthentication implements ChatOperation
         new XmppSession(
           SessionUUID.randomUUID(),
           mXmppConnectionHandler.getSession().getEventQueue(),
+          mXmppConnectionHandler.getSocketChannel(),
           user,
           specificAddress,
           mXmppEventFilter,

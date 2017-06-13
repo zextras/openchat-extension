@@ -116,6 +116,12 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   }
 
   @Override
+  public Encoder interpret(EventFloodControl event)
+  {
+    return new EventFloodControlEncoder(event, mSchemaProvider);
+  }
+
+  @Override
   public Encoder interpret(EventBindResult eventBindResult)
   {
     return new EventBindResultEncoder(eventBindResult,mSchemaProvider);

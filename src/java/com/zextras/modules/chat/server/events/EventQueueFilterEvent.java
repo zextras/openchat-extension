@@ -15,10 +15,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server.interceptors;
+package com.zextras.modules.chat.server.events;
 
-import com.zextras.modules.chat.server.events.EventInterpreter;
-
-public interface UserEventInterceptorFactory extends EventInterpreter<EventInterceptor>
+public interface EventQueueFilterEvent extends EventInterpreter<Boolean>
 {
 }

@@ -124,6 +124,8 @@ public abstract class BaseSession implements Session
   }
 
   public abstract EventFilter getEventFilter();
+  public abstract void refuseInputEvents();
+  public abstract void acceptInputEvents();
 
   public void deliverEvent(Event event, SpecificAddress address)
   {

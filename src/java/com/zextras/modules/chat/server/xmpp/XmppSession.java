@@ -20,6 +20,7 @@
 
 package com.zextras.modules.chat.server.xmpp;
 
+import com.zextras.lib.log.ChatLog;
 import io.netty.channel.Channel;
 import org.openzal.zal.lib.Filter;
 import com.zextras.modules.chat.server.filters.EventFilter;
@@ -72,12 +73,14 @@ public class XmppSession extends BaseSession
   @Override
   public void refuseInputEvents()
   {
+    ChatLog.log.info("Ignoring new commands from " + getUser().getAddress());
     mChannel.config().setAutoRead(false);
   }
 
   @Override
   public void acceptInputEvents()
   {
+    ChatLog.log.info("Accepting new commands from " + getUser().getAddress());
     mChannel.config().setAutoRead(true);
   }
 

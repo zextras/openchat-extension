@@ -24,9 +24,8 @@ import com.zextras.modules.chat.server.*;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.Event;
-import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
-import com.zextras.modules.chat.server.events.EventSoapSessionRegistred;
+import com.zextras.modules.chat.server.events.EventSoapSessionRegistered;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
@@ -36,7 +35,6 @@ import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.soap.SoapSession;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactoryImpl;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.lib.Version;
 import org.openzal.zal.soap.SoapResponse;
@@ -109,7 +107,7 @@ public class RegisterSoapSession implements ChatOperation
 
     sessionManager.addSession(newSession);
 
-    Event event = new EventSoapSessionRegistred(
+    Event event = new EventSoapSessionRegistered(
       mSenderAddress,
       newSession.getId(),
       version,

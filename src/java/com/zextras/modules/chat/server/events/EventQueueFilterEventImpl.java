@@ -38,7 +38,7 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
   }
 
   @Override
-  public Boolean interpret(EventSoapSessionRegistred eventSoapSessionRegistred)
+  public Boolean interpret(EventSoapSessionRegistered eventSoapSessionRegistered)
   {
     return false;
   }

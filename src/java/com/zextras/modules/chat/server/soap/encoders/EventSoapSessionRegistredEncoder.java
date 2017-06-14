@@ -25,16 +25,16 @@ import com.zextras.modules.chat.server.ChatVersion;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
-import com.zextras.modules.chat.server.events.EventSoapSessionRegistred;
+import com.zextras.modules.chat.server.events.EventSoapSessionRegistered;
 import org.openzal.zal.lib.Version;
 
 public class EventSoapSessionRegistredEncoder implements SoapEncoder
 {
-  private final EventSoapSessionRegistred mEventRegister;
+  private final EventSoapSessionRegistered mEventRegister;
   private final ChatVersion mChatVersion;
 
   public EventSoapSessionRegistredEncoder(
-    EventSoapSessionRegistred eventRegister,
+    EventSoapSessionRegistered eventRegister,
     ChatVersion chatVersion
   )
   {

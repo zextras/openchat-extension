@@ -28,7 +28,7 @@ public interface EventInterpreter<T>
 
   T interpret(EventStatusChanged eventStatusChanged);
 
-  T interpret(EventSoapSessionRegistred eventSoapSessionRegistred);
+  T interpret(EventSoapSessionRegistered eventSoapSessionRegistered);
 
   T interpret(EventNewClientVersion eventNewClientVersion);
 

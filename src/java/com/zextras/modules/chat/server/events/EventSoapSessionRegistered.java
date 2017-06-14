@@ -25,7 +25,7 @@ import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import org.openzal.zal.lib.Version;
 
-public class EventSoapSessionRegistred extends Event
+public class EventSoapSessionRegistered extends Event
 {
   private final SessionUUID     mSessionId;
   private final Version         mClientVersion;
@@ -33,7 +33,7 @@ public class EventSoapSessionRegistred extends Event
   private final boolean         mIsHistoryEnabled;
   private final SpecificAddress mRoomServiceAddress;
 
-  public EventSoapSessionRegistred(
+  public EventSoapSessionRegistered(
     SpecificAddress senderAddress,
     SessionUUID sessionId,
     Version clientVersion,

@@ -23,17 +23,11 @@ package com.zextras.modules.chat.server.soap.encoders;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.ChatVersion;
-import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.client_contstants.ClientEventType;
 import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.exceptions.MessageSizeExceededException;
 import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
-import com.zextras.modules.chat.server.response.ChatSoapResponse;
-import com.zextras.modules.chat.server.soap.SoapEncoder;
 
 @Singleton
 public class SoapEncoderFactoryImpl implements SoapEncoderFactory
@@ -242,9 +236,9 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
 
   //soap events
   @Override
-  public Encoder interpret(EventSoapSessionRegistred eventSoapSessionRegistred)
+  public Encoder interpret(EventSoapSessionRegistered eventSoapSessionRegistered)
   {
-    return new EventSoapSessionRegistredEncoder(eventSoapSessionRegistred, mChatVersion);
+    return new EventSoapSessionRegistredEncoder(eventSoapSessionRegistered, mChatVersion);
   }
 
   @Override

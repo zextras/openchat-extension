@@ -99,7 +99,7 @@ public class RegisterSoapSession implements ChatOperation
     final User user = userProvider.getUser(mSenderAddress);
     SoapSession newSession = mSoapSessionFactory.create(
       mNewSessionId,
-      mEventQueueFactory.create(),
+      mEventQueueFactory.create(EventQueue.START_FLOOD_WARNING_THRESHOLD),
       user,
       mSenderAddress,
       version

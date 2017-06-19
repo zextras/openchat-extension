@@ -124,7 +124,7 @@ public class OpenUserProvider implements UserProvider
         userInfo = new UserInfo(userId, userInfo.getAddress());
       }
 
-      EventQueue eventQueue = mEventQueueFactory.create();
+      EventQueue eventQueue = mEventQueueFactory.create(0);
       InternalUser user = buildUser(userInfo, eventQueue);
 
       mUserIdentityMap.addUser(user);
@@ -166,7 +166,7 @@ public class OpenUserProvider implements UserProvider
       }
       else
       {
-        user = buildUser(userInfo, mEventQueueFactory.create());
+        user = buildUser(userInfo, mEventQueueFactory.create(0));
       }
 
       visitor.visitUser(user);

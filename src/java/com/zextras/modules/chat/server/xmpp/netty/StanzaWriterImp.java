@@ -78,7 +78,8 @@ public class StanzaWriterImp implements StanzaWriter
     try
     {
       final ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
-      for (Event event : eventQueue.popAllEvents())
+      Event event;
+      while (mXmppConnectionHandler.isWritable() && (event = eventQueue.poll()) != null)
       {
         LogContext logContext = CurrentLogContext.begin();
         if (event.getTarget().getAddresses().size() == 1)
@@ -106,20 +107,7 @@ public class StanzaWriterImp implements StanzaWriter
           ByteBuf stanza = Unpooled.copiedBuffer(out.toByteArray());
           ChannelFuture writeFuture = mXmppConnectionHandler.write(stanza);
 
-          final Event eventToNotify = event;
-
-          writeFuture.addListener(new ChannelFutureListener()
-          {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception
-            {
-              if (future.isSuccess())
-              {
-                EventInterceptor interceptor = eventToNotify.interpret(mXmppEventInterceptorFactory);
-                interceptor.intercept(mEventManager, exposedAddress);
-              }
-            }
-          });
+          writeFuture.addListener(new WriteCompleteListener(eventQueue, event, exposedAddress));
         }
         finally
         {
@@ -143,5 +131,34 @@ public class StanzaWriterImp implements StanzaWriter
 
   @Override
   public void onEventRemoved(EventQueue eventQueue, Event event){
+  }
+
+  private class WriteCompleteListener implements ChannelFutureListener
+  {
+    private final EventQueue mEventQueue;
+    private final Event mEvent;
+    private final SpecificAddress mExposedAddress;
+
+    public WriteCompleteListener(EventQueue eventQueue, Event event, SpecificAddress exposedAddress)
+    {
+      mEventQueue = eventQueue;
+      mEvent = event;
+      mExposedAddress = exposedAddress;
+    }
+
+    @Override
+    public void operationComplete(ChannelFuture future) throws Exception
+    {
+      if (future.isSuccess())
+      {
+        EventInterceptor interceptor = mEvent.interpret(mXmppEventInterceptorFactory);
+        interceptor.intercept(mEventManager, mExposedAddress);
+      }
+
+      if (mXmppConnectionHandler.isWritable() && mEventQueue.size() > 0)
+      {
+        onEventQueued(mEventQueue);
+      }
+    }
   }
 }

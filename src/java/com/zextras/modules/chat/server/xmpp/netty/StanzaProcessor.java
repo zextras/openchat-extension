@@ -22,6 +22,7 @@ package com.zextras.modules.chat.server.xmpp.netty;
 
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
+import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
@@ -103,7 +104,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       mXmppFilterOut = xmppFilterOut;
       mSession = new AnonymousXmppSession(
         SessionUUID.randomUUID(),
-        eventQueueFactory.create(),
+        eventQueueFactory.create(EventQueue.START_FLOOD_WARNING_THRESHOLD),
         socketChannel,
         chatProperties,
         mXmppEventFilter,
@@ -148,6 +149,11 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     public void close()
     {
       mSocketChannel.close();
+    }
+
+    public boolean isWritable()
+    {
+      return mSocketChannel.isOpen() && mSocketChannel.isWritable();
     }
 
     public ChannelFuture write(ByteBuf stanza)
@@ -335,7 +341,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     mXmppConnectionHandler.setSession(
       new AnonymousXmppSession(
         SessionUUID.randomUUID(),
-        mEventQueueFactory.create(),
+        mEventQueueFactory.create(EventQueue.START_FLOOD_WARNING_THRESHOLD),
         mSocketChannel,
         mChatProperties,
         mXmppEventFilter,

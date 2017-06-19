@@ -21,6 +21,7 @@
 package com.zextras.modules.chat.server.events;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.exceptions.EmptyQueueException;
@@ -40,7 +41,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class EventQueue
 {
-  private final static int START_FLOOD_WARNING_THRESHOLD = 256;
+  public final static int START_FLOOD_WARNING_THRESHOLD = 256;
 
   private final ConcurrentLinkedQueue<Event> mEventQueue;
   private final Lock mListenerLock = new ReentrantLock();
@@ -53,21 +54,36 @@ public class EventQueue
   private       EventQueueListener    mEventQueueListener;
   private int mTotalSynchronizedEventsAmount = 0;
 
-  public EventQueue(EventQueueFilterEvent eventQueueFilterEvent, EventManager eventManager, int threshold)
+  public EventQueue(
+    EventQueueFilterEvent eventQueueFilterEvent,
+    EventManager eventManager
+  )
+  {
+    this(eventQueueFilterEvent, eventManager, 0);
+  }
+
+  @Inject
+  public EventQueue(
+    EventQueueFilterEvent eventQueueFilterEvent,
+    EventManager eventManager,
+    @Assisted int threshold
+  )
   {
     mEventQueueFilterEvent = eventQueueFilterEvent;
     mEventManager = eventManager;
     mEventQueue = new ConcurrentLinkedQueue<Event>();
     mEventQueueListener = null;
     mBlockedSenders = new HashSet<ChatAddress>();
-    mStartFloodWarningThreshold = threshold;
-    mStopFloodWarningThreshold = threshold - (threshold/4);
-  }
-
-  @Inject
-  public EventQueue(EventQueueFilterEvent eventQueueFilterEvent, EventManager eventManager)
-  {
-    this(eventQueueFilterEvent, eventManager, START_FLOOD_WARNING_THRESHOLD);
+    if (threshold > 0)
+    {
+      mStartFloodWarningThreshold = threshold;
+      mStopFloodWarningThreshold = threshold - (threshold / 4);
+    }
+    else
+    {
+      mStartFloodWarningThreshold = 0;
+      mStopFloodWarningThreshold = 0;
+    }
   }
 
   public int getStartFloodWarningThreshold()
@@ -132,7 +148,7 @@ public class EventQueue
       return;
     }
 
-    if (event.interpret(mEventQueueFilterEvent))
+    if (mStartFloodWarningThreshold > 0 && event.interpret(mEventQueueFilterEvent))
     {
       mFilterLock.lock();
       try
@@ -165,25 +181,34 @@ public class EventQueue
   {
     Event event = mEventQueue.poll();
 
-    if (event != null && event.interpret(mEventQueueFilterEvent))
+    if (event != null)
     {
-      Collection<ChatAddress> senders = Collections.<ChatAddress>emptyList();
-      mFilterLock.lock();
-      try
+      if (mStartFloodWarningThreshold > 0 && event.interpret(mEventQueueFilterEvent))
       {
-        if (!mBlockedSenders.isEmpty() && mEventQueue.size() < mStopFloodWarningThreshold)
+        Collection<ChatAddress> senders = Collections.<ChatAddress>emptyList();
+        mFilterLock.lock();
+        try
         {
-          senders = new ArrayList<ChatAddress>(mBlockedSenders);
-          mBlockedSenders.clear();
+          if (!mBlockedSenders.isEmpty() && mEventQueue.size() < mStopFloodWarningThreshold)
+          {
+            senders = new ArrayList<ChatAddress>(mBlockedSenders);
+            mBlockedSenders.clear();
+          }
         }
-      }
-      finally
-      {
-        mFilterLock.unlock();
+        finally
+        {
+          mFilterLock.unlock();
+        }
+
+        notifyFloodControl(senders, false);
       }
 
-      notifyFloodControl(senders, false);
+      final EventQueueListener eventQueueListener = getEventQueueListener();
+      if (eventQueueListener != null) {
+        eventQueueListener.onEventPopped(this,event);
+      }
     }
+
 
     return event;
   }
@@ -211,11 +236,6 @@ public class EventQueue
 
     if(event == null) {
       throw new EmptyQueueException("");
-    }
-
-    final EventQueueListener eventQueueListener = getEventQueueListener();
-    if (eventQueueListener != null) {
-      eventQueueListener.onEventPopped(this,event);
     }
 
     return event;

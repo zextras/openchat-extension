@@ -85,7 +85,7 @@ public class PingEventQueueListener implements EventQueueListener
   @Override
   public void onDetached(EventQueue eventQueue)
   {
-    mEventQueue = mEventQueueFactory.create();
+    mEventQueue = mEventQueueFactory.create(0);
     mDetached = true;
     resumeContinuationAndRemoveListener();
   }
@@ -122,7 +122,7 @@ public class PingEventQueueListener implements EventQueueListener
           public void run()
           {
             mEventQueue.removeListenerIfEqual(PingEventQueueListener.this);
-            mEventQueue = mEventQueueFactory.create();
+            mEventQueue = mEventQueueFactory.create(0);
             resumeContinuationAndRemoveListener();
           }
         },

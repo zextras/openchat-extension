@@ -19,5 +19,6 @@ package com.zextras.modules.chat.server.events;
 
 public interface EventQueueFactory
 {
-  EventQueue create();
+  // floodControlThreshold 0 means no flood control
+  EventQueue create(int floodControlThreshold);
 }

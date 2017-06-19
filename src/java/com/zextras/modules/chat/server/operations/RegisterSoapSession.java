@@ -24,6 +24,7 @@ import com.zextras.modules.chat.server.*;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.events.EventSoapSessionRegistered;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;

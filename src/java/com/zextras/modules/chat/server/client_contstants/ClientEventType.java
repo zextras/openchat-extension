@@ -42,6 +42,10 @@ public class ClientEventType
   public static final int INVITE_TO_ROOM        = 33;
   public static final int NICK_CONFIRMATION     = 37;
   public static final int ROOM_SUBJECT          = 38;
+  public static final int SEND_ACCEPTED         = 40;
+  public static final int SEND_DENIED           = 41;
+  public static final int SEND_FILE             = 42;
+  public static final int SEND_DATA             = 43;
 
   public static final int RTC_SESSION_DESCRIPTION = 27;
   public static final int RTC_ICE_CANDIDATE       = 28;

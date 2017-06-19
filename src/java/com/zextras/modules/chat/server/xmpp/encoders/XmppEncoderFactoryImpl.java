@@ -38,7 +38,7 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
 
   //soap events
   @Override
-  public Encoder interpret(EventSoapSessionRegistred eventSoapSessionRegistred)
+  public Encoder interpret(EventSoapSessionRegistered eventSoapSessionRegistered)
   {
     throw new UnsupportedOperationException();
   }

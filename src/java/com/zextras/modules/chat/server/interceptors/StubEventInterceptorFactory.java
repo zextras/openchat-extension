@@ -36,7 +36,7 @@ import com.zextras.modules.chat.server.events.EventMessageAck;
 import com.zextras.modules.chat.server.events.EventMessageBack;
 import com.zextras.modules.chat.server.events.EventMessageSizeExceeded;
 import com.zextras.modules.chat.server.events.EventNewClientVersion;
-import com.zextras.modules.chat.server.events.EventSoapSessionRegistred;
+import com.zextras.modules.chat.server.events.EventSoapSessionRegistered;
 import com.zextras.modules.chat.server.events.EventStatusChanged;
 import com.zextras.modules.chat.server.events.EventStatusProbe;
 import com.zextras.modules.chat.server.events.EventStatuses;
@@ -107,7 +107,7 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
   }
 
   @Override
-  public EventInterceptor interpret(EventSoapSessionRegistred eventSoapSessionRegistred)
+  public EventInterceptor interpret(EventSoapSessionRegistered eventSoapSessionRegistered)
   {
     return new StubEventInterceptor();
   }

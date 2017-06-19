@@ -33,7 +33,7 @@ public interface EncoderFactory
   Encoder createEncoder(EventFriendAdded eventFriendAdded);
   Encoder createEncoder(EventFriendBackAdded eventBackFriendAdded);
   Encoder createEncoder(EventMessage eventMessage);
-  Encoder createEncoder(EventSoapSessionRegistred eventSoapSessionRegistred);
+  Encoder createEncoder(EventSoapSessionRegistered eventSoapSessionRegistered);
   Encoder createEncoder(EventFriendAccepted eventFriendAccepted);
   Encoder createEncoder(EventFriendBackAccepted eventFriendBackAccepted);
   Encoder createEncoder(EventMessageAck eventMessageAck);

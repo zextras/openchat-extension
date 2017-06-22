@@ -60,23 +60,7 @@ public class UserEventsDestination implements EventDestination, EventDestination
   @Override
   public boolean canHandle(SpecificAddress address)
   {
-    try
-    {
-      if (mProvisioning.getDomainByName(address.getDomain()) != null)
-      {
-        Account account = mProvisioning.getAccountByName(address.toString());
-        if (account != null)
-        {
-          return mProvisioning.onLocalServer(account);
-        }
-      }
-      return false;
-    }
-    catch (Exception ex)
-    {
-      ChatLog.log.warn("Exception: " + Utils.exceptionToString(ex));
-      return false;
-    }
+    return true;
   }
 
   @Override

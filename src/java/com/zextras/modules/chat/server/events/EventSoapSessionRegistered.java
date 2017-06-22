@@ -28,15 +28,13 @@ public class EventSoapSessionRegistered extends Event
   private final Version         mClientVersion;
   private final boolean         mSilentErrorReportingEnabled;
   private final boolean         mIsHistoryEnabled;
-  private final SpecificAddress mRoomServiceAddress;
 
   public EventSoapSessionRegistered(
     SpecificAddress senderAddress,
     SessionUUID sessionId,
     Version clientVersion,
     boolean silentErrorReportingEnabled,
-    boolean isHistoryEnabled,
-    SpecificAddress roomServiceAddress
+    boolean isHistoryEnabled
   )
   {
     super(senderAddress, new Target());
@@ -44,17 +42,11 @@ public class EventSoapSessionRegistered extends Event
     mClientVersion = clientVersion;
     mSilentErrorReportingEnabled = silentErrorReportingEnabled;
     mIsHistoryEnabled = isHistoryEnabled;
-    mRoomServiceAddress = roomServiceAddress;
   }
 
   public SessionUUID getSessionId()
   {
     return mSessionId;
-  }
-
-  public SpecificAddress getRoomServiceAddress()
-  {
-    return mRoomServiceAddress;
   }
 
   public Version getClientVersion()

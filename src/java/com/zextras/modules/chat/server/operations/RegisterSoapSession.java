@@ -46,14 +46,12 @@ public class RegisterSoapSession implements ChatOperation
   private final String             mClientVersion;
   private final boolean            mSilentErrorReportingEnabled;
   private final EventQueueFactory mEventQueueFactory;
-  private final Provisioning       mProvisioning;
   private final SessionUUID mNewSessionId;
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
   private final SpecificAddress    mSenderAddress;
 
   public RegisterSoapSession(
-    Provisioning provisioning,
     SessionUUID newSessionId,
     SoapResponse soapResponse,
     SoapEncoderFactory soapEncoderFactory,
@@ -64,7 +62,6 @@ public class RegisterSoapSession implements ChatOperation
     EventQueueFactory eventQueueFactory
   )
   {
-    mProvisioning = provisioning;
     mNewSessionId = newSessionId;
     mSoapResponse = soapResponse;
     mSoapEncoderFactory = soapEncoderFactory;
@@ -110,8 +107,7 @@ public class RegisterSoapSession implements ChatOperation
       newSession.getId(),
       version,
       mSilentErrorReportingEnabled,
-      true,
-      new SpecificAddress(mProvisioning.getLocalServer().getName())
+      true
     );
 
     ChatSoapResponse response = new ChatSoapResponse();

@@ -36,18 +36,5 @@ public class ClientEventType
   public static final int TYPE_CLIENT_UPDATE    = 12;
   public static final int TYPE_SHUTDOWN         = 13;
   public static final int ERROR                 = 14;
-  public static final int INVITE_TO_ROOM        = 33;
-  public static final int NICK_CONFIRMATION     = 37;
-  public static final int ROOM_SUBJECT          = 38;
-  public static final int SEND_ACCEPTED         = 40;
-  public static final int SEND_DENIED           = 41;
-  public static final int SEND_FILE             = 42;
-  public static final int SEND_DATA             = 43;
-  public static final int SEND_ACKNOWLEDGE      = 45;
-  public static final int SEND_NOT_ACKNOWLEDGE  = 46;
 
-  public static final int RTC_SESSION_DESCRIPTION = 27;
-  public static final int RTC_ICE_CANDIDATE       = 28;
-
-  public static final int JINGLE                = 29;
 }

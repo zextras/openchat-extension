@@ -1,8 +1,5 @@
 /*
- * ZAL - The abstraction layer for Zimbra.
  * Copyright (C) 2017 ZeXtras S.r.l.
- *
- * This file is part of ZAL.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,8 +11,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with ZAL. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License.
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.zextras.modules.chat.server.client_contstants;
@@ -39,17 +36,5 @@ public class ClientEventType
   public static final int TYPE_CLIENT_UPDATE    = 12;
   public static final int TYPE_SHUTDOWN         = 13;
   public static final int ERROR                 = 14;
-  public static final int INVITE_TO_ROOM        = 33;
-  public static final int NICK_CONFIRMATION     = 37;
-  public static final int ROOM_SUBJECT          = 38;
-  public static final int SEND_FILE             = 42;
-  public static final int SEND_DATA             = 43;
-  public static final int SEND_ACKNOWLEDGE      = 45;
-  public static final int SEND_NOT_ACKNOWLEDGE  = 46;
-  public static final int SEND_CLOSE            = 47;
 
-  public static final int RTC_SESSION_DESCRIPTION = 27;
-  public static final int RTC_ICE_CANDIDATE       = 28;
-
-  public static final int JINGLE                = 29;
 }

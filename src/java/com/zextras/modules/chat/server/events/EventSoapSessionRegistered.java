@@ -1,8 +1,5 @@
 /*
- * ZAL - The abstraction layer for Zimbra.
  * Copyright (C) 2017 ZeXtras S.r.l.
- *
- * This file is part of ZAL.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,8 +11,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with ZAL. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License.
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.zextras.modules.chat.server.events;
@@ -31,15 +28,13 @@ public class EventSoapSessionRegistered extends Event
   private final Version         mClientVersion;
   private final boolean         mSilentErrorReportingEnabled;
   private final boolean         mIsHistoryEnabled;
-  private final SpecificAddress mRoomServiceAddress;
 
   public EventSoapSessionRegistered(
     SpecificAddress senderAddress,
     SessionUUID sessionId,
     Version clientVersion,
     boolean silentErrorReportingEnabled,
-    boolean isHistoryEnabled,
-    SpecificAddress roomServiceAddress
+    boolean isHistoryEnabled
   )
   {
     super(senderAddress, new Target());
@@ -47,17 +42,11 @@ public class EventSoapSessionRegistered extends Event
     mClientVersion = clientVersion;
     mSilentErrorReportingEnabled = silentErrorReportingEnabled;
     mIsHistoryEnabled = isHistoryEnabled;
-    mRoomServiceAddress = roomServiceAddress;
   }
 
   public SessionUUID getSessionId()
   {
     return mSessionId;
-  }
-
-  public SpecificAddress getRoomServiceAddress()
-  {
-    return mRoomServiceAddress;
   }
 
   public Version getClientVersion()

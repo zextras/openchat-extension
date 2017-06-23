@@ -1,8 +1,5 @@
 /*
- * ZAL - The abstraction layer for Zimbra.
  * Copyright (C) 2017 ZeXtras S.r.l.
- *
- * This file is part of ZAL.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,8 +11,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with ZAL. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License.
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.zextras.modules.chat.server.operations;
@@ -49,14 +46,12 @@ public class RegisterSoapSession implements ChatOperation
   private final String             mClientVersion;
   private final boolean            mSilentErrorReportingEnabled;
   private final EventQueueFactory mEventQueueFactory;
-  private final Provisioning       mProvisioning;
   private final SessionUUID mNewSessionId;
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
   private final SpecificAddress    mSenderAddress;
 
   public RegisterSoapSession(
-    Provisioning provisioning,
     SessionUUID newSessionId,
     SoapResponse soapResponse,
     SoapEncoderFactory soapEncoderFactory,
@@ -67,7 +62,6 @@ public class RegisterSoapSession implements ChatOperation
     EventQueueFactory eventQueueFactory
   )
   {
-    mProvisioning = provisioning;
     mNewSessionId = newSessionId;
     mSoapResponse = soapResponse;
     mSoapEncoderFactory = soapEncoderFactory;
@@ -113,8 +107,7 @@ public class RegisterSoapSession implements ChatOperation
       newSession.getId(),
       version,
       mSilentErrorReportingEnabled,
-      true,
-      new SpecificAddress(mProvisioning.getLocalServer().getName())
+      true
     );
 
     ChatSoapResponse response = new ChatSoapResponse();

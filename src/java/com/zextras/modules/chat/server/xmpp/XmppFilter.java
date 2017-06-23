@@ -17,18 +17,8 @@
 
 package com.zextras.modules.chat.server.xmpp;
 
-import com.google.inject.Inject;
-import com.zextras.modules.chat.server.session.CommonSessionEventFilter;
-import com.zextras.modules.chat.server.session.EventFilterAggregator;
+import com.zextras.modules.chat.server.filters.EventFilter;
 
-public class XmppEventFilter extends EventFilterAggregator
+public interface XmppFilter extends EventFilter
 {
-  @Inject
-  public XmppEventFilter(
-          CommonSessionEventFilter commonSessionEventFilter,
-          XmppFilter xmppFilter
-  )
-  {
-    super(commonSessionEventFilter, xmppFilter);
-  }
 }

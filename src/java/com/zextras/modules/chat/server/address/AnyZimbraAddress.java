@@ -38,6 +38,12 @@ public class AnyZimbraAddress implements ChatAddress
   }
 
   @Override
+  public String resource()
+  {
+    return "";
+  }
+
+  @Override
   public String resourceAddress()
   {
     return "";
@@ -51,6 +57,12 @@ public class AnyZimbraAddress implements ChatAddress
 
   @Override
   public ChatAddress withoutSession()
+  {
+    return this;
+  }
+
+  @Override
+  public ChatAddress withoutResource()
   {
     return this;
   }

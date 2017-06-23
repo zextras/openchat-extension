@@ -110,4 +110,10 @@ public class SoapSession extends BaseSession
   public void setNotifiedVersion(Version notifiedVersion) {
     mNotifiedVersion = notifiedVersion;
   }
+
+  @Override
+  public boolean isSoap()
+  {
+    return true;
+  }
 }

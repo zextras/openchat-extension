@@ -64,7 +64,7 @@ public class SessionManager implements EventDestinationProvider, Service
     mLock.lock();
     try
     {
-      final ChatAddress sessionAddress = session.getMainAddress().withoutResource(); /// todo ??
+      final ChatAddress sessionAddress = session.getMainAddress().withoutResource();
 
       final List<Session> sessionList;
 
@@ -91,12 +91,12 @@ public class SessionManager implements EventDestinationProvider, Service
     }
   }
 
-  public List<Session> getUserSessions(SpecificAddress address)
+  public List<Session> getUserSessions(ChatAddress address)
   {
     mLock.lock();
     try
     {
-      if(mUserSessionMap.containsKey(address.withoutResource())) // todo ???
+      if(mUserSessionMap.containsKey(address.withoutResource()))
       {
         List<Session> sessions = mUserSessionMap.get(address.withoutResource());
         List<Session> rightSessions = new ArrayList<Session>();

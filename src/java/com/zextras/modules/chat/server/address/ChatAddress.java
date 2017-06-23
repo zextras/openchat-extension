@@ -33,11 +33,14 @@ public interface ChatAddress
   Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider);
 
   String toString();
+  String resource();
   String resourceAddress();
 
   @Deprecated
   void explode(HashSet<SpecificAddress> explodedSet, UserProvider openUserProvider) throws ChatDbException;
 
   ChatAddress withoutSession();
+  ChatAddress withoutResource();
+
   boolean isFromSession( SessionUUID sessionUUID );
 }

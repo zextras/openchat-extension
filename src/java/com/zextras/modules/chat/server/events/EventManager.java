@@ -37,6 +37,7 @@ import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -83,22 +84,31 @@ public class EventManager implements Service
     dispatchEvents(it);
   }
 
+  private void dispatchEvent(Event event)
+  {
+    try
+    {
+      event.getTarget().dispatch(mEventRouter, mOpenUserProvider, event);
+    }
+    catch (ZxError e)
+    {
+      ChatLog.log.crit("EventManager unable to dispatch event: " +event.getClass().getName() + " " +
+              "Exception: " + Utils.exceptionToString(e));
+      //mChatReportManager.doReport(e, event);
+    }
+  }
+
   private void dispatchEvents(Iterator<Event> it)
   {
     while( it.hasNext() )
     {
-      Event event = it.next();
-      try
-      {
-        event.getTarget().dispatch(mEventRouter, mOpenUserProvider, event);
-      }
-      catch (ZxError e)
-      {
-        ChatLog.log.crit("EventManager unable to dispatch event: " +event.getClass().getName() + " " +
-                          "Exception: " + Utils.exceptionToString(e));
-        //mChatReportManager.doReport(e, event);
-      }
+      dispatchEvent(it.next());
     }
+  }
+
+  public void dispatchUnfilteredEvent(Event event)
+  {
+    dispatchEvent( event );
   }
 
   public void dispatchUnfilteredEvents(List<Event> it)

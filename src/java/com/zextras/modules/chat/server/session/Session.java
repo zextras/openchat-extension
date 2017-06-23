@@ -66,4 +66,6 @@ public interface Session extends Comparable<SessionUUID>, EventDestination
   Status getLastStatus();
   void refuseInputEvents();
   void acceptInputEvents();
+
+  boolean isSoap();
 }

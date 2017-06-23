@@ -64,19 +64,6 @@ public class SpecificAddress implements ChatAddress
 
   public boolean equals(Object object)
   {
-//    if(!(object instanceof SpecificAddress))
-//    {
-//      return false;
-//    }
-//
-//    SpecificAddress specific = (SpecificAddress) object;
-//
-//    return mAddress.equals(specific.mAddress);
-    return fullyEquals(object);
-  }
-
-  public boolean fullyEquals(Object object)
-  {
     if(!(object instanceof SpecificAddress))
     {
       return false;
@@ -117,10 +104,10 @@ public class SpecificAddress implements ChatAddress
   @Override
   public int hashCode()
   {
-    ///return mAddress.hashCode();
     return resourceAddress().hashCode();
   }
 
+  @Override
   public String resource()
   {
     return mResource;

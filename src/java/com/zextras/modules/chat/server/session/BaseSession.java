@@ -203,4 +203,10 @@ public abstract class BaseSession implements Session
 
     return true;
   }
+
+  @Override
+  public boolean isSoap()
+  {
+    return false;
+  }
 }

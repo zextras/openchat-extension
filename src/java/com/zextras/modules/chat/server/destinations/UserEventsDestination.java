@@ -65,13 +65,10 @@ public class UserEventsDestination implements EventDestination, EventDestination
   {
     try
     {
-      if (mProvisioning.getDomainByName(address.getDomain()) != null)
+      Account account = mProvisioning.getAccountByName(address.toString());
+      if (account != null)
       {
-        Account account = mProvisioning.getAccountByName(address.toString());
-        if (account != null)
-        {
-          return mProvisioning.onLocalServer(account);
-        }
+        return mProvisioning.onLocalServer(account);
       }
       return false;
     }

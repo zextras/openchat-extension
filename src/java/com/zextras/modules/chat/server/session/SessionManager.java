@@ -247,6 +247,15 @@ public class SessionManager implements EventDestinationProvider, Service
     }
   }
 
+  public void removeAccountSessions(SpecificAddress address)
+  {
+    List<Session> sessions = getUserSessions(address);
+    for (Session session : sessions)
+    {
+      terminateSessionById(session.getId());
+    }
+  }
+
   @Override
   public boolean canHandle(SpecificAddress address)
   {

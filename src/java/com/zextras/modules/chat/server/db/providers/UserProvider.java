@@ -39,5 +39,7 @@ public interface UserProvider
   // Used only for full clear of chat
   void clearCache();
 
+  void clearCache(SpecificAddress address);
+
   boolean isLocal(SpecificAddress address);
 }

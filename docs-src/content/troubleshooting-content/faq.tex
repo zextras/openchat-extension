@@ -3,7 +3,8 @@
 
     \subsection[Zimlet Issues]{OpenChat Zimlet Issues}
 
-    \subsubsection{The OpenChatZimlet is not working after the user login and I see some JavaScript Errors, what can I do?}
+    \textbf{The OpenChatZimlet is not working after the user login and I see some JavaScript Errors, what can I do?}
+
         Most commonly is caused by caching issues, refresh all the caches with these commands:
         \begin{verbatim}
 # As zimbra
@@ -11,8 +12,9 @@ zmprov flushCache -a zimlet com_zextras_chat_open
         \end{verbatim}
         If the problem persists, escalate the issue.
 
-    \subsubsection{OpenChat Zimlet doesn’t start at login and a popup appears informing the user that the server is not
+    \textbf{OpenChat Zimlet doesn’t start at login and a popup appears informing the user that the server is not
     available, what can I do?}
+
         \begin{info}
             Remeber that the OpenChat Zimlet will not start if the logged user is logged into using the delegated access
             feature (eg. View Mail button from the admin console) to protect the privacy of the user.
@@ -28,7 +30,8 @@ xxxx-xx-xx xx:xx:xx,xxx INFO  [main] [] extensions - OpenChat started
         \end{verbatim}
         Otherwise an exception, escalate the issue sending the exception to the support team.
 
-    \subsubsection{Another Zimlet is using the sidebar and a user can not see the OpenChat's buddy list, what can I do?}
+    \textbf{Another Zimlet is using the sidebar and a user can not see the OpenChat's buddy list, what can I do?}
+
         OpenChat Zimlet uses a container which can be used by other Zimlets. To void collisions the OpenChat Zimlet try
         to detect if that container is used or not.
 
@@ -60,7 +63,8 @@ zmprov modifyAccount user@example.com \
 
     \subsection[Extension Issues]{OpenChat Extension Issues}
 
-    \subsubsection{Server to server messages are not delivered between two server, what can I do?}
+    \textbf{Server to server messages are not delivered between two server, what can I do?}
+
         This issue can be caused by connections issues between two mailboxes. Verify if the port \verb+5269+ is opened on
         each server and the servers can connect to each other.
 

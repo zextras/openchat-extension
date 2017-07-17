@@ -1,0 +1,108 @@
+\chapter{Installation}
+
+\begin{warning}
+    The OpenChat Zimlet and Extension are already installed in the default Zimbra installation starting from Zimbra 8.8.0.
+
+    Any modification to the package/database may lead to a fail during the Zimbra Upgrade.
+
+    Support for any Zimbra version prior to 8.8.0 is not provided.
+\end{warning}
+
+This chapter will guide the administrator through the manual installation of Zimbra OpenChat.
+
+Zimbra OpenChat is designed specifically for Zimbra 8.8.0+, otherwise should be considered at `beta'
+stage and you should not install it in a production environment.
+
+\section{Requirements}
+    \begin{itemize}
+        \item Zimbra 8.8.0+
+        \item 25MB of free space on disk
+        \item Administrative access on Zimbra
+        \item A modern browser (like Firefox 35+ or Google Chrome 45+)
+    \end{itemize}
+
+\section{Preliminary setup}
+
+    Get and build the sources as described in the \autoref{sect:buildfromsrcs}.
+
+\subsection{Networking}
+
+    Make sure these ports are opened and exposed for a fully functional OpenChat server:
+    \begin{description}
+        \item [5269] XMPP Server-to-Server communication. Used between servers on the same cluster.
+        \item [5222] XMPP Default server port, see \autoref{sect:confkeys}
+        \item [5223] XMPP Default legacy SSL port, see \autoref{sect:confkeys}
+    \end{description}
+
+    If the mailbox is into a multi-server installation, make sure the servers can see and connect to each other.
+
+\subsection{Database}
+
+    Zimbra OpenChat Extension uses the Zimbra database to store some informations like:
+    \begin{itemize}
+        \item Information of the users
+        \item Relations between the users (the buddy list information)
+        \item Event messages which will be delivered and/or stored in the chat history (if enabled, see \autoref{sect:confkeys})
+    \end{itemize}
+
+    To create the database and the tables required by the OpenChat Extension type these commands:
+    \begin{verbatim}
+# As zimbra
+mysql <<\EOF
+  CREATE DATABASE `chat`
+    DEFAULT CHARACTER SET `utf8`
+    DEFAULT COLLATE `utf8_general_ci`;
+  GRANT ALL PRIVILEGES ON chat.* TO zimbra;
+  USE chat;
+  CREATE TABLE `USER` (
+    `ID` int(11) NOT NULL AUTO_INCREMENT,
+    `ADDRESS` varchar(256) NOT NULL,
+    PRIMARY KEY (`ID`)
+  );
+  CREATE TABLE `RELATIONSHIP` (
+    `USERID` int(11) NOT NULL,
+    `TYPE` tinyint(4) NOT NULL,
+    `BUDDYADDRESS` varchar(256) NOT NULL,
+    `BUDDYNICKNAME` varchar(128) NOT NULL,
+    `GROUP` varchar(256) NOT NULL DEFAULT ''
+  );
+  CREATE TABLE `EVENTMESSAGE` (
+    `ID` int(11) NOT NULL AUTO_INCREMENT,
+    `USERID` int(11) NOT NULL,
+    `EVENTID` varchar(36) DEFAULT NULL,
+    `SENDER` varchar(256) NOT NULL,
+    `TIMESTAMP` bigint(20) DEFAULT NULL,
+    `MESSAGE` text,
+    PRIMARY KEY (`ID`)
+  );
+EOF
+    \end{verbatim}
+
+\section{Installation of the packages}
+\label{sect:installpkgs}
+
+    To install the Extension packages copy them into the Zimbra class path. The Zimlet package need to be installed like
+    any other Zimlet for Zimbra.
+
+    Copy the Zimbra Extension packages:
+    \begin{verbatim}
+# As root
+mkdir -p /opt/zimbra/lib/ext/openchat
+cp /tmp/OpenChat/build/extension/openchat.jar /opt/zimbra/lib/ext/openchat/
+cp /tmp/OpenChat/build/extension/zal.jar /opt/zimbra/lib/ext/openchat/
+    \end{verbatim}
+
+    Once the packages are in the right place is required a mailbox restart to load the extension:
+    \begin{verbatim}
+# As zimbra
+zmmailboxdctl restart
+    \end{verbatim}
+
+    Deploy the Zimlet package:
+    \begin{verbatim}
+# As zimbra
+zmzimletctl deploy /tmp/OpenChat/build/zimlet/com_zextras_chat_open.zip
+    \end{verbatim}
+
+    By default the zimlet is enabled for the Zimbra `default' class of service (COS).
+    Enable the zimlet on the required COSes from the administration console.

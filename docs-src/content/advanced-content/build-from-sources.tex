@@ -30,8 +30,8 @@ git clone --recursive git@github.com:ZeXtras/OpenChat.git
 cd OpenChat
 # Checkout the correct branch for the Zimbra release (assuming Zimbra 8.7.6 )
 git checkout release/8.7.6
-# Build the whole package (can take some minutes)
-make
+# Build the whole package setting the target Zimbra (can take some minutes)
+make clean; make ZAL_ZIMBRA_VERSION=8.7.6
     \end{verbatim}
 
     The final artifacts will be placed in this order:

@@ -1,3 +1,7 @@
+#!/bin/bash
+
+mkdir -p src/java/com/zextras/lib
+cat > src/java/com/zextras/lib/BuildInfo.java <<EOF
 /*
  * Copyright (C) 2017 ZeXtras S.r.l.
  *
@@ -15,22 +19,12 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server;
+package com.zextras.lib;
 
-import com.zextras.lib.BuildInfo;
-import org.openzal.zal.lib.Version;
-
-public class ChatVersionImpl implements ChatVersion
+public class BuildInfo
 {
-  @Override
-  public Version getServerChatVersion()
-  {
-    return new Version(BuildInfo.Version);
-  }
+	public final static String COMMIT="$(git rev-parse HEAD)";
+	public final static String Version="$(cat version)";
+};
 
-  @Override
-  public Version getRequiredZimletVersion()
-  {
-    return new Version(BuildInfo.Version);
-  }
-}
+EOF

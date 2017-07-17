@@ -22,6 +22,8 @@ package com.zextras.modules.chat.server.soap.command;
 
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.Error.DelegatedOrResourcesNotAllowedToChatError;
+import com.zextras.modules.chat.server.operations.ChatOperation;
+import com.zextras.modules.chat.server.operations.NotifyFriendsStatus;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventId;
@@ -73,36 +75,13 @@ public class SoapCommandRegister extends SoapCommand
     mChatProperties = chatProperties;
   }
 
-  @Override
-  public List<ChatOperation> createOperationList()
-    throws MissingParameterException, InvalidParameterException
+  public ChatOperation createRegisterSoapSession(
+    SessionUUID newSessionUUID,
+    String clientVersion,
+    boolean silentErrorReportingEnabled
+  )
   {
-    // Check if the request comes from a delegated admin or it's a resource
-    String accountId = mZimbraContext.getTargetAccountId();
-    boolean silentErrorReportingEnabled;
-    try
-    {
-      Account account = mProvisioning.getAccountById(accountId);
-      silentErrorReportingEnabled = mChatProperties.isSilentErrorReportingEnabled();
-
-      if (mZimbraContext.isDelegatedAuth() || account == null || account.isCalendarResource() || account.isIsSystemResource())
-      {
-        mSoapResponse.setValue("session_id", "");
-        mSoapResponse.setValue("error", new DelegatedOrResourcesNotAllowedToChatError(mChatProperties.getProductName()).toJSON().toString());
-        return Collections.emptyList();
-      }
-    } catch (ZimbraException e) {
-      throw new InvalidParameterException("The account " + accountId + " doesn't exists.");
-    }
-
-    String clientVersion = mParameterMap.get("clientVersion");
-    if( clientVersion == null ) {
-      clientVersion = "";
-    }
-
-    final SessionUUID newSessionUUID = SessionUUID.randomUUID();
-
-    ChatOperation registerSoapSession = new RegisterSoapSession(
+    return new RegisterSoapSession(
       newSessionUUID,
       mSoapResponse,
       mSoapEncoderFactory,
@@ -111,20 +90,84 @@ public class SoapCommandRegister extends SoapCommand
       clientVersion,
       silentErrorReportingEnabled
     );
+  }
 
-    ChatOperation setStatus = new SetStatusOnLoginOrLogout(
+  public ChatOperation createSetStatusLoginOrLogout(SessionUUID newSessionUUID)
+  {
+    return new SetStatusOnLoginOrLogout(
       newSessionUUID
     );
+  }
 
-    ChatOperation sendRelationships = new GetRelationships(
+  public ChatOperation createGetRelationships(SessionUUID newSessionUUID)
+  {
+    return new GetRelationships(
       EventId.randomUUID(),
       mSenderAddress,
       newSessionUUID
     );
+  }
 
-    ChatOperation writeUserStatus = new NotifyFriendsStatus(
+  public ChatOperation createNotifyFriendsStatus()
+  {
+    return new NotifyFriendsStatus(
       mSenderAddress
     );
+  }
+
+  public boolean isChatAllowed(String accountId) throws InvalidParameterException
+  {
+    try
+    {
+      Account account = mProvisioning.getAccountById(accountId);
+
+      if (mZimbraContext.isDelegatedAuth() || account == null || account.isCalendarResource() || account.isIsSystemResource())
+      {
+        mSoapResponse.setValue("session_id", "");
+        mSoapResponse.setValue("error", new DelegatedOrResourcesNotAllowedToChatError(mChatProperties.getProductName()).toJSON().toString());
+        return false;
+      }
+    } catch (ZimbraException e) {
+      throw new InvalidParameterException("The account " + accountId + " doesn't exists.");
+    }
+
+    return true;
+  }
+
+  @Override
+  public List<ChatOperation> createOperationList()
+    throws MissingParameterException, InvalidParameterException
+  {
+    // Check if the request comes from a delegated admin or it's a resource
+    String accountId = mZimbraContext.getTargetAccountId();
+
+    if (!isChatAllowed(accountId))
+    {
+      return Collections.emptyList();
+    }
+
+    boolean silentErrorReportingEnabled = mChatProperties.isSilentErrorReportingEnabled();
+
+    String clientVersion = mParameterMap.get("clientVersion");
+    if( clientVersion == null ) {
+      clientVersion = "";
+    }
+
+    final SessionUUID newSessionUUID = SessionUUID.randomUUID();
+
+    ChatOperation registerSoapSession = createRegisterSoapSession(
+      newSessionUUID,
+      clientVersion,
+      silentErrorReportingEnabled
+    );
+
+    ChatOperation setStatus = createSetStatusLoginOrLogout(
+      newSessionUUID
+    );
+
+    ChatOperation sendRelationships = createGetRelationships(newSessionUUID);
+
+    ChatOperation writeUserStatus = createNotifyFriendsStatus();
 
     return Arrays.<ChatOperation>asList(
       registerSoapSession,

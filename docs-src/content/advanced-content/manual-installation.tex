@@ -26,15 +26,15 @@ stage and you should not install it in a production environment.
 
 \subsection{Preliminary setup}
 
-    Get and build the sources as described in the \autoref{sect:buildfromsrcs}.
+    Get and build the sources as described in the \ref{==sect:buildfromsrcs==}.
 
 \subsubsection{Networking}
 
     Make sure these ports are opened and exposed for a fully functional OpenChat server:
     \begin{description}
         \item [5269] XMPP Server-to-Server communication. Used between servers on the same cluster.
-        \item [5222] XMPP Default server port, see \autoref{sect:confkeys}
-        \item [5223] XMPP Default legacy SSL port, see \autoref{sect:confkeys}
+        \item [5222] XMPP Default server port, see \ref{==sect:confkeys==}
+        \item [5223] XMPP Default legacy SSL port, see \ref{==sect:confkeys==}
     \end{description}
 
     If the mailbox is into a multi-server installation, make sure the servers can see and connect to each other.
@@ -45,7 +45,7 @@ stage and you should not install it in a production environment.
     \begin{itemize}
         \item Information of the users
         \item Relations between the users (the buddy list information)
-        \item Event messages which will be delivered and/or stored in the chat history (if enabled, see \autoref{sect:confkeys})
+        \item Event messages which will be delivered and/or stored in the chat history (if enabled, see \ref{==sect:confkeys==})
     \end{itemize}
 
     To create the database and the tables required by the OpenChat Extension type these commands:
@@ -82,7 +82,7 @@ EOF
     \end{verbatim}
 
 \subsection{Installation of the packages}
-\label{sect:installpkgs}
+\label{==sect:installpkgs==}
 
     To install the Extension packages copy them into the Zimbra class path. The Zimlet package need to be installed like
     any other Zimlet for Zimbra.

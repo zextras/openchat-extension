@@ -1,5 +1,5 @@
 \section{F.A.Q.}
-\label{sect:faq}
+\label{==sect:faq==}
 
     \subsection[Zimlet Issues]{OpenChat Zimlet Issues}
 
@@ -23,7 +23,7 @@ TIP:
             feature (eg. View Mail button from the admin console) to protect the privacy of the user.
         \end{info}
 
-        Check if the openchat extension is loaded correctly in the \verb+mailbox.log+ (see in \autoref{sect:mailboxlog}
+        Check if the openchat extension is loaded correctly in the \verb+mailbox.log+ (see in \ref{==sect:mailboxlog==}
         how to read the \verb+mailbox.log+).
 
         The loading of the Zimbra Extension is granted by the following lines at the mailbbox startup:
@@ -74,24 +74,24 @@ zmprov modifyAccount user@example.com \
         In order to verify if the port is opened on the server, a simple check can be done trying to connecto to the \verb+5269+
         port using a telnet client.
 
-        If everything seems to work properly, open the \verb+mailbox.log+ (see in \autoref{sect:mailboxlog} how to read
+        If everything seems to work properly, open the \verb+mailbox.log+ (see in \ref{==sect:mailboxlog==} how to read
         the \verb+mailbox.log+) on both server and try to send an event (eg. a text message should be enough). If an
         exception appear take a look at that to give an hint on the error. If no meaningful exception, escalate the issue
         sending the exception to the support team.
 
     \subsection[Escalate an issue]{How to escalate an issue}
-    \label{sect:how_to_escalate_an_issue}
+    \label{==sect:how-to-escalate-an-issue==}
         In case You have found an issue and You are not able to fix it, contact the support team with these informations:
         \begin{itemize}
             \item A detailed description of the issue: What you are expecting and what is really happening.
             \item A detailed description of the steps to reproduce the issue.
-            \item A detailed description of the installation and the environment: (see \autoref{sect:gatheringinfo})
+            \item A detailed description of the installation and the environment: (see \ref{==sect:gatheringinfo==})
             \begin{itemize}
                 \item Server information: Cpu, Ram, Number of the servers and for each server:
                 \begin{itemize}
-                    \item Zimbra Version (see \autoref{sect:gatheringinfo-zversion})
+                    \item Zimbra Version (see \ref{==sect:gatheringinfo-zversion==})
                     \item OpenChat Version
-                    \item List of the installed zimlets (see \autoref{sect:gatheringinfo-listzimlets})
+                    \item List of the installed zimlets (see \ref{==sect:gatheringinfo-listzimlets==})
                 \end{itemize}
                 \item Client information:
                 \begin{itemize}
@@ -99,12 +99,12 @@ zmprov modifyAccount user@example.com \
                     \item Connectivity used between the servers and the client
                     \item Client Skin (theme)
                     \item Client Language
-                    \item List of the Zimlets enabled on the user (see \autoref{sect:gatheringinfo-userzimlets})
+                    \item List of the Zimlets enabled on the user (see \ref{==sect:gatheringinfo-userzimlets==})
                 \end{itemize}
             \end{itemize}
             \item Any log envolved by the issue:
             \begin{itemize}
-                \item \verb+mailbox.log+ (see \autoref{sect:mailboxlog})
+                \item \verb+mailbox.log+ (see \ref{==sect:mailboxlog==})
             \end{itemize}
             You can remove any personal information to protect Your and Your Users privacy.
         \end{itemize}

@@ -7,13 +7,13 @@ to the support team.
 
 We will proceed through these steps:
 \begin{enumerate}
-    \item \hyperref[{sect:zim_err}]{Check for Zimlet Errors}
-    \item \hyperref[{sect:ext_err}]{Check for Extension Errors}
+    \item \ref{==sect:zim-err==}
+    \item \ref{==sect:ext-err==}
 %    \item \hyperref[{sect:comm_err}]{Check for Communication Errors}
 \end{enumerate}
 
 \subsection[Zimlet Error]{OpenChat Zimlet Error}
-\label{sect:zim_err}
+\label{==sect:zim-err==}
 To locate any errors in the source code of the OpenChat Zimlet You need to enable the devloper mode on the Zimbra Web Client.
 
 To enable the developer mode on Zimbra Web Client modify the URL of the Zimbra installation appending \verb+?dev=1+ into
@@ -21,7 +21,7 @@ the browser URL. Adding the \verb+dev=1+ parameter to the URL will force Zimbra 
 minified sources, included the Zimlets. A longer load time should be expected.
 
 During the loading of the Zimbra Web Client open the browser developer tools (if You don't know how to open the browser
-developer tools please read \autoref{sect:tools}).
+developer tools please read \ref{==sect:tools==}).
 
 In the browser developer tools console You will see some logs from the OpenChat Zimlet. If an error occurs it will be printed into
 the browser developer tools console.
@@ -31,20 +31,20 @@ Enabling that option if an error occurs the execution of the software will be pa
 
 Please escalate the issue sending us the file and the row and any details about the error You are seeing\footnotemark[1].
 
-If no errors are detected please follow the \autoref{sect:ext_err}.
+If no errors are detected please follow \ref{==sect:ext-err==}.
 
 \subsection[Extension Error]{OpenChat Extension Error}
-\label{sect:ext_err}
+\label{==sect:ext-err==}
 Any exception thrown by the OpenChat Extension is written into the `mailbox.log'. To check if there is any exception please
-refer to \autoref{sect:mailboxlog}.
+refer to \ref{==sect:mailboxlog==}.
 
-If You can't find a solution for the exception in the \autoref{sect:faq} please escalate the issue to the support team
+If You can't find a solution for the exception in the \ref{==sect:faq==} please escalate the issue to the support team
 sending the complete exception information\footnotemark[1].
 
 %\subsection[Communication Error]{Communication error between the Openchat Zimlet and Extension}
-%\label{sec:tcomm_err}
+%\label{==sec:tcomm-err==}
 % TODO: Add something useful to this section.
 
 \footnotetext[1]{
-    Send the complete stack trace of the error with the complete system information as described in \autoref{sect:gatheringinfo}
+    Send the complete stack trace of the error with the complete system information as described in \ref{==sect:gatheringinfo==}
 }

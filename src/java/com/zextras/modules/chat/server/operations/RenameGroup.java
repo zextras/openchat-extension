@@ -73,7 +73,7 @@ public class RenameGroup implements ChatOperation
             mTargetAddress.withoutSession(),
             relationship.getBuddyAddress(),
             relationship.getBuddyNickname(),
-            relationship.getGroup(),
+            mNewGroupName,
             new Target(mTargetAddress)
           )
         );

@@ -135,7 +135,7 @@ public class OpenUserProvider implements UserProvider
   @NotNull
   private InternalUser buildUser(UserInfo userInfo, EventQueue eventQueue) throws ChatDbException
   {
-    
+
     return new InternalUser(userInfo.getId(),
                             userInfo.getAddress(),
                             eventQueue,
@@ -198,5 +198,11 @@ public class OpenUserProvider implements UserProvider
     } catch (ZimbraException ignored) {}
 
     return false;
+  }
+
+  @Override
+  public void clearCache(SpecificAddress address)
+  {
+    mUserIdentityMap.removeUser(address);
   }
 }

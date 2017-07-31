@@ -9,8 +9,8 @@
   </loadfile>
 
   <property name="zimbra-version" value="${version}"/>
-  <property name="zal-version" value="1.11"/>
-  <property name="required-zal-version" value="1.11.9"/>
+  <property name="zal-version" value="2.0"/>
+  <property name="required-zal-version" value="2.0"/>
 
   <property name="extensionlib" value="extensionlib"/>
 

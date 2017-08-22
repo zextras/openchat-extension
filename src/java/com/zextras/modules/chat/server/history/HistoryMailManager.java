@@ -25,11 +25,14 @@ import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.ConversationBuilder;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import org.apache.commons.io.IOUtils;
 import org.openzal.zal.Account;
 import org.openzal.zal.Chat;
 import org.openzal.zal.Item;
 import org.openzal.zal.Mailbox;
 import org.openzal.zal.OperationContext;
+import org.openzal.zal.QueryResults;
+import org.openzal.zal.SortedBy;
 import org.openzal.zal.exceptions.ZimbraException;
 import org.openzal.zal.lib.ActualClock;
 import com.zextras.modules.chat.server.ChatMessage;
@@ -40,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -129,38 +133,94 @@ public class HistoryMailManager
     createMessageWriter(conversationBuilder).createNewChat(participant.toString(), CHAT_HISTORY_VERSION);
   }
 
+  private Iterator<Item> buildQueryResultsIterator(final QueryResults queryResults)
+  {
+    return new Iterator<Item>()
+    {
+      @Override
+      public boolean hasNext()
+      {
+        return queryResults.hasNext();
+      }
+
+      @Override
+      public Item next()
+      {
+        return queryResults.getNext().getMailItem();
+      }
+
+      @Override
+      public void remove()
+      {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
+
   public @Nullable
   Chat findMessage(Date currentDate, SpecificAddress participant)
     throws ZimbraException, MessagingException
   {
-    List<Item> messages = mMailbox.getItemList(Item.TYPE_CHAT, mOperationContext);
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    DateFormat defaultDateFormat = DateFormat.getDateInstance(3, Locale.getDefault());
 
-    for( Item message : messages )
+    Iterator<Item> messages;
+    QueryResults queryResults = null;
+    try
     {
-      if ( message.getFolderId() != Mailbox.ID_FOLDER_IM_LOGS ) {
-        continue;
-      }
-      Chat chat = message.toChat();
-      String[] historyVersion = chat.getMimeMessage().getHeader("ZxChat-History-Version");
-      Date emailDate = chat.getMimeMessage().getSentDate();
+      String query = "inid:" + Mailbox.ID_FOLDER_IM_LOGS + " date:" + defaultDateFormat.format(currentDate) + " subject:\"ZxChat - " + participant.toString()+"\"";
+      queryResults = mMailbox.search(
+        mMailbox.newOperationContext(),
+        query,
+        new byte[]{Item.TYPE_MESSAGE},
+        SortedBy.DATE_DESC,
+        1
+      );
+      messages = buildQueryResultsIterator(queryResults);
+    }
+    catch (IOException e)
+    {
+      messages = mMailbox.getItemList(Item.TYPE_CHAT, mOperationContext).iterator();
+    }
 
-      if( historyVersion == null || emailDate == null ) {
-        continue;
-      }
-
-      String subject = chat.getSubject();
-      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-      String currentDateFormatted = dateFormat.format(currentDate);
-      String emailDateFormatted = dateFormat.format(emailDate);
-
-      if( currentDateFormatted.equals(emailDateFormatted) && subject.endsWith("Chat - " + participant))
+    try
+    {
+      while (messages.hasNext())
       {
+        Item message = messages.next();
+        if (message.getFolderId() != Mailbox.ID_FOLDER_IM_LOGS)
+        {
+          continue;
+        }
+
+        String emailDateFormatted = dateFormat.format(new Date(message.getDate()));
+
+        String subject = message.getSubject();
+
+        String currentDateFormatted = dateFormat.format(currentDate);
+        if (!currentDateFormatted.equals(emailDateFormatted) || !subject.endsWith("Chat - " + participant))
+        {
+          continue;
+        }
+
+        Chat chat = message.toChat();
+        String[] historyVersion = chat.getMimeMessage().getHeader("ZxChat-History-Version");
+        Date emailDate = chat.getMimeMessage().getSentDate();
+
+        if (historyVersion == null || emailDate == null)
+        {
+          continue;
+        }
+
         if (historyVersion.length > 0 && historyVersion[0].equals(CHAT_HISTORY_VERSION))
         {
           return chat;
         }
       }
+    }
+    finally
+    {
+      IOUtils.closeQuietly(queryResults);
     }
 
     return null;

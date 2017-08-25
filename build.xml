@@ -320,7 +320,7 @@
       <fileset dir="extensionlib/build/" includes="**/*" />
       <fileset dir="build/" includes="**/*" />
       <fileset dir="dist/" includes="**/*" />
-      <fileset file="lib/zal.jar"/>
+      <!-- <fileset file="lib/zal.jar"/> -->
     </delete>
   </target>
 </project>

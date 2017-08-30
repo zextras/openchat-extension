@@ -1,0 +1,13 @@
+\section{Sizing}
+\label{sect:sizing}
+
+Stress tests are being perfomed on the product.
+
+We have noticed an increment of the workload stimabe at most 7\% in an Zimbra installation with 20000 users.
+
+The most impacting part of the OpenChat Zimbra Extension is made by the history feature. When a message is sent, a mime
+message is either created or updated, meaning few kilobytes are read or written and some database queries are performed.
+
+\begin{info}
+    We suggest to disable history in very large deployments, to edit the configuration see \autoref{sect:confkeys}.
+\end{info}

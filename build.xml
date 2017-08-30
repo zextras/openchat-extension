@@ -8,9 +8,9 @@
     </filterchain>
   </loadfile>
 
-  <property name="zimbra-version" value="${version}"/>
+  <property name="zal-zimbra-version" value="dev-last"/>
   <property name="zal-version" value="2.0"/>
-  <property name="required-zal-version" value="2.0"/>
+  <property name="required-zal-version" value="2.0.0"/>
 
   <property name="extensionlib" value="extensionlib"/>
 
@@ -32,8 +32,8 @@
         <echo> Using ZAL ${lib}/${zal} </echo>
       </then>
       <else>
-        <echo> Downloading ZAL ${zal-version} for Zimbra ${zimbra-version} ... </echo>
-        <get src="https://openzal.org/${zal-version}/zal-${zal-version}-${zimbra-version}.jar"
+        <echo> Downloading ZAL ${zal-version} ... </echo>
+        <get src="https://openzal.org/${zal-version}/zal-${zal-version}-${zal-zimbra-version}.jar"
             dest="${lib}/${zal}" usetimestamp="true"/>
       </else>
     </if>
@@ -45,6 +45,7 @@
   <target name="init" depends="download-zal,dependencies">
     <tstamp />
     <echo> Building OpenChat ${version} </echo>
+    <exec executable="./gen_buildinfo.sh" failonerror="true" />
   </target>
 
   <target name="jar"  depends="init" description="create jar">
@@ -83,7 +84,7 @@
         <attribute name="Specification-Version" value="${version}" />
         <attribute name="Created-By" value="ZeXtras" />
         <attribute name="ZAL-Extension-Class" value="com.zextras.modules.chat.ChatExtension" />
-        <attribute name="ZAL-Required-Version" value="${zal-version}" />
+        <attribute name="ZAL-Required-Version" value="${required-zal-version}" />
       </manifest>
       <fileset dir="${build}" />
       <fileset dir="${extensionlib}/build" />
@@ -319,6 +320,7 @@
       <fileset dir="extensionlib/build/" includes="**/*" />
       <fileset dir="build/" includes="**/*" />
       <fileset dir="dist/" includes="**/*" />
+      <!-- <fileset file="lib/zal.jar"/> -->
     </delete>
   </target>
 </project>

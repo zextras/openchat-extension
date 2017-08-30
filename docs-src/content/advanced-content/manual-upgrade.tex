@@ -1,0 +1,54 @@
+\section{Manual Upgrade}
+
+\begin{warning}
+    Manual upgrade is not supported.
+
+    The OpenChat Zimlet and Extension are upgraded during the the Zimbra upgrade.
+
+    Any modification to the installed zimbra packages or to the database may lead to a fail during the Zimbra upgrade.
+\end{warning}
+
+This chapter will guide the administrator through the manual upgrade of the OpenChat.
+
+\subsection{Common tasks}
+
+    Get and build the sources as described in the \autoref{sect:buildfromsrcs}. After the build the installed packages
+    can be replaced following the same steps as the installation described in \autoref{sect:installpkgs}.
+
+\subsection{From Zimbra 8.7.6}
+    \subsubsection{Upgrade the database}
+
+        The default OpenChat database schema was created in \verb+latin1_swedish_ci+, the administrator MUST convert it to \verb+UTF-8+
+
+        To verify the collation of the database run this command:
+        \begin{verbatim}
+# As zimbra
+mysql <<\EOF
+  SELECT `DEFAULT_COLLATION_NAME`
+    FROM information_schema.SCHEMATA
+    WHERE SCHEMA_NAME=`chat`;
+EOF
+        \end{verbatim}
+
+        If the current collation name is \verb+latin1_swedish_ci+ migrate the tables running this command:
+        \begin{verbatim}
+# As zimbra
+mysql <<\EOF
+  ALTER SCHEMA `chat`
+    DEFAULT CHARACTER SET `utf8`
+    DEFAULT COLLATE `utf8_general_ci`;
+  USE `chat`;
+  ALTER TABLE `USER`
+    CONVERT TO
+        CHARACTER SET `utf8`
+        COLLATE `utf8_general_ci`;
+  ALTER TABLE `RELATIONSHIP`
+    CONVERT TO
+        CHARACTER SET `utf8`
+        COLLATE `utf8_general_ci`;
+  ALTER TABLE `EVENTMESSAGE`
+    CONVERT TO
+        CHARACTER SET `utf8`
+        COLLATE `utf8_general_ci`;
+EOF
+        \end{verbatim}

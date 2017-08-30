@@ -1,0 +1,52 @@
+\section{Zimlet}
+The zimlet is the client component which the final user is using.\\
+Its source code is available under GPLv2 license on github: \url{http://github.com/ZeXtras/openchat-zimlet}
+
+\subsection{Architecture}
+The OpenChat Zimlet was designed to be semantically compatible with XMPP but it uses SOAP requests to communicate with
+ the OpenChat Extension.
+
+The chat client will register a new session, and start the ping requests.
+
+Ping requests are pending unanswered HTTP requests, once the server receive a new update valuable for the client (eg.
+ a message from another user) it will be sent to the client by answering the ping. As soon as the client receive
+ the ping answer it will process the update (eg. the client can open a new chat window with the message).
+
+Once the client has received ant event, a new ping request is done immediately.
+
+If there is no information for the client within  about 30 seconds the answer will be empty. If no ping requests are issued
+ within 1 minute, the server will expire the session and the user is marked as 'offline'.
+
+If the same client try to reconnect with the same token the server will send to the client an event to tell about the session
+ expiration. Receiving that event the client will create another session.
+
+Each Ping answer also contain Zimbra own header (the same used by NoOp, and any other SOAP request), meaning that it'll
+ be used by zimbra also as a notification vector for another means like new emails and calendars updates.
+ A side effect of this behavior is the reduced NoOp requests made by the Zimbra IO.
+
+If multiple computers (or browser tabs) are opened on the same zimbra account, the chat client will create an indipendent
+ session for each, every session will be kept up to date with the same events. In case of multiple session
+ the client shows the 'most available' status of every session.
+
+Any action taken by the client will issue its own SOAP request, such as status change and new messages.
+
+\section{Extension}
+The zimbra extension is the server component, it handle the SOAP service and the XMPP services.\\
+Its source code is available under GPLv2 license on github: \url{http://github.com/ZeXtras/openchat-extension}
+
+\subsection{XMPP Server}
+Zimbra OpenChat does implement a simple and standard XMPP server which can be used by any standard XMPP client.
+
+The server only implements few of the hundreds possible XEP (Xmpp Extension protocol, \url{http://xmpp.org/extensions/index.html} for XMPP,
+ most relevant is carbon copy, which is useful for copy your own messages from web client to mobile xmpp application.
+
+The server starts when your mailboxd starts and will listen to port \verb+5222+, which is the original unencrypted port
+ which support StartTLS and the \verb+5223+ port, which is the legacy SSL only port.
+
+These ports can be configured using the `zimbraChatXmppSslPortEnabled' configuration.
+
+The authentication is against zimbra account password, and does by default require encryption to be enabled before authenticating.
+
+When multiple mailboxd are involved events (or stanzas, in XMPP language) are sent through the port \verb+5269+,
+ which is the official XMPP port for server to server communication.
+ This port is not configurable and it only allow messages coming from the same zimbra infrastructure, XMPP federation is currently unsupported.

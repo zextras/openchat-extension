@@ -19,6 +19,7 @@ package com.zextras.modules.chat;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.zextras.lib.BuildInfo;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.lib.json.JSONObject;
 import com.zextras.lib.log.ChatLog;
@@ -220,7 +221,7 @@ public class ChatExtension implements ZalExtension
           MILLIS_IN_DAY
         );
 
-        ChatLog.log.info("OpenChat started.");
+        ChatLog.log.info("OpenChat started "+ BuildInfo.Version +"(commit "+ BuildInfo.COMMIT +").");
       }
       catch (Exception e)
       {

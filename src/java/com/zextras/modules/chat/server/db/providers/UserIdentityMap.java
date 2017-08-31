@@ -25,46 +25,30 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Singleton
 public class UserIdentityMap<T extends User> implements UserIdentityMapReader {
-  private ReentrantLock mLock = new ReentrantLock();
-  private final HashMap<String, T> mUserIdentityMap;
+  private final Map<String, T> mUserIdentityMap;
 
   @Inject
   public UserIdentityMap() {
-    mUserIdentityMap = new HashMap<String, T>();
+    mUserIdentityMap = new ConcurrentHashMap<String, T>();
   }
 
   public void addUser(T user) {
-    mLock.lock();
-    try {
-      mUserIdentityMap.put(user.getAddress().toString(), user);
-    } finally {
-      mLock.unlock();
-    }
+    mUserIdentityMap.put(user.getAddress().toString(), user);
   }
 
   @Override
   public T getUser(SpecificAddress address) {
-    mLock.lock();
-    T user = null;
-    try {
-      user = mUserIdentityMap.get(address.toString());
-    } finally {
-      mLock.unlock();
-    }
-    return user;
+    return mUserIdentityMap.get(address.toString());
   }
 
   public void removeUser(SpecificAddress address) {
-    mLock.lock();
-    try {
-      mUserIdentityMap.remove(address.toString());
-    } finally {
-      mLock.unlock();
-    }
+    mUserIdentityMap.remove(address.toString());
   }
 
   @Override
@@ -79,11 +63,6 @@ public class UserIdentityMap<T extends User> implements UserIdentityMapReader {
   @Override
   public List<User> getAllUsers()
   {
-    mLock.lock();
-    try {
-      return new ArrayList<User>(mUserIdentityMap.values());
-    } finally {
-      mLock.unlock();
-    }
+    return new ArrayList<User>(mUserIdentityMap.values());
   }
 }

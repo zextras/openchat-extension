@@ -15,10 +15,12 @@ import org.openzal.zal.Account;
 import org.openzal.zal.DistributionList;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
+import org.openzal.zal.exceptions.NoSuchAccountException;
 import org.openzal.zal.lib.Filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -57,10 +59,14 @@ public class DistributionListsRelationshipProvider
     {
       account = getUserAccountFromId(userId);
     }
-    catch (ChatDbException e)
+    catch (ChatDbException e )
     {
       ChatLog.log.crit(Utils.exceptionToString(e));
       throw new RuntimeException(e);
+    }
+    catch (NoSuchAccountException ignore)
+    {
+      return Collections.emptyList();
     }
     return getDistributionListsRelationships(userId, account);
   }

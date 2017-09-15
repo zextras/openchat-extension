@@ -42,7 +42,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class OpenUserProvider implements UserProvider
 {
   private final UserInfoMapper                mUserInfoMapper;
-  private final UserIdentityMap<InternalUser> mUserIdentityMap;
+  private final UserIdentityMap<InternalUser> mUserCache;
   private final UserModifier                  mUserModifier;
   private final Provisioning                  mProvisioning;
   private final UserInfoIteratorMapper        mUserInfoIteratorMapper;
@@ -56,7 +56,7 @@ public class OpenUserProvider implements UserProvider
   @Inject
   public OpenUserProvider(
     UserInfoMapper userInfoMapper,
-    UserIdentityMapImpl userIdentityMap,
+    UserIdentityMapImpl userCache,
     UserModifier userModifier,
     Provisioning provisioning,
     UserInfoIteratorMapper userInfoIteratorMapper,
@@ -69,7 +69,7 @@ public class OpenUserProvider implements UserProvider
     mUserInfoMapper = userInfoMapper;
     mRelationshipProvider = relationshipProvider;
     mRelationshipModifier = relationshipModifier;
-    mUserIdentityMap = userIdentityMap;
+    mUserCache = userCache;
     mUserModifier = userModifier;
     mProvisioning = provisioning;
     mUserInfoIteratorMapper = userInfoIteratorMapper;
@@ -124,7 +124,7 @@ public class OpenUserProvider implements UserProvider
       EventQueue eventQueue = mEventQueueFactory.create(0);
       InternalUser user = buildUser(userInfo, eventQueue);
 
-      mUserIdentityMap.addUser(user);
+      mUserCache.addUser(user);
 
       return user;
     } finally {
@@ -148,18 +148,18 @@ public class OpenUserProvider implements UserProvider
   @Override
   public void visitAllUsers(UserVisitor visitor) throws ChatDbException
   {
-    visitAllUsers(mUserIdentityMap, visitor);
+    visitAllUsers(mUserCache, visitor);
   }
 
-  public void visitAllUsers(UserIdentityMap userIdentityMap, UserVisitor visitor) throws ChatDbException
+  public void visitAllUsers(UserIdentityMap userCache, UserVisitor visitor) throws ChatDbException
   {
     for( UserInfo userInfo : mUserInfoIteratorMapper.get() )
     {
       User user;
 
-      if( userIdentityMap.hasUser(userInfo.getAddress()) )
+      if( userCache.hasUser(userInfo.getAddress()) )
       {
-        user = userIdentityMap.getUser(userInfo.getAddress());
+        user = userCache.getUser(userInfo.getAddress());
       }
       else
       {
@@ -172,7 +172,7 @@ public class OpenUserProvider implements UserProvider
 
   @Override
   public InternalUser getUserFromCache(SpecificAddress address) {
-    InternalUser userInstance = mUserIdentityMap.getUser(address);
+    InternalUser userInstance = mUserCache.getUser(address);
     if (userInstance != null)
     {
       return userInstance;
@@ -183,7 +183,7 @@ public class OpenUserProvider implements UserProvider
   // Used only for full clear of chat
   @Override
   public void clearCache() {
-    mUserIdentityMap.clear();
+    mUserCache.clear();
   }
 
   @Override
@@ -201,8 +201,8 @@ public class OpenUserProvider implements UserProvider
   }
 
   @Override
-  public void clearCache(SpecificAddress address)
+  public void removeFromCache(SpecificAddress address)
   {
-    mUserIdentityMap.removeUser(address);
+    mUserCache.removeUser(address);
   }
 }

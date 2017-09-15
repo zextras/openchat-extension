@@ -36,10 +36,9 @@ public interface UserProvider
 
   User getUserFromCache(SpecificAddress address);
 
-  // Used only for full clear of chat
   void clearCache();
 
-  void clearCache(SpecificAddress address);
+  void removeFromCache(SpecificAddress address);
 
   boolean isLocal(SpecificAddress address);
 }

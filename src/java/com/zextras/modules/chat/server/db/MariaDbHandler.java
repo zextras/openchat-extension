@@ -32,21 +32,13 @@ import java.sql.SQLException;
 public class MariaDbHandler implements DbHandler
 {
   private final ZimbraConnectionProvider mZimbraConnectionProvider;
-  private final DbInfoMapper mDbInfoMapper;
 
   @Inject
   public MariaDbHandler(
-    ZimbraConnectionProvider zimbraConnectionProvider,
-    DbInfoMapper dbInfoMapper
+    ZimbraConnectionProvider zimbraConnectionProvider
   )
   {
     mZimbraConnectionProvider = zimbraConnectionProvider;
-    mDbInfoMapper = dbInfoMapper;
-  }
-
-  public DbInfo getDatabaseInfo() throws SQLException, ChatDbException
-  {
-    return mDbInfoMapper.get();
   }
 
   @Override

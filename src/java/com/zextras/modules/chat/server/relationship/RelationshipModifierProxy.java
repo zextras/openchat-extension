@@ -9,112 +9,126 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
  * Class provides user's relationship's modifier methods, hiding the
  * relationships's fonts.
  */
-public class RelationshipModifierProxy
-  implements RelationshipModifier
+public class RelationshipModifierProxy implements RelationshipModifier
 {
   private final DirectRelationshipModifier            mDirectRelationshipModifier;
   private final DistributionListRelationshipModifier  mDistributionListRelationshipModifier;
   private final DistributionListsRelationshipProvider mDistributionListsRelationshipProvider;
-  
+
   @Inject
   public RelationshipModifierProxy(DirectRelationshipModifier directRelationshipModifier,
                                    DistributionListRelationshipModifier distributionListRelationshipModifier,
                                    DistributionListsRelationshipProvider distributionListsRelationshipProvider)
-    throws
-    ChatDbException
   {
     mDirectRelationshipModifier = directRelationshipModifier;
     mDistributionListRelationshipModifier = distributionListRelationshipModifier;
     mDistributionListsRelationshipProvider = distributionListsRelationshipProvider;
   }
-  
+
+  private boolean dlistHasFriendship(int userId, SpecificAddress userAddress, SpecificAddress buddyAddress)
+  {
+    return mDistributionListsRelationshipProvider.userRelationshipType(
+      userId,
+      userAddress,
+      buddyAddress
+    ) != null;
+  }
+
   @Override
-  public void addRelationship(int userId,
-                              SpecificAddress buddyAddress,
-                              Relationship.RelationshipType type,
-                              String buddyNickname,
-                              String group)
+  public void addRelationship(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    Relationship.RelationshipType type,
+    String buddyNickname,
+    String group
+  )
   {
     mDirectRelationshipModifier.addRelationship(userId,
-                                                buddyAddress,
+                                                userAddress, buddyAddress,
                                                 type,
                                                 buddyNickname,
                                                 group);
   }
-  
+
   @Override
-  public void removeRelationship(int userId,
-                                 SpecificAddress buddyAddress)
+  public void removeRelationship(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress
+  )
   {
-    if (mDistributionListsRelationshipProvider.userHasRelationship(userId,
-                                                                   buddyAddress))
+    if (dlistHasFriendship(userId, userAddress, buddyAddress))
     {
       mDistributionListRelationshipModifier.removeRelationship(userId,
-                                                               buddyAddress);
+                                                               userAddress, buddyAddress
+      );
     }
     else
     {
       mDirectRelationshipModifier.removeRelationship(userId,
-                                                     buddyAddress);
+                                                     userAddress, buddyAddress
+      );
     }
   }
-  
+
   @Override
-  public void updateBuddyNickname(int userId,
-                                  SpecificAddress buddyAddress,
-                                  String newNickName)
+  public void updateBuddyNickname(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    String newNickName
+  )
   {
-    if (mDistributionListsRelationshipProvider.userHasRelationship(userId,
-                                                                   buddyAddress))
+    if (dlistHasFriendship(userId, userAddress, buddyAddress))
     {
       mDistributionListRelationshipModifier.updateBuddyNickname(userId,
-                                                                buddyAddress,
+                                                                userAddress, buddyAddress,
                                                                 newNickName);
     }
     else
     {
       mDirectRelationshipModifier.updateBuddyNickname(userId,
-                                                      buddyAddress,
+                                                      userAddress, buddyAddress,
                                                       newNickName);
     }
   }
-  
+
   @Override
-  public void updateBuddyGroup(int userId,
-                               SpecificAddress buddyAddress,
-                               String newGroupName)
+  public void updateBuddyGroup(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    String newGroupName
+  )
   {
-    if (mDistributionListsRelationshipProvider.userHasRelationship(userId,
-                                                                   buddyAddress))
+    if (dlistHasFriendship(userId, userAddress, buddyAddress))
     {
       mDistributionListRelationshipModifier.updateBuddyGroup(userId,
-                                                             buddyAddress,
+                                                             userAddress, buddyAddress,
                                                              newGroupName);
     }
     else
     {
       mDirectRelationshipModifier.updateBuddyGroup(userId,
-                                                   buddyAddress,
+                                                   userAddress, buddyAddress,
                                                    newGroupName);
     }
   }
-  
+
   @Override
-  public void updateRelationshipType(int userId,
-                                     SpecificAddress buddyAddress,
-                                     Relationship.RelationshipType newType)
+  public void updateRelationshipType(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    Relationship.RelationshipType newType
+  )
   {
-    if (mDistributionListsRelationshipProvider.userHasRelationship(userId,
-                                                                   buddyAddress))
+    if (dlistHasFriendship(userId, userAddress, buddyAddress))
     {
       mDistributionListRelationshipModifier.updateRelationshipType(userId,
-                                                                   buddyAddress,
+                                                                   userAddress, buddyAddress,
                                                                    newType);
     }
     else
     {
       mDirectRelationshipModifier.updateRelationshipType(userId,
-                                                         buddyAddress,
+                                                         userAddress, buddyAddress,
                                                          newType);
     }
   }

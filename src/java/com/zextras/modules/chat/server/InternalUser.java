@@ -24,40 +24,35 @@ import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 
 import com.zextras.modules.chat.server.db.PersistentEntity;
-import com.zextras.modules.chat.server.db.modifiers.OpenUserModifier;
 import com.zextras.modules.chat.server.db.modifiers.UserModifier;
 import com.zextras.modules.chat.server.events.EventQueue;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import com.zextras.modules.chat.server.exceptions.StatusDoesNotExistException;
 import com.zextras.modules.chat.server.relationship.DirectRelationshipProvider;
 import com.zextras.modules.chat.server.relationship.RelationshipModifier;
 import com.zextras.modules.chat.server.relationship.RelationshipProvider;
-import com.zextras.modules.chat.server.status.Status;
-import com.zextras.modules.chat.server.status.StatusId;
-import org.openzal.zal.Utils;
 
 import java.util.Collection;
 
 public class InternalUser implements User, PersistentEntity
 {
-  private final EventQueue           mPersistentEventQueue;
-  private final SpecificAddress      mAddress;
-  private final RelationshipModifier mRelationshipModifier;
+  private final EventQueue                 mPersistentEventQueue;
+  private final SpecificAddress            mAddress;
+  private final RelationshipModifier       mRelationshipModifier;
   private final DirectRelationshipProvider mDirectRelationshipProvider;
-  private final int                  mId;
-  private final UserModifier         mUserModifier;
-  private final RelationshipProvider mRelationshipProvider;
-  private       boolean              mDeleted = false;
-  
-  
-  public InternalUser(int id,
-                      final SpecificAddress sender,
-                      final EventQueue persistentEventQueue,
-                      final UserModifier userModifier,
-                      final RelationshipProvider relationshipProvider,
-                      final RelationshipModifier relationshipModifier,
-                      final
-                      DirectRelationshipProvider directRelationshipProvider)
+  private final int                        mId;
+  private final UserModifier               mUserModifier;
+  private final RelationshipProvider       mRelationshipProvider;
+  private boolean mDeleted = false;
+
+
+  public InternalUser(
+    int id,
+    SpecificAddress sender,
+    EventQueue persistentEventQueue,
+    UserModifier userModifier,
+    RelationshipProvider relationshipProvider,
+    RelationshipModifier relationshipModifier,
+    DirectRelationshipProvider directRelationshipProvider
+  )
   {
     mId = id;
     mPersistentEventQueue = persistentEventQueue;
@@ -74,75 +69,94 @@ public class InternalUser implements User, PersistentEntity
   }
 
   @Override
-  public int getEntityId() {
+  public int getEntityId()
+  {
     return mId;
   }
 
   @Override
-  public void updateBuddyNickname(final SpecificAddress buddy,
-                                  final String newNickName)
+  public void updateBuddyNickname(
+    SpecificAddress buddy,
+    String newNickName
+  )
   {
     if (isDeleted())
     {
       return;
     }
-    mRelationshipModifier.updateBuddyNickname(mId,
-                                              buddy,
-                                              newNickName);
+    mRelationshipModifier.updateBuddyNickname(
+      mId,
+      mAddress, buddy,
+      newNickName
+    );
   }
 
   @Override
-  public void updateBuddyGroup(final SpecificAddress buddy,
-                               final String newGroup)
+  public void updateBuddyGroup(
+    SpecificAddress friendToRename,
+    String newGroup
+  )
   {
     if (isDeleted())
     {
       return;
     }
-    mRelationshipModifier.updateBuddyGroup(mId,
-                                           buddy,
-                                           newGroup);
+    mRelationshipModifier.updateBuddyGroup(
+      mId,
+      mAddress, friendToRename,
+      newGroup
+    );
   }
 
   @Override
-  public void updateRelationshipType(final SpecificAddress buddy,
-                                     final Relationship.RelationshipType type)
+  public void updateRelationshipType(
+    SpecificAddress buddy,
+    Relationship.RelationshipType type
+  )
   {
     if (isDeleted())
     {
       return;
     }
-    mRelationshipModifier.updateRelationshipType(mId,
-                                                 buddy,
-                                                 type);
-  }
-  
-  @Override
-  public void addRelationship(final SpecificAddress buddy,
-                              final Relationship.RelationshipType type,
-                              final String buddyNickname,
-                              final String group)
-  {
-    if (isDeleted())
-    {
-      return;
-    }
-    mRelationshipModifier.addRelationship(mId,
-                                          buddy,
-                                          type,
-                                          buddyNickname,
-                                          group);
+    mRelationshipModifier.updateRelationshipType(
+      mId,
+      mAddress, buddy,
+      type
+    );
   }
 
   @Override
-  public void removeRelationship(final SpecificAddress target)
+  public void addRelationship(
+    SpecificAddress buddy,
+    Relationship.RelationshipType type,
+    String buddyNickname,
+    String group
+  )
   {
     if (isDeleted())
     {
       return;
     }
-    mRelationshipModifier.removeRelationship(mId,
-                                             target);
+    mRelationshipModifier.addRelationship(
+      mId,
+      mAddress, buddy,
+      type,
+      buddyNickname,
+      group
+    );
+  }
+
+  @Override
+  public void removeRelationship(SpecificAddress target)
+  {
+    if (isDeleted())
+    {
+      return;
+    }
+    mRelationshipModifier.removeRelationship(
+      mId,
+      mAddress, target
+    );
   }
 
   @Override
@@ -151,11 +165,18 @@ public class InternalUser implements User, PersistentEntity
     return mAddress.equals(buddyAddress);
   }
 
-  public void delete() {
-    if (isDeleted()) { return; }
-    try {
+  public void delete()
+  {
+    if (isDeleted())
+    {
+      return;
+    }
+    try
+    {
       mUserModifier.deleteUser(this);
-    } catch (Exception e) {
+    }
+    catch (Exception e)
+    {
       ChatLog.log.warn("Cannot delete user " + mAddress + ": " + e.getMessage());
       throw new RuntimeException(e);
     }
@@ -164,65 +185,80 @@ public class InternalUser implements User, PersistentEntity
   @Override
   public boolean hasRelationship(SpecificAddress buddy)
   {
-    return mRelationshipProvider.userHasRelationship(mId,
-                                                     buddy);
+    return mRelationshipProvider.userRelationshipType(
+      mId,
+      mAddress, buddy
+    ) != null;
   }
 
   @Override
   public Relationship getRelationship(SpecificAddress buddy)
   {
-    return mRelationshipProvider.assertUserRelationshipByBuddyAddress(mId,
-                                                                      buddy);
+    return mRelationshipProvider.assertUserRelationshipByBuddyAddress(
+      mId,
+      mAddress, buddy
+    );
   }
 
   @Override
   public Collection<Relationship> getRelationships()
   {
-    return mRelationshipProvider.getUserRelationships(mId);
+    return mRelationshipProvider.getUserRelationships(mId, mAddress);
   }
-  
+
   @Override
   public Collection<Relationship> getDirectRelationships()
   {
-    return mDirectRelationshipProvider.getUserRelationships(mId);
+    return mDirectRelationshipProvider.getUserRelationships(mId, mAddress);
   }
 
   @Override
-  public boolean hasRelationshipType(SpecificAddress buddyAddress,
-                                     Relationship.RelationshipType type)
+  public boolean hasRelationshipType(
+    SpecificAddress buddyAddress,
+    Relationship.RelationshipType type
+  )
   {
-    return mRelationshipProvider.userHasRelationshipWithType(mId,
-                                                             buddyAddress,
-                                                             type);
+    return mRelationshipProvider.userRelationshipType(
+      mId,
+      mAddress, buddyAddress
+    ) == type;
   }
 
   @Override
-  public boolean hasAccepted(SpecificAddress buddy)
+  public boolean hasAccepted(SpecificAddress buddyAddress)
   {
-    return mRelationshipProvider.userHasAcceptedRelationship(mId,
-                                                             buddy);
+    return mRelationshipProvider.userRelationshipType(
+      mId,
+      mAddress, buddyAddress
+    ) == Relationship.RelationshipType.ACCEPTED;
   }
 
   @Override
-  public boolean hasBlocked(SpecificAddress buddy)
+  public boolean hasBlocked(SpecificAddress buddyAddress)
   {
-    return mRelationshipProvider.userHasBlockedRelationship(mId,
-                                                            buddy);
+    return mRelationshipProvider.userRelationshipType(
+      mId,
+      mAddress, buddyAddress
+    ) == Relationship.RelationshipType.BLOCKED;
   }
 
   @Override
-  public boolean isPending(SpecificAddress buddy)
+  public boolean isPending(SpecificAddress buddyAddress)
   {
-    return mRelationshipProvider.userIsPendingRelationship(mId,
-                                                           buddy);
+    return mRelationshipProvider.userRelationshipType(
+      mId,
+      mAddress, buddyAddress
+    ) == Relationship.RelationshipType.NEED_RESPONSE;
   }
 
-  public void markDeleted() {
+  public void markDeleted()
+  {
     mDeleted = true;
   }
 
   @Override
-  public boolean isDeleted() {
+  public boolean isDeleted()
+  {
     return mDeleted;
   }
 

@@ -8,6 +8,7 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
 /**
  * Class provides user's distribution-list-relationship's modifier methods.
+ *
  * @see DistributionListsRelationshipProvider
  */
 public class DistributionListRelationshipModifier
@@ -17,32 +18,45 @@ public class DistributionListRelationshipModifier
   private final DistributionListsRelationshipProvider mDistributionListRelationshipProvider;
   private final DirectRelationshipProvider            mDirectRelationshipProvider;
   private final DirectRelationshipModifier            mDirectRelationshipModifier;
-  
+
   @Inject
-  public DistributionListRelationshipModifier(DistributionListsRelationshipProvider distributionListRelationshipProvider,
-                                              DirectRelationshipProvider directRelationshipProvider,
-                                              DirectRelationshipModifier directRelationshipModifier)
-    throws
-    ChatDbException
+  public DistributionListRelationshipModifier(
+    DistributionListsRelationshipProvider distributionListRelationshipProvider,
+    DirectRelationshipProvider directRelationshipProvider,
+    DirectRelationshipModifier directRelationshipModifier
+  )
   {
     mDistributionListRelationshipProvider = distributionListRelationshipProvider;
     mDirectRelationshipProvider = directRelationshipProvider;
     mDirectRelationshipModifier = directRelationshipModifier;
   }
-  
-  @Override
-  public void updateBuddyNickname(int userId,
-                                  SpecificAddress buddyAddress,
-                                  String newNickName)
+
+  private boolean directHasFriendship(int userId, SpecificAddress userAddress, SpecificAddress buddyAddress)
   {
-    Relationship targetRelationship = mDistributionListRelationshipProvider.assertUserRelationshipByBuddyAddress(userId,
-                                                                                                                 buddyAddress);
-    if (mDirectRelationshipProvider.userHasRelationship(userId,
-                                                        buddyAddress))
+    return mDirectRelationshipProvider.userRelationshipType(
+      userId,
+      userAddress,
+      buddyAddress
+    ) != null;
+  }
+
+  @Override
+  public void updateBuddyNickname(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    String newNickName
+  )
+  {
+    Relationship targetRelationship = mDistributionListRelationshipProvider.assertUserRelationshipByBuddyAddress(
+      userId,
+      userAddress, buddyAddress
+    );
+    if (directHasFriendship(userId, userAddress, buddyAddress))
     {
       mDirectRelationshipModifier.updateBuddyNickname(userId,
-                                                      buddyAddress,
-                                                      newNickName);
+                                                      userAddress, buddyAddress,
+                                                      newNickName
+      );
     }
     else
     {
@@ -51,27 +65,31 @@ public class DistributionListRelationshipModifier
        nickname in a direct relationship
        */
       mDirectRelationshipModifier.addRelationship(userId,
-                                                  buddyAddress,
+                                                  userAddress, buddyAddress,
                                                   Relationship.RelationshipType.NEED_RESPONSE,
                                                   newNickName,
-                                                  sDefaultGroupName);
+                                                  sDefaultGroupName
+      );
     }
     targetRelationship.updateVolatileNickname(newNickName);
   }
-  
+
   @Override
-  public void updateBuddyGroup(int userId,
-                               SpecificAddress buddyAddress,
-                               String newGroupName)
+  public void updateBuddyGroup(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    String newGroupName
+  )
   {
     Relationship targetRelationship = mDistributionListRelationshipProvider.assertUserRelationshipByBuddyAddress(userId,
-                                                                                                                 buddyAddress);
-    if (mDirectRelationshipProvider.userHasRelationship(userId,
-                                                        buddyAddress))
+                                                                                                                 userAddress, buddyAddress
+    );
+    if (directHasFriendship(userId, userAddress, buddyAddress))
     {
       mDirectRelationshipModifier.updateBuddyGroup(userId,
-                                                   buddyAddress,
-                                                   newGroupName);
+                                                   userAddress, buddyAddress,
+                                                   newGroupName
+      );
     }
     else
     {
@@ -80,48 +98,55 @@ public class DistributionListRelationshipModifier
        group name in a direct relationship
        */
       mDirectRelationshipModifier.addRelationship(userId,
-                                                  buddyAddress,
+                                                  userAddress, buddyAddress,
                                                   Relationship.RelationshipType.NEED_RESPONSE,
                                                   buddyAddress.toString(),
-                                                  newGroupName);
+                                                  newGroupName
+      );
     }
     targetRelationship.updateVolatileGroup(newGroupName);
   }
-  
+
   @Override
-  public void updateRelationshipType(int userId,
-                                     SpecificAddress buddyAddress,
-                                     Relationship.RelationshipType newType)
+  public void updateRelationshipType(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    Relationship.RelationshipType newType
+  )
   {
     final String message =
       "Trying to update a buddy(" + buddyAddress + ") present in a " +
-      "buddyDistributionList of the user with id " + userId;
+        "buddyDistributionList of the user with id " + userId;
     ChatLog.log.warn(message);
     throw new UnsupportedOperationException(message);
   }
-  
+
   @Override
-  public void addRelationship(int userId,
-                              SpecificAddress buddyAddress,
-                              Relationship.RelationshipType type,
-                              String buddyNickname,
-                              String group)
+  public void addRelationship(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    Relationship.RelationshipType type,
+    String buddyNickname,
+    String group
+  )
   {
     final String message = "Trying to add a buddy(" + buddyAddress + ") to a " +
-                           "distributionListRelationship of the user with id " +
-                           userId;
+      "distributionListRelationship of the user with id " +
+      userId;
     ChatLog.log.warn(message);
     throw new UnsupportedOperationException(message);
   }
-  
+
   @Override
-  public void removeRelationship(int userId,
-                                 SpecificAddress buddyAddress)
+  public void removeRelationship(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress
+  )
   {
     final String message =
       "Trying to delete a buddy(" + buddyAddress.toString() + ") " +
-      "present in a " + "buddyDistributionList of the user with id " +
-      userId;
+        "present in a " + "buddyDistributionList of the user with id " +
+        userId;
     ChatLog.log.warn(message);
     throw new UnsupportedOperationException(message);
   }

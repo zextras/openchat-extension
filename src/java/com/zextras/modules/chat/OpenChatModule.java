@@ -45,7 +45,7 @@ import com.zextras.modules.chat.server.parsing.SoapParserFactory;
 import com.zextras.modules.chat.server.relationship.RelationshipModifier;
 import com.zextras.modules.chat.server.relationship.RelationshipModifierProxy;
 import com.zextras.modules.chat.server.relationship.RelationshipProvider;
-import com.zextras.modules.chat.server.relationship.RelationshipProviderProxy;
+import com.zextras.modules.chat.server.relationship.RelationshipProviderCombiner;
 import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilderImpl;
 import com.zextras.modules.chat.server.session.SoapFilterImpl;
@@ -119,7 +119,7 @@ public class OpenChatModule extends AbstractModule
     bind(XmppHandlerFactory.class).to(XmppHandlerFactoryImpl.class);
     bind(StanzaWriterFactory.class).to(StanzaWriterFactoryImpl.class);
     bind(SSLContext.class).toProvider(ZimbraSSLContextProvider.class);
-    bind(RelationshipProvider.class).to(RelationshipProviderProxy.class);
+    bind(RelationshipProvider.class).to(RelationshipProviderCombiner.class);
     bind(RelationshipModifier.class).to(RelationshipModifierProxy.class);
     bind(ChatVersion.class).to(ChatVersionImpl.class);
     install(new FactoryModuleBuilder().build(SoapHandlerCreatorFactory.class));

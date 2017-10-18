@@ -53,12 +53,17 @@ public class RelationshipBuilder implements Builder<Relationship>
   {
     try
     {
-      int userId = mRs.getInt("USERID");
-      SpecificAddress buddyAddress = new SpecificAddress(mRs.getString("BUDDYADDRESS"));
+      SpecificAddress buddyAddress = new SpecificAddress(mRs.getString("BUDDYADDRESS").intern());
       Relationship.RelationshipType type = Relationship.RelationshipType.fromByte(mRs.getByte("TYPE"));
-      String buddyNickname = mRs.getString("BUDDYNICKNAME");
-      return new Relationship(userId, buddyAddress, type, buddyNickname, mRs
-      .getString("GROUP"));
+      String buddyNickname = mRs.getString("BUDDYNICKNAME").intern();
+      String group = mRs.getString("GROUP").intern();
+
+      return new Relationship(
+        buddyAddress,
+        type,
+        buddyNickname,
+        group
+      );
     }
     catch (SQLException e)
     {

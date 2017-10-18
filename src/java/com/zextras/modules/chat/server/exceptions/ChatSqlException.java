@@ -27,6 +27,11 @@ public class ChatSqlException extends ChatDbException
 {
   public ChatSqlException(SqlStatement sqlStatement)
   {
+    this(sqlStatement.sql());
+  }
+
+  public ChatSqlException(String sql)
+  {
     super(new ErrorCode()
     {
       public String getCodeString()
@@ -39,6 +44,6 @@ public class ChatSqlException extends ChatDbException
         return "Unable to execute the SQL statement: {sqlStatement}";
       }
     });
-    setDetail("sqlStatement", sqlStatement.sql());
+    setDetail("sqlStatement", sql);
   }
 }

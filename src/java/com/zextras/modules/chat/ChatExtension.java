@@ -39,6 +39,7 @@ import com.zextras.modules.chat.server.session.SessionCleaner;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.xmpp.netty.ChatXmppService;
 import com.zextras.modules.chat.services.ChatSoapService;
+import com.zextras.modules.chat.services.DbPreloader;
 import com.zextras.modules.chat.services.LocalXmppService;
 import com.zextras.modules.core.services.NettyService;
 import org.apache.commons.io.IOUtils;
@@ -76,6 +77,7 @@ public class ChatExtension implements ZalExtension
   private ServiceSwitch mNettyService = null;
   private ZEChatDebugLogWriter mChatLog = null;
   private ServiceSwitch mActivityManagerService = null;
+  private ServiceSwitch mDbPreloaderService = null;
 
   @Override
   public String getBuildId()
@@ -176,6 +178,13 @@ public class ChatExtension implements ZalExtension
         )
       );
 
+      mDbPreloaderService = new MandatoryServiceSwitch(
+        new SimpleServiceSwitch(
+          "database-preload",
+          injector.getInstance(DbPreloader.class)
+        )
+      );
+
       ActivityManager activityManager = injector.getInstance(ActivityManager.class);
       mActivityManagerService = new MandatoryServiceSwitch(
         new SimpleServiceSwitch(
@@ -187,6 +196,7 @@ public class ChatExtension implements ZalExtension
       try
       {
         mChatLog.start();
+        mDbPreloaderService.turnOn(conditionNotification);
         mNettyService.turnOn(conditionNotification);
         mChatSoapServiceSwitch.turnOn(conditionNotification);
         mSessionManagerSwitch.turnOn(conditionNotification);

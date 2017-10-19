@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.server.relationship;
 
+import com.google.inject.Singleton;
 import com.zextras.lib.AccountHelper;
 import com.zextras.lib.filters.FilteredIterator;
 import com.zextras.modules.chat.properties.ChatProperties;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+@Singleton
 public class DistributionListExtractor
 {
   private final Provisioning             mProvisioning;
@@ -166,9 +168,9 @@ public class DistributionListExtractor
     DistributionListFilter(ChatProperties chatProperties) {mChatProperties = chatProperties;}
 
     @Override
-    public boolean filterOut(final DistributionList itemInfo)
+    public boolean filterOut(final DistributionList distributionList)
     {
-      return !mChatProperties.chatAllowDlMemberAddAsFriend(itemInfo.getName());
+      return !mChatProperties.chatAllowDlMemberAddAsFriend(distributionList);
     }
 
     @Override

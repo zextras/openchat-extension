@@ -22,6 +22,7 @@ package com.zextras.modules.chat.server.events;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import io.netty.util.internal.ThreadLocalRandom;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -41,8 +42,13 @@ public class EventId implements Comparable<EventId>
   }
 
   public static EventId randomUUID() {
-    UUID uuid = UUID.randomUUID();
-    return new EventId(uuid);
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    /*byte[] randombytes = new byte[ 3 ];
+    random.nextBytes(randombytes);*/
+    return new EventId(
+//      FastBase64.encodeToString(randombytes, false)
+      new UUID(random.nextLong(), random.nextLong())
+    );
   }
 
   public static EventId fromString( @NotNull String s) {

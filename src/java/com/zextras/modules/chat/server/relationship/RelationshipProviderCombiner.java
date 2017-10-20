@@ -5,8 +5,11 @@ import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Class provides user's relationship's information, hiding the
@@ -40,30 +43,45 @@ public class RelationshipProviderCombiner extends RelationshipProviderAdapter
       userId,
       userAddress
     );
-    Collection<Relationship> directRelationships = mDirectRelationshipProvider.getUserRelationships(
+    Map<SpecificAddress, Relationship> directRelationshipsMap = mDirectRelationshipProvider.getUserRelationshipsMap(
       userId,
       userAddress
     );
-    Collection<Relationship> allRelationships = new HashSet<Relationship>(
-      Math.max(distributionListsRelationships.size(),distributionListsRelationships.size())
-    );
-    allRelationships.addAll(distributionListsRelationships);
 
-    for (Relationship relationship : directRelationships)
+    if( distributionListsRelationships.isEmpty() )
     {
-      Relationship distributionListsRelationship = mDistributionListRelationshipProvider.getUserRelationshipByBuddyAddress(
-        userId,
-        userAddress, relationship.getBuddyAddress()
-      );
-      if (distributionListsRelationship != null)
-      {
-        /* if there is a conflict, user direct relationship's attributes has
-        the priority, except the relationship type */
-        allRelationships.remove(distributionListsRelationship);
-        relationship.updateVolatileType(Relationship.RelationshipType.ACCEPTED);
-      }
-      allRelationships.add(relationship);
+      return directRelationshipsMap.values();
     }
+
+    if( directRelationshipsMap.isEmpty() )
+    {
+      return distributionListsRelationships;
+    }
+
+    //copy to update the map directly without changing the source
+    directRelationshipsMap = new HashMap<>(directRelationshipsMap);
+
+    Collection<Relationship> allRelationships = new ArrayList<>(
+      distributionListsRelationships.size()+distributionListsRelationships.size()
+    );
+
+    for (Relationship relationship : distributionListsRelationships)
+    {
+      Relationship directRelationship = directRelationshipsMap.remove(relationship.getBuddyAddress());
+
+      if (directRelationship != null)
+      {
+        Relationship copiedDirectRelationship = directRelationship.copy();
+        copiedDirectRelationship.updateVolatileType(Relationship.RelationshipType.ACCEPTED);
+        allRelationships.add(relationship);
+      }
+      else
+      {
+        allRelationships.add(relationship);
+      }
+    }
+    allRelationships.addAll(directRelationshipsMap.values());
+
     return allRelationships;
   }
 

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -127,6 +128,19 @@ public class DirectRelationshipStorage
     else
     {
       return null;
+    }
+  }
+
+  public Map<SpecificAddress, Relationship> getMap(int userId, SpecificAddress userAddress)
+  {
+    HashMap<SpecificAddress, Relationship> buddyMap = mMap.get(userId);
+    if( buddyMap != null )
+    {
+      return buddyMap;
+    }
+    else
+    {
+      return Collections.emptyMap();
     }
   }
 

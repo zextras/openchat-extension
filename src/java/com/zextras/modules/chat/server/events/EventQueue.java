@@ -27,13 +27,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class EventQueue
 {
-  private final ConcurrentLinkedQueue<Event> mEventQueue;
+  private final Queue<Event> mEventQueue;
   private final Lock mLock = new ReentrantLock();
   private EventQueueListener mEventQueueListener;
   private int mTotalSynchronizedEventsAmount = 0;
@@ -92,10 +93,6 @@ public class EventQueue
 
   public void queueEvent(Event event)
   {
-    if (mEventQueue.contains(event)) {
-      return;
-    }
-
     mEventQueue.add(event);
 
     final EventQueueListener eventQueueListener = getEventQueueListener();

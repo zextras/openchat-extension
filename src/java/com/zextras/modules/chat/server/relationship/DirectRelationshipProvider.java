@@ -9,6 +9,7 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Class provides user's direct-relationship's information.
@@ -29,6 +30,14 @@ public class DirectRelationshipProvider extends RelationshipProviderAdapter
   public Collection<Relationship> getUserRelationships(int userId, SpecificAddress userAddress)
   {
     return mDirectRelationshipStorage.get(userId);
+  }
+
+  /**
+   * Method created for performance purposes
+   */
+  public Map<SpecificAddress, Relationship> getUserRelationshipsMap(int userId, SpecificAddress userAddress)
+  {
+    return mDirectRelationshipStorage.getMap(userId,userAddress);
   }
 
   @Override

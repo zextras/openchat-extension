@@ -22,6 +22,8 @@ package com.zextras.modules.chat.server.events;
 
 public interface EventInterpreter<T>
 {
+  T interpret(Event event);
+
   T interpret(EventStatusProbe eventStatusProbe);
 
   T interpret(EventStatuses eventStatuses);

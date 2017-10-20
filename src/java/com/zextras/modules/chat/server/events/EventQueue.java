@@ -20,6 +20,7 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.exceptions.EmptyQueueException;
 import com.zextras.modules.chat.server.listener.EventQueueListener;
 import org.jetbrains.annotations.Nullable;
@@ -93,6 +94,11 @@ public class EventQueue
 
   public void queueEvent(Event event)
   {
+    if (mEventQueue.contains(event)) {
+      ChatLog.log.info("Duplicate Event dump: "+event.toString());
+      return;
+    }
+
     mEventQueue.add(event);
 
     final EventQueueListener eventQueueListener = getEventQueueListener();

@@ -23,7 +23,6 @@ package com.zextras.modules.chat.server.xmpp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.handlers.*;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import org.openzal.zal.AuthProvider;
@@ -34,7 +33,6 @@ import javax.xml.stream.XMLStreamException;
 @Singleton
 public class XmppHandlerFactoryImpl implements XmppHandlerFactory
 {
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final StanzaRecognizer    mStanzaRecognizer;
   private final Provisioning        mProvisioning;
   private final StanzaWriterFactory mStanzaWriterFactory;
@@ -45,7 +43,6 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
 
   @Inject
   public XmppHandlerFactoryImpl(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     StanzaRecognizer stanzaRecognizer,
     Provisioning provisioning,
     UserProvider openUserProvider,
@@ -55,7 +52,6 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     XmppEventFilter xmppEventFilter
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mStanzaRecognizer = stanzaRecognizer;
     mProvisioning = provisioning;
     mStanzaWriterFactory = stanzaWriterFactory;
@@ -90,7 +86,6 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
       case IQAuth:
       {
         handler = new IQAuthHandler(
-          mCommonSessionEventInterceptorBuilder,
           connectionStatus,
           mProvisioning,
           mXmppFilterOut,
@@ -108,7 +103,6 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
       case SASLAuth:
       {
         handler = new SASLAuthHandler(
-          mCommonSessionEventInterceptorBuilder,
           connectionStatus,
           mProvisioning,
           mOpenUserProvider,
@@ -181,7 +175,6 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
       case ProxyAuth:
       {
         handler = new ProxyAuthHandler(
-          mCommonSessionEventInterceptorBuilder,
           connectionStatus,
           mProvisioning,
           mAuthProvider,

@@ -1,8 +1,5 @@
 /*
- * ZAL - The abstraction layer for Zimbra.
  * Copyright (C) 2017 ZeXtras S.r.l.
- *
- * This file is part of ZAL.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,55 +11,105 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with ZAL. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License.
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.zextras.modules.chat.server.session;
 
-import com.google.inject.Inject;
 import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.*;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import com.zextras.modules.chat.server.exceptions.ChatException;
+import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventFriendAccepted;
+import com.zextras.modules.chat.server.events.EventFriendAdded;
+import com.zextras.modules.chat.server.events.EventInterpreterAdapter;
+import com.zextras.modules.chat.server.events.EventMessage;
+import com.zextras.modules.chat.server.events.EventStatusChanged;
+import com.zextras.modules.chat.server.events.EventStatusProbe;
 import com.zextras.modules.chat.server.filters.EventFilter;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.zextras.modules.chat.server.interceptors.StubEventInterceptorFactory;
-import org.openzal.zal.exceptions.ZimbraException;
 
 
-public class CommonSessionEventFilter implements EventFilter {
-  private final EventManager mEventManager = null;
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
-
-  @Inject
-  public CommonSessionEventFilter(CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder)
+public class CommonSessionEventFilter implements EventFilter
+{
+  @Override
+  public boolean isFiltered(Event event, SpecificAddress target, Session session)
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
+    return event.interpret(
+      new Interpreter(target, session)
+    );
   }
 
-  @Override
-  public boolean isFiltered(
-    Event event,
-    final SpecificAddress target,
-    final Session session)
+  static class Interpreter extends EventInterpreterAdapter<Boolean>
   {
-    final AtomicBoolean settableBoolean = new AtomicBoolean();
+    private final SpecificAddress mTarget;
+    private final Session mSession;
 
-    EventInterceptor eventInterceptor = event.interpret(
-      mCommonSessionEventInterceptorBuilder.buildFactory(session, settableBoolean)
-    );
-
-    try {
-      eventInterceptor.intercept(mEventManager,target);
-    } catch ( Throwable ex ) {
-      RuntimeException newEx = new RuntimeException(ex);
-      throw newEx;
+    Interpreter(SpecificAddress target, Session session)
+    {
+      super(false);
+      mTarget = target;
+      mSession = session;
     }
 
-    return settableBoolean.get();
+    @Override
+    public Boolean interpret(EventFriendAdded eventFriendAdded)
+    {
+      return true;
+    }
+
+    @Override
+    public Boolean interpret(EventStatusProbe eventStatusProbe)
+    {
+      return true;
+    }
+
+    @Override
+    public Boolean interpret(EventStatusChanged eventStatusChanged)
+    {
+      return filterIfDifferentRelationship(
+        eventStatusChanged.getSender(),
+        Relationship.RelationshipType.ACCEPTED
+      );
+    }
+
+    @Override
+    public Boolean interpret(EventMessage eventMessage)
+    {
+      return filterIfDifferentRelationship(
+        eventMessage.getSender(),
+        Relationship.RelationshipType.ACCEPTED
+      );
+    }
+
+    @Override
+    public Boolean interpret(EventFriendAccepted eventFriendAccepted)
+    {
+      return filterIfDifferentRelationship(
+        eventFriendAccepted.getSender(),
+        Relationship.RelationshipType.INVITED,
+        Relationship.RelationshipType.ACCEPTED
+      );
+    }
+
+    private boolean filterIfDifferentRelationship(
+      SpecificAddress sender,
+      Relationship.RelationshipType... allowedRelationshipTypes
+    )
+    {
+      if (mTarget.equals(sender))
+      {
+        return false;
+      }
+
+      for (Relationship.RelationshipType allowedType : allowedRelationshipTypes)
+      {
+        if (mSession.getUser().hasRelationshipType(sender, allowedType))
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
   }
 }

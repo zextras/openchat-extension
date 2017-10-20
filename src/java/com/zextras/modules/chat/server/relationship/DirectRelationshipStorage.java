@@ -50,9 +50,12 @@ public class DirectRelationshipStorage
     mLock.lock();
     try
     {
-      HashMap<SpecificAddress, Relationship> newUserMap =
-        (HashMap<SpecificAddress, Relationship>) mMap.get(userId).clone();
+      HashMap<SpecificAddress, Relationship> newUserMap = mMap.get(userId);
+      if( newUserMap == null){
+        return;
+      }
 
+      newUserMap = (HashMap<SpecificAddress, Relationship>)  newUserMap.clone();
       newUserMap.remove(buddy);
 
       HashMap<Integer, HashMap<SpecificAddress,Relationship>> newMap =
@@ -144,7 +147,7 @@ public class DirectRelationshipStorage
     }
   }
 
-  public Relationship assertRelationship(int userId,SpecificAddress specificAddress)
+  public Relationship assertRelationship(int userId, SpecificAddress specificAddress)
   {
     Relationship rel = get(userId, specificAddress);
     if( rel == null )

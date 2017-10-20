@@ -24,7 +24,6 @@ import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.SendXmppFeature;
 import com.zextras.modules.chat.server.operations.XmppSASLAuthentication;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
@@ -39,7 +38,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SASLAuthHandler implements StanzaHandler {
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
   private final Provisioning                          mProvisioning;
   private final UserProvider                          mOpenUserProvider;
@@ -48,7 +46,6 @@ public class SASLAuthHandler implements StanzaHandler {
   private       SASLAuthParser                        mParser;
 
   public SASLAuthHandler(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     StanzaProcessor.XmppConnectionHandler xmppConnectionStatus,
     Provisioning provisioning,
     UserProvider openUserProvider,
@@ -56,7 +53,6 @@ public class SASLAuthHandler implements StanzaHandler {
     XmppFilterOut xmppFilterOut
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mXmppConnectionHandler = xmppConnectionStatus;
     mProvisioning = provisioning;
     mOpenUserProvider = openUserProvider;
@@ -69,7 +65,6 @@ public class SASLAuthHandler implements StanzaHandler {
   {
 
     XmppSASLAuthentication saslAuthEvent = new XmppSASLAuthentication(
-      mCommonSessionEventInterceptorBuilder,
       mProvisioning,
       mParser,
       mXmppConnectionHandler,

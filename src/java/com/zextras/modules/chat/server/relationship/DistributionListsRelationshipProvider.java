@@ -1,18 +1,10 @@
 package com.zextras.modules.chat.server.relationship;
 
 import com.google.inject.Inject;
-import com.zextras.lib.log.ChatLog;
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import org.openzal.zal.Account;
-import org.openzal.zal.Provisioning;
-import org.openzal.zal.Utils;
-import org.openzal.zal.exceptions.NoSuchAccountException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Class provides user's distribution-list-relationship's information.

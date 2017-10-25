@@ -1,9 +1,7 @@
 package com.zextras.modules.chat.server.relationship;
 
 import com.google.inject.Inject;
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
 /**
  * Class provides user's relationship's modifier methods, hiding the

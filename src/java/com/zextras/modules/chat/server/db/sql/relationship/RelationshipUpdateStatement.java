@@ -20,7 +20,7 @@
 
 package com.zextras.modules.chat.server.db.sql.relationship;
 
-import com.zextras.modules.chat.server.Relationship.RelationshipType;
+import com.zextras.modules.chat.server.relationship.Relationship.RelationshipType;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.sql.SqlParameter;
 import com.zextras.modules.chat.server.db.sql.SqlStatement;

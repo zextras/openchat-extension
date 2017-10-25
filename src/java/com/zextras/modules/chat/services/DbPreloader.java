@@ -1,7 +1,7 @@
 package com.zextras.modules.chat.services;
 
 import com.zextras.lib.switches.Service;
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.DbHandler;
 import com.zextras.modules.chat.server.db.sql.SqlClosure;

@@ -20,12 +20,9 @@
 
 package com.zextras.modules.chat.server.events;
 
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 
 import java.util.Collection;
 

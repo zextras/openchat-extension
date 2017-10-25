@@ -1,7 +1,6 @@
 package com.zextras.modules.chat.server.relationship;
 
 import com.google.inject.Singleton;
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 
 import javax.inject.Inject;

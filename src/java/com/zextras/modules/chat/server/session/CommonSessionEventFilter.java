@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.session;
 
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventFriendAccepted;
@@ -39,7 +39,7 @@ public class CommonSessionEventFilter implements EventFilter
     );
   }
 
-  static class Interpreter extends EventInterpreterAdapter<Boolean>
+  class Interpreter extends EventInterpreterAdapter<Boolean>
   {
     private final SpecificAddress mTarget;
     private final Session mSession;
@@ -101,12 +101,24 @@ public class CommonSessionEventFilter implements EventFilter
         return false;
       }
 
-      for (Relationship.RelationshipType allowedType : allowedRelationshipTypes)
+      try
       {
-        if (mSession.getUser().hasRelationshipType(sender, allowedType))
+        Relationship relationship = mSession.getUser().getRelationship(sender);
+        if (relationship == null)
         {
           return false;
         }
+        for (Relationship.RelationshipType allowedType : allowedRelationshipTypes)
+        {
+          if (relationship.getType() == allowedType)
+          {
+            return false;
+          }
+        }
+      }
+      catch (RuntimeException e)
+      {
+        return false;
       }
 
       return true;

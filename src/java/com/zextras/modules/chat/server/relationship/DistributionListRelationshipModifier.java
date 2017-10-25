@@ -2,9 +2,7 @@ package com.zextras.modules.chat.server.relationship;
 
 import com.google.inject.Inject;
 import com.zextras.lib.log.ChatLog;
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
 /**
  * Class provides user's distribution-list-relationship's modifier methods.
@@ -15,18 +13,15 @@ public class DistributionListRelationshipModifier
   implements RelationshipModifier
 {
   private final static String sDefaultGroupName = "";
-  private final DistributionListsRelationshipProvider mDistributionListRelationshipProvider;
   private final DirectRelationshipProvider            mDirectRelationshipProvider;
   private final DirectRelationshipModifier            mDirectRelationshipModifier;
 
   @Inject
   public DistributionListRelationshipModifier(
-    DistributionListsRelationshipProvider distributionListRelationshipProvider,
     DirectRelationshipProvider directRelationshipProvider,
     DirectRelationshipModifier directRelationshipModifier
   )
   {
-    mDistributionListRelationshipProvider = distributionListRelationshipProvider;
     mDirectRelationshipProvider = directRelationshipProvider;
     mDirectRelationshipModifier = directRelationshipModifier;
   }
@@ -47,10 +42,6 @@ public class DistributionListRelationshipModifier
     String newNickName
   )
   {
-    Relationship targetRelationship = mDistributionListRelationshipProvider.assertUserRelationshipByBuddyAddress(
-      userId,
-      userAddress, buddyAddress
-    );
     if (directHasFriendship(userId, userAddress, buddyAddress))
     {
       mDirectRelationshipModifier.updateBuddyNickname(userId,
@@ -71,7 +62,6 @@ public class DistributionListRelationshipModifier
                                                   sDefaultGroupName
       );
     }
-    targetRelationship.updateVolatileNickname(newNickName);
   }
 
   @Override
@@ -81,9 +71,6 @@ public class DistributionListRelationshipModifier
     String newGroupName
   )
   {
-    Relationship targetRelationship = mDistributionListRelationshipProvider.assertUserRelationshipByBuddyAddress(userId,
-                                                                                                                 userAddress, buddyAddress
-    );
     if (directHasFriendship(userId, userAddress, buddyAddress))
     {
       mDirectRelationshipModifier.updateBuddyGroup(userId,
@@ -104,7 +91,6 @@ public class DistributionListRelationshipModifier
                                                   newGroupName
       );
     }
-    targetRelationship.updateVolatileGroup(newGroupName);
   }
 
   @Override

@@ -20,7 +20,7 @@
 
 package com.zextras.modules.chat.server.db.builders;
 
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
@@ -53,10 +53,10 @@ public class RelationshipBuilder implements Builder<Relationship>
   {
     try
     {
-      SpecificAddress buddyAddress = new SpecificAddress(mRs.getString("BUDDYADDRESS").intern());
+      SpecificAddress buddyAddress = new SpecificAddress(mRs.getString("BUDDYADDRESS"));
       Relationship.RelationshipType type = Relationship.RelationshipType.fromByte(mRs.getByte("TYPE"));
-      String buddyNickname = mRs.getString("BUDDYNICKNAME").intern();
-      String group = mRs.getString("GROUP").intern();
+      String buddyNickname = mRs.getString("BUDDYNICKNAME");
+      String group = mRs.getString("GROUP");
 
       return new Relationship(
         buddyAddress,

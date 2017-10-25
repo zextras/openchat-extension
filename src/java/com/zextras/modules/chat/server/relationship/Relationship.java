@@ -18,11 +18,10 @@
  * along with ZAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server;
+package com.zextras.modules.chat.server.relationship;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.db.PersistentEntity;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.utils.Jsonable;
 import com.zextras.utils.ToJSONSerializer;
@@ -149,14 +148,13 @@ public class Relationship
     return getType().equals(relationshipType);
   }
 
-  public void updateVolatileNickname(String newNickName) {
+  void updateVolatileNickname(String newNickName) {
     mBuddyNickname = newNickName;
   }
-
-  public void updateVolatileType(RelationshipType type) {
+  void updateVolatileType(RelationshipType type) {
     mType = type;
   }
-  public void updateVolatileGroup(String group) {
+  void updateVolatileGroup(String group) {
     mGroup = group;
   }
 

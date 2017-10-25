@@ -27,6 +27,7 @@ import com.zextras.modules.chat.server.db.PersistentEntity;
 import com.zextras.modules.chat.server.db.modifiers.UserModifier;
 import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.relationship.DirectRelationshipProvider;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.relationship.RelationshipModifier;
 import com.zextras.modules.chat.server.relationship.RelationshipProvider;
 

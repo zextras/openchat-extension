@@ -21,7 +21,7 @@
 package com.zextras.modules.chat.server.operations;
 
 import com.zextras.lib.log.ChatLog;
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventFriendBackRemove;

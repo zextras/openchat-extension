@@ -22,7 +22,7 @@ package com.zextras.modules.chat.server.interceptors;
 
 import com.zextras.lib.AccountHelper;
 import com.zextras.lib.log.ChatLog;
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.User;
 import com.zextras.modules.chat.server.address.SpecificAddress;

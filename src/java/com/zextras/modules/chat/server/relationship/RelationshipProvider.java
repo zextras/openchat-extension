@@ -1,9 +1,7 @@
 package com.zextras.modules.chat.server.relationship;
 
 
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;

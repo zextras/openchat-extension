@@ -4,7 +4,6 @@ import com.google.inject.Singleton;
 import com.zextras.lib.AccountHelper;
 import com.zextras.lib.filters.FilteredIterator;
 import com.zextras.modules.chat.properties.ChatProperties;
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.utils.UserDiscriminant;
 import org.openzal.zal.Account;
@@ -14,7 +13,6 @@ import org.openzal.zal.exceptions.NoSuchAccountException;
 import org.openzal.zal.lib.Filter;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -90,7 +88,7 @@ public class DistributionListExtractor
         if (mUserDiscriminant.isUser(memberAddress) && !userAddresses.contains(memberAddress))
         {
           allDistributionListsBuddiesAddress.add(
-            new SpecificAddress(memberAddress.intern())
+            new SpecificAddress(memberAddress).intern()
           );
         }
       }
@@ -112,26 +110,27 @@ public class DistributionListExtractor
       return false;
     }
 
-    List<DistributionList> distributionLists2 = toList( it2 );
+    HashSet<String> distributionLists2 = toHash( it2 );
     while( it1.hasNext() )
     {
       String id = it1.next().getId();
-      for( DistributionList current : distributionLists2 )
+      if (distributionLists2.contains(id))
       {
-        if( id.equals(current.getId()) ) {
-          return true;
-        }
+        return true;
       }
     }
     return false;
   }
 
-  private List<DistributionList> toList(Iterator<DistributionList> it)
+  private HashSet<String> toHash(Iterator<DistributionList> it)
   {
-    ArrayList<DistributionList> list = new ArrayList<DistributionList>(512);
+    HashSet<String> set = new HashSet<String>();
     while( it.hasNext() )
-      list.add(it.next());
-    return list;
+    {
+      DistributionList dl = it.next();
+      set.add(dl.getId());
+    }
+    return set;
   }
 
   private Iterator<DistributionList> getFriendDistributionList(Account userAccount)

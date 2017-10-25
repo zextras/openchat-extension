@@ -8,7 +8,6 @@ import com.zextras.modules.chat.server.db.sql.SqlClosure;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatSqlException;
 import com.zextras.modules.chat.server.relationship.DirectRelationshipStorage;
-import org.apache.commons.dbutils.DbUtils;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -99,7 +98,7 @@ public class DbPreloader implements Service
         }
         finally
         {
-          DbUtils.closeQuietly(rs);
+          rs.close();
         }
       }
       catch (SQLException e)
@@ -110,7 +109,8 @@ public class DbPreloader implements Service
       }
       finally
       {
-        DbUtils.closeQuietly(stmt);
+        try{ stmt.close(); }
+        catch (SQLException ignore){}
       }
 
       return null;

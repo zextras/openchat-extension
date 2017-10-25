@@ -88,10 +88,10 @@ public class DbPreloader implements Service
             mDirectRelationshipStorage.loadInitialValues(
               userId,
               new Relationship(
-                new SpecificAddress(rs.getString("BUDDYADDRESS").intern()),
+                new SpecificAddress(rs.getString("BUDDYADDRESS")),
                 Relationship.RelationshipType.fromByte(rs.getByte("TYPE")),
-                rs.getString("BUDDYNICKNAME").intern(),
-                rs.getString("GROUP").intern()
+                rs.getString("BUDDYNICKNAME"),
+                rs.getString("GROUP")
               )
             );
           }

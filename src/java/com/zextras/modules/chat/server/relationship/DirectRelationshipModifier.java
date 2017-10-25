@@ -79,7 +79,8 @@ public class DirectRelationshipModifier
   @Override
   public void addRelationship(
     int userId,
-    SpecificAddress userAddress, SpecificAddress buddyAddress,
+    SpecificAddress userAddress,
+    SpecificAddress buddyAddress,
     Relationship.RelationshipType type,
     String buddyNickname,
     String group
@@ -91,10 +92,10 @@ public class DirectRelationshipModifier
     }
 
     Relationship newRelationship = new Relationship(
-      buddyAddress.intern(),
+      buddyAddress,
       type,
-      buddyNickname.intern(),
-      group.intern()
+      buddyNickname,
+      group
     );
 
     mDirectRelationshipStorage.upsertRelationship(userId, newRelationship);

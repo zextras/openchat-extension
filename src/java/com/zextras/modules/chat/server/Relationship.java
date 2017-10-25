@@ -123,9 +123,9 @@ public class Relationship
   )
   {
     mType = type;
-    mBuddyAddress = buddyAddress;
-    mBuddyNickname = buddyNickname;
-    mGroup = group;
+    mBuddyAddress = buddyAddress.intern();
+    mBuddyNickname = buddyNickname.intern();
+    mGroup = group.intern();
   }
 
   public SpecificAddress getBuddyAddress() {

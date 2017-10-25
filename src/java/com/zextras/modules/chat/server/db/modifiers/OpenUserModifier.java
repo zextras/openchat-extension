@@ -24,19 +24,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.zextras.modules.chat.server.InternalUser;
-import com.zextras.modules.chat.server.Relationship;
-import com.zextras.modules.chat.server.Relationship.RelationshipType;
+import com.zextras.modules.chat.server.relationship.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship.RelationshipType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import com.zextras.modules.chat.server.status.Status;
-import com.zextras.modules.chat.server.status.CustomStatus;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.mappers.*;
 import com.zextras.modules.chat.server.db.providers.UserInfo;
-import com.zextras.modules.chat.server.events.Event;
-import com.zextras.modules.chat.server.events.EventId;
-import com.zextras.modules.chat.server.events.EventMessage;
-
-import java.util.List;
 
 @Singleton
 public class OpenUserModifier implements UserModifier

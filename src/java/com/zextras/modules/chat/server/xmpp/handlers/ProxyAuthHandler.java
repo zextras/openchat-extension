@@ -23,7 +23,6 @@ package com.zextras.modules.chat.server.xmpp.handlers;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.ProxyAuthentication;
 import com.zextras.modules.chat.server.operations.SendXmppFeature;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
@@ -40,7 +39,6 @@ import java.util.List;
 
 public class ProxyAuthHandler implements StanzaHandler
 {
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
   private final Provisioning                          mProvisioning;
   private final AuthProvider mAuthProvider;
@@ -49,7 +47,6 @@ public class ProxyAuthHandler implements StanzaHandler
   private ProxyAuthParser mParser;
 
   public ProxyAuthHandler(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
     Provisioning provisioning,
     AuthProvider authProvider,
@@ -57,7 +54,6 @@ public class ProxyAuthHandler implements StanzaHandler
     XmppFilterOut xmppFilterOut
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mXmppConnectionHandler = xmppConnectionHandler;
     mProvisioning = provisioning;
     mAuthProvider = authProvider;
@@ -71,8 +67,6 @@ public class ProxyAuthHandler implements StanzaHandler
     return Arrays.<ChatOperation>asList(
       new ProxyAuthentication(
         mProvisioning,
-        mCommonSessionEventInterceptorBuilder,
-        mAuthProvider,
         mXmppConnectionHandler,
         mParser,
         mXmppFilterOut,

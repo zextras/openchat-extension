@@ -17,40 +17,16 @@
 
 package com.zextras.modules.chat.server.interceptors;
 
-import com.zextras.modules.chat.server.events.EventBindResult;
-import com.zextras.modules.chat.server.events.EventFriendAccepted;
-import com.zextras.modules.chat.server.events.EventFriendAdded;
-import com.zextras.modules.chat.server.events.EventFriendAddedForClient;
-import com.zextras.modules.chat.server.events.EventFriendBackAccepted;
-import com.zextras.modules.chat.server.events.EventFriendBackAdded;
-import com.zextras.modules.chat.server.events.EventFriendBackRemove;
-import com.zextras.modules.chat.server.events.EventFriendRenamed;
-import com.zextras.modules.chat.server.events.EventGetPrivacy;
-import com.zextras.modules.chat.server.events.EventGetRelationships;
-import com.zextras.modules.chat.server.events.EventIQAuthResult;
-import com.zextras.modules.chat.server.events.EventInterceptorFactory;
-import com.zextras.modules.chat.server.events.EventIsWriting;
-import com.zextras.modules.chat.server.events.EventMessage;
-import com.zextras.modules.chat.server.events.EventMessageAck;
-import com.zextras.modules.chat.server.events.EventMessageBack;
-import com.zextras.modules.chat.server.events.EventMessageSizeExceeded;
-import com.zextras.modules.chat.server.events.EventNewClientVersion;
-import com.zextras.modules.chat.server.events.EventSoapSessionRegistred;
-import com.zextras.modules.chat.server.events.EventStatusChanged;
-import com.zextras.modules.chat.server.events.EventStatusProbe;
-import com.zextras.modules.chat.server.events.EventStatuses;
-import com.zextras.modules.chat.server.events.EventStreamStarted;
-import com.zextras.modules.chat.server.events.EventXmppDiscovery;
-import com.zextras.modules.chat.server.events.EventXmppPing;
-import com.zextras.modules.chat.server.events.EventXmppRedirect;
-import com.zextras.modules.chat.server.events.EventXmppSASLAuthentication;
-import com.zextras.modules.chat.server.events.EventXmppSessionEstablished;
-import com.zextras.modules.chat.server.events.EventXmppSessionFeatures;
-import com.zextras.modules.chat.server.events.FeatureNotImplementedEvent;
-import com.zextras.modules.chat.server.events.FriendNotFoundEvent;
+import com.zextras.modules.chat.server.events.*;
 
 public class StubEventInterceptorFactory implements EventInterceptorFactory
 {
+  @Override
+  public EventInterceptor interpret(Event event)
+  {
+    return new StubEventInterceptor();
+  }
+
   @Override
   public EventInterceptor interpret(EventBindResult eventBindResult)
   {

@@ -22,7 +22,6 @@ package com.zextras.modules.chat.server.xmpp.netty;
 
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
 import com.zextras.modules.core.services.NettyService;
@@ -216,13 +215,11 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
   private final XmppEventFilter                      mXmppEventFilter;
   private final XmppFilterOut mXmppFilterOut;
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final XmppHandlerFactory                   mXmppHandlerFactory;
   private final EventManager                         mEventManager;
   private       XmppConnectionHandler                mXmppConnectionHandler;
 
   public StanzaProcessor(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     XmppHandlerFactory xmppHandlerFactory,
     EventManager eventManager,
     Channel socketChannel,
@@ -237,7 +234,6 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     XmppFilterOut xmppFilterOut
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mXmppHandlerFactory = xmppHandlerFactory;
     mEventManager = eventManager;
     mSchemaProvider = schemaProvider;
@@ -252,7 +248,6 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
   }
 
   public StanzaProcessor(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     XmppHandlerFactory xmppHandlerFactory,
     EventManager eventManager,
     Channel socketChannel,
@@ -267,7 +262,6 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
   )
   {
     this(
-      commonSessionEventInterceptorBuilder,
       xmppHandlerFactory,
       eventManager,
       socketChannel,

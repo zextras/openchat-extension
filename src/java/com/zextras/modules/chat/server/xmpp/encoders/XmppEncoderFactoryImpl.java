@@ -44,6 +44,12 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   }
 
   @Override
+  public Encoder interpret(Event event)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Encoder interpret(EventNewClientVersion eventNewClientVersion)
   {
     throw new UnsupportedOperationException();

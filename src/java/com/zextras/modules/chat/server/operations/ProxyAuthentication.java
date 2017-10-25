@@ -31,7 +31,6 @@ import com.zextras.modules.chat.server.events.EventStreamStarted;
 import com.zextras.modules.chat.server.events.EventXmppSASLAuthentication;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.xmpp.AuthStatus;
@@ -43,7 +42,6 @@ import com.zextras.modules.chat.server.xmpp.XmppSession;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import com.zextras.modules.chat.server.xmpp.parsers.ProxyAuthParser;
 import org.openzal.zal.Account;
-import org.openzal.zal.AuthProvider;
 import org.openzal.zal.Provisioning;
 
 import java.util.Collections;
@@ -52,8 +50,6 @@ import java.util.List;
 public class ProxyAuthentication implements ChatOperation
 {
   private final Provisioning mProvisioning;
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
-  private final AuthProvider mAuthProvider;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
   private final ProxyAuthParser mParser;
   private final XmppFilterOut mXmppFilterOut;
@@ -61,8 +57,6 @@ public class ProxyAuthentication implements ChatOperation
 
   public ProxyAuthentication(
     Provisioning provisioning,
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
-    AuthProvider authProvider,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
     ProxyAuthParser parser,
     XmppFilterOut xmppFilterOut,
@@ -70,8 +64,6 @@ public class ProxyAuthentication implements ChatOperation
   )
   {
     mProvisioning = provisioning;
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
-    mAuthProvider = authProvider;
     mXmppConnectionHandler = xmppConnectionHandler;
     mParser = parser;
     mXmppFilterOut = xmppFilterOut;

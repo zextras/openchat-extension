@@ -22,17 +22,10 @@ package com.zextras.modules.chat.server.xmpp;
 
 import com.zextras.modules.chat.server.*;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.Event;
-import com.zextras.modules.chat.server.events.EventId;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import com.zextras.modules.chat.server.exceptions.StatusDoesNotExistException;
-import com.zextras.modules.chat.server.status.FixedStatus;
-import com.zextras.modules.chat.server.status.Status;
-import com.zextras.modules.chat.server.status.StatusId;
+import com.zextras.modules.chat.server.relationship.Relationship;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 public class AnonymousUser implements User
 {

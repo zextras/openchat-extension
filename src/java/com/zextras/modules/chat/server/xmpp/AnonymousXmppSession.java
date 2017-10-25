@@ -21,7 +21,6 @@
 package com.zextras.modules.chat.server.xmpp;
 
 import com.zextras.modules.chat.properties.ChatProperties;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import org.openzal.zal.lib.Filter;
 import com.zextras.lib.filters.FilterPassAll;
 import com.zextras.modules.chat.server.events.EventQueue;

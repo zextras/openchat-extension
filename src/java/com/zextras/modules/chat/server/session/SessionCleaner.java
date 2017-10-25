@@ -36,6 +36,7 @@ import com.zextras.modules.chat.server.status.FixedStatus;
 import org.openzal.zal.Utils;
 
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Singleton
 public class SessionCleaner implements Service, ZELogger
@@ -45,7 +46,8 @@ public class SessionCleaner implements Service, ZELogger
   private final ActivityManager mActivityManager;
   private final Clock           mClock;
   private       ActivityTimer   mActivity;
-  public final long INTERVAL = 10000L;
+  private final AtomicBoolean   mIsRunningAtomic;
+  public final long INTERVAL = 15000L;
 
   @Inject
   public SessionCleaner(
@@ -59,6 +61,7 @@ public class SessionCleaner implements Service, ZELogger
     mSessionManager = sessionManager;
     mActivityManager = activityManager;
     mClock = clock;
+    mIsRunningAtomic = new AtomicBoolean(false);
     mActivity = null;
   }
 
@@ -85,24 +88,33 @@ public class SessionCleaner implements Service, ZELogger
     @Override
     public void run()
     {
-      mSessionManager.cleanExpiredSessions(mClock, new SessionManager.SessionExpiredHandler()
+      if( mIsRunningAtomic.compareAndSet(false, true) )
       {
-        @Override
-        public void expired(Session session)
+        try
         {
-          ChatOperation op = new SetStatusOnLoginOrLogout(session.getId(), FixedStatus.Offline);
-          try
+          mSessionManager.cleanExpiredSessions(mClock, new SessionManager.SessionExpiredHandler()
           {
-            mEventManager.execOperations(Collections.singletonList(op));
-          }
-          catch (Exception ex)
-          {
-            ChatLog.log.debug(SessionCleaner.this, "Exception during cleanup: "+ Utils.exceptionToString(ex));
-          }
+            @Override
+            public void expired(Session session)
+            {
+              ChatOperation op = new SetStatusOnLoginOrLogout(session.getId(), FixedStatus.Offline);
+              try
+              {
+                mEventManager.execOperations(Collections.singletonList(op));
+              }
+              catch (Exception ex)
+              {
+                ChatLog.log.debug(SessionCleaner.this, "Exception during cleanup: " + Utils.exceptionToString(ex));
+              }
+            }
+          });
         }
-      });
-
-      //ChatLog.log.debug("Session Cleaner: "+mSessionManager.getAllSessions().toString());
+        finally
+        {
+          mIsRunningAtomic.set(false);
+        }
+        //ChatLog.log.debug("Session Cleaner: "+mSessionManager.getAllSessions().toString());
+      }
     }
   }
 }

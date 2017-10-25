@@ -1,61 +1,55 @@
 package com.zextras.modules.chat.server.relationship;
 
 import com.google.inject.Inject;
-import com.zextras.lib.log.ChatLog;
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.db.mappers.RelationshipMapper;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Map;
+
 /**
  * Class provides user's direct-relationship's information.
  * A direct-relationship is a relationship create from a user with another
  * user.
  */
-public class DirectRelationshipProvider
-  extends AbstractRelationshipProvider
-  implements RelationshipProvider
+public class DirectRelationshipProvider extends RelationshipProviderAdapter
 {
-  final RelationshipMapper mRelationshipMapper;
-  
+  private final DirectRelationshipStorage mDirectRelationshipStorage;
+
   @Inject
-  public DirectRelationshipProvider(RelationshipMapper relationshipMapper)
+  public DirectRelationshipProvider(DirectRelationshipStorage directRelationshipStorage)
   {
-    mRelationshipMapper = relationshipMapper;
+    mDirectRelationshipStorage = directRelationshipStorage;
   }
-  
+
   @Override
-  public Collection<Relationship> getUserRelationships(int userId)
+  public Collection<Relationship> getUserRelationships(int userId, SpecificAddress userAddress)
   {
-    try
-    {
-      return mRelationshipMapper.get(userId);
-    }
-    catch (ChatDbException e)
-    {
-      String message = "Error while trying to access to relationships " +
-                             "of user with id " + userId;
-      ChatLog.log.warn(message);
-      throw new RuntimeException(message);
-    }
+    return mDirectRelationshipStorage.get(userId);
   }
-  
+
+  /**
+   * Method created for performance purposes
+   */
+  public Map<SpecificAddress, Relationship> getUserRelationshipsMap(int userId, SpecificAddress userAddress)
+  {
+    return mDirectRelationshipStorage.getMap(userId,userAddress);
+  }
+
   @Override
-  public Relationship getUserRelationshipByBuddyAddress(int userId,
-                                                        SpecificAddress buddyAddress)
+  public Relationship getUserRelationshipByBuddyAddress(
+    int userId,
+    SpecificAddress userAddress, SpecificAddress buddyAddress
+  )
   {
-    Collection<Relationship> mRelationships = getUserRelationships(userId);
-    for (Relationship relationship : mRelationships)
-    {
-      if (relationship.getBuddyAddress()
-                      .equals(buddyAddress))
-      {
-        return relationship;
-      }
-    }
-    return null;
+    return mDirectRelationshipStorage.get(userId, buddyAddress);
   }
-  
-  
+
+  @Nullable
+  @Override
+  public Relationship.RelationshipType userRelationshipType(int userId, SpecificAddress userAddress, SpecificAddress buddyAddress)
+  {
+    Relationship relationship = mDirectRelationshipStorage.get(userId, buddyAddress);
+    return relationship == null ? null : relationship.getType();
+  }
 }

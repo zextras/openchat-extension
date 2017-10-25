@@ -24,7 +24,6 @@ import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.User;
@@ -53,7 +52,6 @@ import java.util.List;
 
 public class XmppSASLAuthentication implements ChatOperation
 {
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final Provisioning mProvisioning;
   private final SASLAuthParser                        mParser;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
@@ -67,7 +65,6 @@ public class XmppSASLAuthentication implements ChatOperation
   private String mRemoteHost = "";
 
   public XmppSASLAuthentication(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     Provisioning provisioning,
     SASLAuthParser parser,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
@@ -76,7 +73,6 @@ public class XmppSASLAuthentication implements ChatOperation
     XmppFilterOut xmppFilterOut
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mProvisioning = provisioning;
     mParser = parser;
     mXmppConnectionHandler = xmppConnectionHandler;

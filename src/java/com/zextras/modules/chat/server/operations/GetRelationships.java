@@ -28,6 +28,7 @@ import com.zextras.modules.chat.server.events.EventGetRelationships;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.session.Session;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;

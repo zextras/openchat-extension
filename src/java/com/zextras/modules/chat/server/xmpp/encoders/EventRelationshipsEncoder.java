@@ -20,7 +20,7 @@
 
 package com.zextras.modules.chat.server.xmpp.encoders;
 
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventGetRelationships;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;

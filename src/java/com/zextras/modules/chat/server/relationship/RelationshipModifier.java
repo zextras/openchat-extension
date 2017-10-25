@@ -1,7 +1,6 @@
 package com.zextras.modules.chat.server.relationship;
 
 
-import com.zextras.modules.chat.server.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 
 /**
@@ -9,24 +8,39 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
  */
 public interface RelationshipModifier
 {
-  void addRelationship(int userId,
-                       SpecificAddress buddyAddress,
-                       Relationship.RelationshipType type,
-                       String buddyNickname,
-                       String group);
+  void addRelationship(
+    int userId,
+    SpecificAddress userAddress,
+    SpecificAddress buddyAddress,
+    Relationship.RelationshipType type,
+    String buddyNickname,
+    String group
+  );
   
-  void removeRelationship(int userId,
-                          SpecificAddress buddyAddress);
+  void removeRelationship(
+    int userId,
+    SpecificAddress userAddress,
+    SpecificAddress buddyAddress
+  );
   
-  void updateBuddyNickname(int userId,
-                           SpecificAddress buddyAddress,
-                           String newNickName);
+  void updateBuddyNickname(
+    int userId,
+    SpecificAddress userAddress,
+    SpecificAddress buddyAddress,
+    String newNickName
+  );
   
-  void updateBuddyGroup(int userId,
-                        SpecificAddress buddyAddress,
-                        String newGroupName);
+  void updateBuddyGroup(
+    int userId,
+    SpecificAddress userAddress,
+    SpecificAddress buddyAddress,
+    String newGroupName
+  );
   
-  void updateRelationshipType(int userId,
-                              SpecificAddress buddyAddress,
-                              Relationship.RelationshipType newType);
+  void updateRelationshipType(
+    int userId,
+    SpecificAddress userAddress,
+    SpecificAddress buddyAddress,
+    Relationship.RelationshipType newType
+  );
 }

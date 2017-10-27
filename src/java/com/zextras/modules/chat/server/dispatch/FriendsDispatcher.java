@@ -19,7 +19,7 @@ package com.zextras.modules.chat.server.dispatch;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.User;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;

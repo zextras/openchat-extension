@@ -24,6 +24,7 @@ import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Provisioning;
 

@@ -19,8 +19,8 @@ package com.zextras.modules.chat.server.db.mappers;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.zextras.modules.chat.server.Relationship;
-import com.zextras.modules.chat.server.Relationship.RelationshipType;
+import com.zextras.modules.chat.server.relationship.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship.RelationshipType;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.DbHandler;
 import com.zextras.modules.chat.server.db.builders.RelationshipBuilder;

@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.zextras.lib.log.ChatLog;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.server.Target;
@@ -142,6 +143,7 @@ public class EventQueue
   public void queueEvent(Event event)
   {
     if (mEventQueue.contains(event)) {
+      ChatLog.log.info("Duplicate Event dump: "+event.toString());
       return;
     }
 

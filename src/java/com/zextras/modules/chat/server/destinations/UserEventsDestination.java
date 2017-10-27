@@ -37,7 +37,7 @@ import java.util.Collection;
 public class UserEventsDestination implements EventDestination, EventDestinationProvider, Service
 {
   private final Provisioning                mProvisioning;
-  private final UserEventInterceptorFactory mUserEventInterceptorFactory;
+  private final EventInterceptorFactory     mEventInterceptorFactory;
   private final EventManager                mEventManager;
   private final EventRouter                 mEventRouter;
   private final Priority                    mPriority;
@@ -45,13 +45,13 @@ public class UserEventsDestination implements EventDestination, EventDestination
   @Inject
   public UserEventsDestination(
     Provisioning provisioning,
-    UserEventInterceptorFactory userEventInterceptorFactory,
+    EventInterceptorFactory userEventInterceptorFactory,
     EventRouter eventRouter,
     EventManager eventManager
   )
   {
     mProvisioning = provisioning;
-    mUserEventInterceptorFactory = userEventInterceptorFactory;
+    mEventInterceptorFactory = userEventInterceptorFactory;
     mEventRouter = eventRouter;
     mEventManager = eventManager;
     mPriority = new Priority(3);
@@ -65,7 +65,7 @@ public class UserEventsDestination implements EventDestination, EventDestination
 
   @Override
   public void deliverEvent(Event event, SpecificAddress address) {
-    EventInterceptor interceptor = event.interpret(mUserEventInterceptorFactory);
+    EventInterceptor interceptor = event.interpret(mEventInterceptorFactory);
     try {
       interceptor.intercept(mEventManager, address);
     } catch (Exception ex) {

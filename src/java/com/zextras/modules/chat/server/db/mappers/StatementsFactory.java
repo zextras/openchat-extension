@@ -17,10 +17,9 @@
 
 package com.zextras.modules.chat.server.db.mappers;
 
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.sql.SqlStatement;
-import com.zextras.modules.chat.server.db.sql.user.UserSelectAllStatement;
 
 public interface StatementsFactory
 {

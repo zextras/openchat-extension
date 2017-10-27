@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.operations;
 
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.User;
 import com.zextras.modules.chat.server.address.SpecificAddress;

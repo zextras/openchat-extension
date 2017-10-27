@@ -15,20 +15,30 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server.session;
+package com.zextras.modules.chat.server.soap;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventManager;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventInterpreterAdapter;
+import com.zextras.modules.chat.server.events.EventXmppPing;
+import com.zextras.modules.chat.server.filters.EventFilter;
+import com.zextras.modules.chat.server.session.Session;
 
-public class FilterEventInterceptor implements EventInterceptor
+public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements SoapFilter
 {
-  public FilterEventInterceptor(AtomicBoolean atomicBoolean, boolean result) {
-    atomicBoolean.set(result);
+  public SoapFilterImpl()
+  {
+    super(false);
   }
 
   @Override
-  public void intercept(EventManager eventManager, SpecificAddress target) {
+  public boolean isFiltered(Event event, SpecificAddress target, Session session)
+  {
+    return event.interpret(this);
+  }
+
+  public Boolean interpret(EventXmppPing eventXmppPing)
+  {
+    return true;
   }
 }

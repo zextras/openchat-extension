@@ -20,6 +20,12 @@ package com.zextras.modules.chat.server.events;
 public class EventQueueFilterEventImpl implements EventQueueFilterEvent
 {
   @Override
+  public Boolean interpret(final Event event)
+  {
+    return false;
+  }
+
+  @Override
   public Boolean interpret(EventStatusProbe eventStatusProbe)
   {
     return false;

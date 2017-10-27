@@ -9,8 +9,8 @@
   </loadfile>
 
   <property name="zal-zimbra-version" value="dev-last"/>
-  <property name="zal-version" value="2.0"/>
-  <property name="required-zal-version" value="2.0.0"/>
+  <property name="zal-version" value="2.1"/>
+  <property name="required-zal-version" value="2.1.0"/>
 
   <property name="extensionlib" value="extensionlib"/>
 
@@ -58,7 +58,7 @@
     <mkdir dir="${build}"/>
     <mkdir dir="${dist}"/>
 
-    <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${extensionlib}/src/" destdir="${extensionlib}/build/" target="1.6" source="1.6">
+    <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${extensionlib}/src/" destdir="${extensionlib}/build/" target="1.7" source="1.7">
       <classpath>
         <fileset dir="${lib}">
           <include name="*.jar" />
@@ -67,7 +67,7 @@
      <compilerarg value="-Xlint:none" />
     </javac>
 
-    <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.6" source="1.6">
+    <javac includeantruntime="false" debug="true" debuglevel="lines,vars,source" srcdir="${src}/" destdir="${build}/" target="1.7" source="1.7">
       <classpath>
         <pathelement location="${extensionlib}/build/" />
         <pathelement location="${lib}/${zal}" />

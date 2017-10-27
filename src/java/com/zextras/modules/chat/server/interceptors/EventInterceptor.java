@@ -29,3 +29,4 @@ public interface EventInterceptor
   void intercept(EventManager eventManager, SpecificAddress target)
     throws ChatException, ChatDbException, ZimbraException;
 }
+

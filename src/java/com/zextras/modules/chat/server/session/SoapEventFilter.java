@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.session;
 
 import com.google.inject.Inject;
 import com.zextras.modules.chat.server.soap.SoapFilter;
+import com.zextras.modules.chat.server.soap.SoapFilterImpl;
 
 public class SoapEventFilter extends EventFilterAggregator
 {

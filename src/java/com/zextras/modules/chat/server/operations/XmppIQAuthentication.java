@@ -21,7 +21,6 @@ import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.User;
@@ -50,8 +49,7 @@ import java.util.UUID;
 public class XmppIQAuthentication implements ChatOperation
 {
   private final Provisioning                          mProvisioning;
-  private final CommonSessionEventInterceptorBuilder  mCommonSessionEventInterceptorBuilder;
-  private final IQAuthXmppParser                      mParser;
+  private final IQAuthXmppParser mParser;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
   private final XmppFilterOut                         mXmppFilterOut;
   private final XmppEventFilter                       mXmppEventFilter;
@@ -59,7 +57,6 @@ public class XmppIQAuthentication implements ChatOperation
 
   public XmppIQAuthentication(
     Provisioning provisioning,
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     IQAuthXmppParser parser,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
     XmppFilterOut xmppFilterOut,
@@ -67,7 +64,6 @@ public class XmppIQAuthentication implements ChatOperation
   )
   {
     mProvisioning = provisioning;
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mParser = parser;
     mXmppConnectionHandler = xmppConnectionHandler;
     mXmppFilterOut = xmppFilterOut;

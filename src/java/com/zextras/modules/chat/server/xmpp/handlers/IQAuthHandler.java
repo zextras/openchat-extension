@@ -19,7 +19,6 @@ package com.zextras.modules.chat.server.xmpp.handlers;
 
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.XmppIQAuthentication;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
@@ -35,7 +34,6 @@ import java.util.List;
 
 public class IQAuthHandler implements StanzaHandler
 {
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
   private final Provisioning                          mProvisioning;
   private final XmppFilterOut mXmppFilterOut;
@@ -43,14 +41,12 @@ public class IQAuthHandler implements StanzaHandler
   IQAuthXmppParser mParser = null;
 
   public IQAuthHandler(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
     Provisioning provisioning,
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mXmppConnectionHandler = xmppConnectionHandler;
     mProvisioning = provisioning;
     mXmppFilterOut = xmppFilterOut;
@@ -63,7 +59,6 @@ public class IQAuthHandler implements StanzaHandler
     return Arrays.<ChatOperation>asList(
       new XmppIQAuthentication(
         mProvisioning,
-        mCommonSessionEventInterceptorBuilder,
         mParser,
         mXmppConnectionHandler,
         mXmppFilterOut,

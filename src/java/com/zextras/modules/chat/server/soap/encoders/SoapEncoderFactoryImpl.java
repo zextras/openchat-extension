@@ -37,6 +37,12 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
     mChatVersion = chatVersion;
   }
 
+  @Override
+  public Encoder interpret(Event event)
+  {
+    throw new UnsupportedOperationException();
+  }
+
   //common events
   @Override
   public Encoder interpret(EventIsWriting eventIsWriting)

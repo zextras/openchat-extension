@@ -15,32 +15,31 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server.events;
+package com.zextras.modules.chat.server.xmpp;
 
-import com.zextras.modules.chat.server.relationship.Relationship;
-import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventInterpreterAdapter;
+import com.zextras.modules.chat.server.events.EventXmppPing;
+import com.zextras.modules.chat.server.filters.EventFilter;
+import com.zextras.modules.chat.server.session.Session;
 
-import java.util.Collection;
-
-public class EventGetRelationships extends Event
+public class XmppFilterImpl extends EventInterpreterAdapter<Boolean> implements XmppFilter
 {
-  public Collection<Relationship> getRelationships()
+  public XmppFilterImpl()
   {
-    return mRelationships;
-  }
-
-  private final Collection<Relationship> mRelationships;
-
-  public EventGetRelationships(EventId eventId, SpecificAddress sender, Target target, Collection<Relationship> relationships)
-  {
-    super(eventId, sender, target);
-    mRelationships = relationships;
+    super(false);
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public boolean isFiltered(Event event, SpecificAddress target, Session session)
   {
-    return interpreter.interpret(this);
+    return event.interpret(this);
   }
+
+  public Boolean interpret(EventXmppPing eventXmppPing)
+  {
+    return true;
+  }
+
 }

@@ -17,6 +17,8 @@
 
 package com.zextras.modules.chat.properties;
 
+import org.openzal.zal.DistributionList;
+
 public interface ChatProperties
 {
   int MAX_MESSAGE_SIZE       = 16 * 1024;
@@ -32,6 +34,6 @@ public interface ChatProperties
   boolean allowUnencryptedPassword();
   int getChatXmppPort(String serverName);
   int getChatXmppSslPort(String serverName);
-  boolean chatAllowDlMemberAddAsFriend(String dlName);
+  boolean chatAllowDlMemberAddAsFriend(DistributionList distributionList);
   String getProductName();
 }

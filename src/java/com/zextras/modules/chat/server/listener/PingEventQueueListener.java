@@ -200,8 +200,8 @@ public class PingEventQueueListener implements EventQueueListener
         // update session queue throught client successfully received events
         mEventQueue.popSuccessfullySentEvents(mSuccessfullySentEvents);
 
-        final ChatSoapResponse chatSoapResponse = new ChatSoapResponse();
-        for (Event event : mEventQueue.peekAllEvents(50))
+        ChatSoapResponse chatSoapResponse = new ChatSoapResponse();
+        for (Event event : mEventQueue.peekAllEvents(200))
         {
           SoapEncoder encoder = (SoapEncoder) event.interpret(encoderFactory);
           encoder.encode(chatSoapResponse, mAddress);

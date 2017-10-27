@@ -18,13 +18,10 @@
 package com.zextras.modules.chat.server;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.Event;
-import com.zextras.modules.chat.server.events.EventId;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.relationship.Relationship;
 
 
 import java.util.Collection;
-import java.util.Set;
 
 public interface User
 {

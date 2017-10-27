@@ -142,14 +142,9 @@ public class LdapChatProperties implements ChatProperties
   }
 
   @Override
-  public boolean chatAllowDlMemberAddAsFriend(String dlName)
+  public boolean chatAllowDlMemberAddAsFriend(DistributionList distributionList)
   {
-    String value = "false";
-    DistributionList distributionList = mProvisioning.getDistributionListByName(dlName);
-    if (distributionList != null)
-    {
-      value = distributionList.getAttr("zimbraChatAllowDlMemberAddAsFriend", "false");
-    }
+    String value = distributionList.getAttr("zimbraChatAllowDlMemberAddAsFriend", "false");
     return "true".equalsIgnoreCase(value);
   }
 

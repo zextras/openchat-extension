@@ -22,7 +22,7 @@ import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.status.FixedStatus;
 import com.zextras.modules.chat.server.status.PartialStatus;
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;

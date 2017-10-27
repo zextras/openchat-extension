@@ -15,11 +15,10 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server;
+package com.zextras.modules.chat.server.relationship;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.db.PersistentEntity;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.utils.Jsonable;
 import com.zextras.utils.ToJSONSerializer;
@@ -36,7 +35,6 @@ import java.util.Map;
  */
 public class Relationship
 {
-  public       int             mUserId;
   public final SpecificAddress mBuddyAddress;
 
   /**
@@ -46,10 +44,16 @@ public class Relationship
   private RelationshipType mType;
   private String           mGroup;
 
-  public int getUserId()
+  public Relationship copy()
   {
-    return mUserId;
+    return new Relationship(
+      mBuddyAddress,
+      mType,
+      mBuddyNickname,
+      mGroup
+    );
   }
+
 
   @JsonSerialize(using = ToJSONSerializer.class)
   public static enum RelationshipType implements Jsonable
@@ -108,17 +112,16 @@ public class Relationship
   }
 
   public Relationship(
-    int userId, SpecificAddress buddyAddress,
+    SpecificAddress buddyAddress,
     RelationshipType type,
     String buddyNickname,
     String group
   )
   {
-    mUserId = userId;
     mType = type;
-    mBuddyAddress = buddyAddress;
-    mBuddyNickname = buddyNickname;
-    mGroup = group;
+    mBuddyAddress = buddyAddress.withoutResource().intern();
+    mBuddyNickname = buddyNickname.intern();
+    mGroup = group.intern();
   }
 
   public SpecificAddress getBuddyAddress() {
@@ -142,77 +145,42 @@ public class Relationship
     return getType().equals(relationshipType);
   }
 
-  public void updateVolatileNickname(String newNickName) {
+  void updateVolatileNickname(String newNickName) {
     mBuddyNickname = newNickName;
   }
-
-  public void updateVolatileType(RelationshipType type) {
+  void updateVolatileType(RelationshipType type) {
     mType = type;
   }
-  public void updateVolatileGroup(String group) {
+  void updateVolatileGroup(String group) {
     mGroup = group;
   }
-  
+
   @Override
-  public boolean equals(final Object o)
+  public boolean equals(Object o)
   {
     if (this == o)
-    {
       return true;
-    }
     if (o == null || getClass() != o.getClass())
-    {
       return false;
-    }
-    
-    final Relationship that = (Relationship) o;
-    
-    if (mUserId != that.mUserId)
-    {
+
+    Relationship that = (Relationship) o;
+
+    if (!mBuddyAddress.equals(that.mBuddyAddress))
       return false;
-    }
-    if (mBuddyAddress != null
-        ? !mBuddyAddress.equals(that.mBuddyAddress)
-        : that.mBuddyAddress != null)
-    {
+    if (!mBuddyNickname.equals(that.mBuddyNickname))
       return false;
-    }
-    if (mBuddyNickname != null
-        ? !mBuddyNickname.equals(that.mBuddyNickname)
-        : that.mBuddyNickname != null)
-    {
-      return false;
-    }
     if (mType != that.mType)
-    {
       return false;
-    }
-    if (mGroup != null
-        ? !mGroup.equals(that.mGroup)
-        : that.mGroup != null)
-    {
-      return false;
-    }
-    
-    return true;
+    return mGroup.equals(that.mGroup);
   }
-  
+
   @Override
   public int hashCode()
   {
-    int result = mUserId;
-    result = 31 * result + (mBuddyAddress != null
-                            ? mBuddyAddress.hashCode()
-                            : 0);
-    result = 31 * result + (mBuddyNickname != null
-                            ? mBuddyNickname.hashCode()
-                            : 0);
-    result = 31 * result + (mType != null
-                            ? mType.hashCode()
-                            : 0);
-    result = 31 * result + (mGroup != null
-                            ? mGroup.hashCode()
-                            : 0);
+    int result = mBuddyAddress.hashCode();
+    result = 31 * result + mBuddyNickname.hashCode();
+    result = 31 * result + mType.hashCode();
+    result = 31 * result + mGroup.hashCode();
     return result;
   }
 }

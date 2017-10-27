@@ -21,7 +21,6 @@ import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
 import com.zextras.modules.core.services.NettyService;
@@ -60,7 +59,6 @@ public class ChatXmppService implements Runnable, Service
 {
   public static final ServiceName XMPP_SERVICE_NAME      = new ServiceName("xmpp");
 
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final EventManager                         mEventManager;
   private final XmppHandlerFactory                   mXmppHandlerFactory;
   private final SchemaProvider                       mSchemaProvider;
@@ -68,10 +66,10 @@ public class ChatXmppService implements Runnable, Service
   private final ChatProperties                       mChatProperties;
   private final NettyService                         mNettyService;
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
-  private final XmppFilterOut mXmppFilterOut;
-  private final XmppEventFilter mXmppEventFilter;
-  private final Provisioning mProvisioning;
-  private final EventQueueFactory mEventQueueFactory;
+  private final XmppFilterOut                        mXmppFilterOut;
+  private final XmppEventFilter                      mXmppEventFilter;
+  private final Provisioning                         mProvisioning;
+  private final EventQueueFactory                    mEventQueueFactory;
   private       boolean                              mStopped;
   private       Promise<Boolean>                     mInitializationPromise;
   private final ReentrantLock    mLock      = new ReentrantLock();
@@ -80,7 +78,6 @@ public class ChatXmppService implements Runnable, Service
 
   @Inject
   public ChatXmppService(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     EventManager eventManager,
     XmppHandlerFactory xmppHandlerFactory,
     SchemaProvider schemaProvider,
@@ -94,7 +91,6 @@ public class ChatXmppService implements Runnable, Service
     EventQueueFactory eventQueueFactory
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mEventManager = eventManager;
     mXmppHandlerFactory = xmppHandlerFactory;
     mSchemaProvider = schemaProvider;
@@ -266,7 +262,6 @@ public class ChatXmppService implements Runnable, Service
 
           ch.pipeline().addLast(null, "SubTagTokenizer", new XmlSubTagTokenizer());
           FirstTags firstTagsHandler = new FirstTags(
-            mCommonSessionEventInterceptorBuilder,
             mXmppHandlerFactory,
             mEventManager,
             ch,

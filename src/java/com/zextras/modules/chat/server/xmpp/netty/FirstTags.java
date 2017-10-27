@@ -20,7 +20,6 @@ package com.zextras.modules.chat.server.xmpp.netty;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
-import com.zextras.modules.chat.server.session.CommonSessionEventInterceptorBuilder;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
 import com.zextras.modules.core.services.NettyService;
@@ -38,7 +37,6 @@ import java.nio.charset.Charset;
 
 public class FirstTags extends ChannelInboundHandlerAdapter
 {
-  private final CommonSessionEventInterceptorBuilder mCommonSessionEventInterceptorBuilder;
   private final XmppHandlerFactory                   mXmppHandlerFactory;
   private final EventManager                         mEventManager;
   private final SocketChannel                        mSocketChannel;
@@ -53,7 +51,6 @@ public class FirstTags extends ChannelInboundHandlerAdapter
   private final EventQueueFactory mEventQueueFactory;
 
   public FirstTags(
-    CommonSessionEventInterceptorBuilder commonSessionEventInterceptorBuilder,
     XmppHandlerFactory xmppHandlerFactory,
     EventManager eventManager,
     SocketChannel socketChannel,
@@ -68,7 +65,6 @@ public class FirstTags extends ChannelInboundHandlerAdapter
     EventQueueFactory eventQueueFactory
   )
   {
-    mCommonSessionEventInterceptorBuilder = commonSessionEventInterceptorBuilder;
     mXmppHandlerFactory = xmppHandlerFactory;
     mEventManager = eventManager;
     mSocketChannel = socketChannel;
@@ -108,7 +104,6 @@ public class FirstTags extends ChannelInboundHandlerAdapter
         ctx.pipeline().addLast(
           "StanzaProcessor",
           new StanzaProcessor(
-            mCommonSessionEventInterceptorBuilder,
             mXmppHandlerFactory,
             mEventManager,
             mSocketChannel,

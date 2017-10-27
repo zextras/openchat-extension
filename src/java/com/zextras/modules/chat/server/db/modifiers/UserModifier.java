@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.db.modifiers;
 
 import com.zextras.modules.chat.server.InternalUser;
-import com.zextras.modules.chat.server.Relationship;
+import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserInfo;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;

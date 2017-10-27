@@ -133,4 +133,12 @@ public class SpecificAddress implements ChatAddress
       return "";
     }
   }
+
+  public SpecificAddress intern()
+  {
+    return new SpecificAddress(
+      mAddress.intern(),
+      mResource.intern()
+    );
+  }
 }

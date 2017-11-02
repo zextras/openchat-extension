@@ -53,6 +53,7 @@ public class EventSoapSessionRegistredEncoder implements SoapEncoder
     /*registerResponse.put("remove_brand", mEventRegister.removeBrand());
     registerResponse.put("videochat_enabled", mEventRegister.isVideoChatEnabled());*/
     registerResponse.put("silent_error_reporting_enabled", mEventRegister.isSilentErrorReportingEnabled());
+    registerResponse.put("product", mChatVersion.getProduct());
 
     if( mEventRegister.getClientVersion().equals(new Version(0)) ){
       response.enableBackcompatibilityHack();

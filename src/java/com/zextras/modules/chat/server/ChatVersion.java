@@ -24,10 +24,6 @@ import org.openzal.zal.lib.Version;
 
 public interface ChatVersion
 {
-  int OPENCHAT  = 0;
-  int ZXCHAT    = 1;
-  int TALK      = 2;
-
   Version getServerChatVersion();
   Version getRequiredZimletVersion();
   int     getProduct();

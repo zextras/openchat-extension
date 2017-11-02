@@ -37,6 +37,6 @@ public class OpenchatVersion implements ChatVersion
   @Override
   public int getProduct()
   {
-    return ChatVersion.OPENCHAT;
+    return 1;
   }
 }

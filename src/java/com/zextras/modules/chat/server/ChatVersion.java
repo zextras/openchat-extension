@@ -23,4 +23,5 @@ public interface ChatVersion
 {
   Version getServerChatVersion();
   Version getRequiredZimletVersion();
+  int     getProduct();
 }

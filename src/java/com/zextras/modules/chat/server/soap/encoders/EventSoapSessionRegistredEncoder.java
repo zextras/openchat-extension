@@ -48,6 +48,7 @@ public class EventSoapSessionRegistredEncoder implements SoapEncoder
     registerResponse.put("required_zimlet_version", mChatVersion.getRequiredZimletVersion().toString());
     registerResponse.put("history_enabled",  mEventRegister.isHistoryEnabled());
     registerResponse.put("silent_error_reporting_enabled", mEventRegister.isSilentErrorReportingEnabled());
+    registerResponse.put("product", mChatVersion.getProduct());
 
     if( mEventRegister.getClientVersion().equals(new Version(0)) ){
       response.enableBackcompatibilityHack();

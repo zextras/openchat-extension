@@ -20,17 +20,23 @@ package com.zextras.modules.chat.server;
 import com.zextras.lib.BuildInfo;
 import org.openzal.zal.lib.Version;
 
-public class ChatVersionImpl implements ChatVersion
+public class OpenchatVersion implements ChatVersion
 {
   @Override
   public Version getServerChatVersion()
   {
-    return new Version(BuildInfo.Version);
+    return new Version(2, 1);
   }
 
   @Override
   public Version getRequiredZimletVersion()
   {
     return new Version(BuildInfo.Version);
+  }
+
+  @Override
+  public int getProduct()
+  {
+    return 1;
   }
 }

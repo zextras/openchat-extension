@@ -86,11 +86,27 @@ public class OpenUserProvider implements UserProvider
   public InternalUser getUser(SpecificAddress address,boolean skipLocalHostCheck)
     throws ChatDbException
   {
-    InternalUser userInstance = getUserFromCache(address);
-    if (userInstance != null) {
-      return userInstance;
-    }
+    SpecificAddress accountName = getAccountAddress(address, skipLocalHostCheck);
 
+    mLock.lock();
+    try {
+      InternalUser userInstance = getUserFromCache(accountName);
+      if (userInstance != null) {
+        return userInstance;
+      }
+
+      InternalUser user = buildUser(accountName);
+
+      mUserCache.addUser(user);
+
+      return user;
+    } finally {
+      mLock.unlock();
+    }
+  }
+
+  public SpecificAddress getAccountAddress(SpecificAddress address, boolean skipLocalHostCheck)
+  {
     Account account;
     try {
       account = mProvisioning.getAccountByName(address.toString());
@@ -103,31 +119,22 @@ public class OpenUserProvider implements UserProvider
                                    ": " + Utils.exceptionToString(e));
     }
 
-    SpecificAddress accountName = new SpecificAddress(account.getName());
-    mLock.lock();
-    try {
-      userInstance = getUserFromCache(accountName);
-      if (userInstance != null) {
-        return userInstance;
-      }
+    return new SpecificAddress(account.getName());
+  }
 
-      UserInfo userInfo = mUserInfoMapper.get(accountName);
+  @NotNull
+  public InternalUser buildUser(SpecificAddress accountName) throws ChatDbException
+  {
+    UserInfo userInfo = mUserInfoMapper.get(accountName);
 
-      if (!userInfo.isValid()) {
-        userInfo = new UserInfo(0, accountName);
-        int userId = mUserModifier.insertUser(userInfo);
-        userInfo = new UserInfo(userId, userInfo.getAddress());
-      }
-
-      EventQueue eventQueue = new EventQueue();
-      InternalUser user = buildUser(userInfo, eventQueue);
-
-      mUserCache.addUser(user);
-
-      return user;
-    } finally {
-      mLock.unlock();
+    if (!userInfo.isValid()) {
+      userInfo = new UserInfo(0, accountName);
+      int userId = mUserModifier.insertUser(userInfo);
+      userInfo = new UserInfo(userId, userInfo.getAddress());
     }
+
+    EventQueue eventQueue = new EventQueue();
+    return buildUser(userInfo, eventQueue);
   }
 
   @NotNull

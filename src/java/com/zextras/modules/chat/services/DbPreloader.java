@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.services;
 
+import com.google.inject.Inject;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -9,7 +10,6 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatSqlException;
 import com.zextras.modules.chat.server.relationship.DirectRelationshipStorage;
 
-import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

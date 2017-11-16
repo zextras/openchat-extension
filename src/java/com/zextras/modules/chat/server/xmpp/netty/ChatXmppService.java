@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.netty;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
@@ -47,7 +48,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslHandler;
 
-import javax.inject.Inject;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.net.BindException;

@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.server.relationship;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.AccountHelper;
 import com.zextras.lib.filters.FilteredIterator;
@@ -12,7 +13,6 @@ import org.openzal.zal.Provisioning;
 import org.openzal.zal.exceptions.NoSuchAccountException;
 import org.openzal.zal.lib.Filter;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;

@@ -70,7 +70,7 @@ public class RelationshipProviderCombiner extends RelationshipProviderAdapter
       {
         Relationship copiedDirectRelationship = directRelationship.copy();
         copiedDirectRelationship.updateVolatileType(Relationship.RelationshipType.ACCEPTED);
-        allRelationships.add(relationship);
+        allRelationships.add(copiedDirectRelationship);
       }
       else
       {

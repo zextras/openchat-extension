@@ -111,6 +111,17 @@ public class Relationship
     }
   }
 
+  @Override
+  public String toString()
+  {
+    return "Relationship{" +
+      "mBuddyAddress=" + mBuddyAddress +
+      ", mBuddyNickname='" + mBuddyNickname + '\'' +
+      ", mType=" + mType +
+      ", mGroup='" + mGroup + '\'' +
+      '}';
+  }
+
   public Relationship(
     SpecificAddress buddyAddress,
     RelationshipType type,

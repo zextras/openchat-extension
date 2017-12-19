@@ -21,6 +21,7 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventInterpreterAdapter;
 import com.zextras.modules.chat.server.events.EventXmppPing;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.filters.EventFilter;
 import com.zextras.modules.chat.server.session.Session;
 
@@ -32,7 +33,7 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
   }
 
   @Override
-  public boolean isFiltered(Event event, SpecificAddress target, Session session)
+  public boolean isFiltered(Event event, SpecificAddress target, Session session) throws ChatException
   {
     return event.interpret(this);
   }

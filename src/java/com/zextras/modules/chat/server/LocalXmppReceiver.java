@@ -45,7 +45,7 @@ public class LocalXmppReceiver
 
   public void processStanza(String stanza)
   {
-//    ZELog.chat.debug("LocalXmppReceiver: processStanza: "+stanza);
+    ChatLog.log.debug("LocalXmppReceiver: processStanza: "+stanza);
     try
     {
       List<Event> events = mXmppEventFactory.createEvents(stanza);

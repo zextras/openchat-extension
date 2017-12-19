@@ -19,9 +19,10 @@ package com.zextras.modules.chat.server.filters;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.session.Session;
 
 public interface EventFilter
 {
-  boolean isFiltered(Event event, SpecificAddress target, Session session);
+  boolean isFiltered(Event event, SpecificAddress target, Session session) throws ChatException;
 }

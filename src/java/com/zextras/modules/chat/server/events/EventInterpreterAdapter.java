@@ -1,5 +1,7 @@
 package com.zextras.modules.chat.server.events;
 
+import com.zextras.modules.chat.server.exceptions.ChatException;
+
 public class EventInterpreterAdapter<T> implements EventInterpreter<T>
 {
   protected final T mDefaultValue;
@@ -10,193 +12,193 @@ public class EventInterpreterAdapter<T> implements EventInterpreter<T>
   }
 
   @Override
-  public T interpret(Event event)
+  public T interpret(Event event) throws ChatException
   {
     return mDefaultValue;
   }
   
   @Override
-  public T interpret(EventStatusProbe eventStatusProbe)
+  public T interpret(EventStatusProbe eventStatusProbe) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventStatuses eventStatuses)
+  public T interpret(EventStatuses eventStatuses) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventStatusChanged eventStatusChanged)
+  public T interpret(EventStatusChanged eventStatusChanged) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventSoapSessionRegistered eventSoapSessionRegistered)
+  public T interpret(EventSoapSessionRegistered eventSoapSessionRegistered) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventNewClientVersion eventNewClientVersion)
+  public T interpret(EventNewClientVersion eventNewClientVersion) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventMessageSizeExceeded eventMessageSizeExceeded)
+  public T interpret(EventMessageSizeExceeded eventMessageSizeExceeded) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventMessageBack eventMessageBack)
+  public T interpret(EventMessageBack eventMessageBack) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventMessageAck eventMessageAck)
+  public T interpret(EventMessageAck eventMessageAck) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventMessage eventMessage)
+  public T interpret(EventMessage eventMessage) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventIsWriting eventIsWriting)
+  public T interpret(EventIsWriting eventIsWriting) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventGetRelationships eventGetRelationships)
+  public T interpret(EventGetRelationships eventGetRelationships) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventGetPrivacy eventGetPrivacy)
+  public T interpret(EventGetPrivacy eventGetPrivacy) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventFriendRenamed eventFriendRenamed)
+  public T interpret(EventFriendRenamed eventFriendRenamed) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventFriendBackRemove eventFriendBackRemove)
+  public T interpret(EventFriendBackRemove eventFriendBackRemove) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventFriendBackAdded eventFriendBackAdded)
+  public T interpret(EventFriendBackAdded eventFriendBackAdded) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventFriendBackAccepted eventFriendBackAccepted)
+  public T interpret(EventFriendBackAccepted eventFriendBackAccepted) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventFriendAddedForClient eventFriendAddedForClient)
+  public T interpret(EventFriendAddedForClient eventFriendAddedForClient) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventFriendAdded eventFriendAdded)
+  public T interpret(EventFriendAdded eventFriendAdded) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventFriendAccepted eventFriendAccepted)
+  public T interpret(EventFriendAccepted eventFriendAccepted) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventBindResult eventBindResult)
+  public T interpret(EventBindResult eventBindResult) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(FriendNotFoundEvent friendNotFoundEvent)
+  public T interpret(FriendNotFoundEvent friendNotFoundEvent) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(FeatureNotImplementedEvent featureNotImplementedEvent)
+  public T interpret(FeatureNotImplementedEvent featureNotImplementedEvent) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventStreamStarted eventXmppSessionRegistered)
+  public T interpret(EventStreamStarted eventXmppSessionRegistered) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventIQAuthResult eventIqAuthResult)
+  public T interpret(EventIQAuthResult eventIqAuthResult) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventXmppSASLAuthentication eventXmppSASLAuthentication)
+  public T interpret(EventXmppSASLAuthentication eventXmppSASLAuthentication) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventXmppSessionFeatures eventXmppSessionFeatures)
+  public T interpret(EventXmppSessionFeatures eventXmppSessionFeatures) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventXmppRedirect eventXmppRedirect)
+  public T interpret(EventXmppRedirect eventXmppRedirect) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventXmppSessionEstablished eventXmppSessionEstablished)
+  public T interpret(EventXmppSessionEstablished eventXmppSessionEstablished) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventXmppPing eventXmppPing)
+  public T interpret(EventXmppPing eventXmppPing) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(EventXmppDiscovery event)
+  public T interpret(EventXmppDiscovery event) throws ChatException
   {
     return mDefaultValue;
   }
 
   @Override
-  public T interpret(final EventFloodControl event)
+  public T interpret(final EventFloodControl event) throws ChatException
   {
     return mDefaultValue;
   }

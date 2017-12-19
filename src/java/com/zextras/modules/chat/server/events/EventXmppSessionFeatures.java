@@ -19,6 +19,8 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.xmpp.XmppAuthentication;
 
 import java.util.Collection;
@@ -65,7 +67,7 @@ public class EventXmppSessionFeatures extends Event
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
   }

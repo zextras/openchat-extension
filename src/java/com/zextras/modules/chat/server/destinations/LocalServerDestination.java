@@ -28,6 +28,7 @@ import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventDestination;
 import com.zextras.modules.chat.server.events.EventDestinationProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
+import org.openzal.zal.Domain;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 import org.openzal.zal.Account;
@@ -102,6 +103,10 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
   public boolean canHandle(SpecificAddress address)
   {
     ChatLog.log.debug("LocalServerDestination: canHandle: "+address.resourceAddress());
+    if( address.getDomain().isEmpty() ){
+      return false;
+    }
+
     try
     {
       Account account = mProvisioning.getAccountByName(address.toString());
@@ -109,13 +114,20 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
       {
         return !mProvisioning.onLocalServer(account);
       }
+
+      Domain domain = mProvisioning.getDomainByName(address.getDomain());
+      if (domain != null)
+      {
+        return false;
+      }
+
     }
     catch (Exception ex)
     {
       ChatLog.log.warn("Exception: "+ Utils.exceptionToString(ex));
     }
 
-    return !address.getDomain().equals(mProvisioning.getLocalServer().getName());
+    return !address.getDomain().equals(mProvisioning.getLocalServer().getAttr("zimbraServiceHostname"));
   }
 
   @Override

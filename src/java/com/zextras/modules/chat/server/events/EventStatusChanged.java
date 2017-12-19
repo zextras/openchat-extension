@@ -21,6 +21,8 @@ import com.zextras.modules.chat.server.*;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.encoding.EncoderFactory;
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.status.Status;
 import org.openzal.zal.lib.Clock;
@@ -55,7 +57,7 @@ public class EventStatusChanged extends Event
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
   }

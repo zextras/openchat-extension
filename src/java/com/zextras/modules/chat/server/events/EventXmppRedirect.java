@@ -19,12 +19,10 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.NoneAddress;
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 
-/**
- * zextras
- * User: marco
- * Date: 13/11/13 15.18
- */
+
 public class EventXmppRedirect extends Event {
   private String mRemoteHost;
 
@@ -38,7 +36,7 @@ public class EventXmppRedirect extends Event {
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
   }

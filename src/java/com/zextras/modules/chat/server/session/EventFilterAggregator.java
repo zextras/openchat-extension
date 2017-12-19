@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.session;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.filters.EventFilter;
 
 public class EventFilterAggregator implements EventFilter
@@ -31,7 +32,7 @@ public class EventFilterAggregator implements EventFilter
   }
 
   @Override
-  public boolean isFiltered(Event event, SpecificAddress target, Session session)
+  public boolean isFiltered(Event event, SpecificAddress target, Session session) throws ChatException
   {
     for( EventFilter eventFilter : mEventFilters )
     {

@@ -19,6 +19,8 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 
 
 public class EventXmppPing extends Event
@@ -42,7 +44,7 @@ public class EventXmppPing extends Event
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
   }

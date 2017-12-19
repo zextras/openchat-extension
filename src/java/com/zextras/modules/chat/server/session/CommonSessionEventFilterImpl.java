@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.session;
 
 import com.zextras.modules.chat.server.events.EventFloodControl;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
@@ -32,7 +33,7 @@ import com.zextras.modules.chat.server.filters.EventFilter;
 public class CommonSessionEventFilterImpl implements CommonSessionEventFilter
 {
   @Override
-  public boolean isFiltered(Event event, SpecificAddress target, Session session)
+  public boolean isFiltered(Event event, SpecificAddress target, Session session) throws ChatException
   {
     return event.interpret(
       new Interpreter(target, session)

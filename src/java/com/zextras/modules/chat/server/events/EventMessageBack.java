@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.events;
 
 //import com.zextras.annotations.VisibleForTesting;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.lib.Clock;
 import org.openzal.zal.lib.ActualClock;
 import com.zextras.modules.chat.server.Target;
@@ -74,7 +75,7 @@ public class EventMessageBack extends Event
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
   }

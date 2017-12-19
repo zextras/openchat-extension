@@ -65,8 +65,8 @@ public class UserEventsDestination implements EventDestination, EventDestination
 
   @Override
   public void deliverEvent(Event event, SpecificAddress address) {
-    EventInterceptor interceptor = event.interpret(mEventInterceptorFactory);
     try {
+      EventInterceptor interceptor = event.interpret(mEventInterceptorFactory);
       interceptor.intercept(mEventManager, address);
     } catch (Exception ex) {
       ChatLog.log.err("Error: " + Utils.exceptionToString(ex));

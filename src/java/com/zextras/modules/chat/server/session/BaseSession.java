@@ -22,6 +22,7 @@ import com.zextras.modules.chat.server.User;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.address.SpecificAddressFromSession;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.filters.EventFilter;
 import com.zextras.modules.chat.server.status.FixedStatus;
 import com.zextras.modules.chat.server.status.Status;
@@ -130,8 +131,15 @@ public abstract class BaseSession implements Session
       return;
     }
 
-    if( getEventFilter().isFiltered(event, address, this) ){
-      return;
+    try
+    {
+      if( getEventFilter().isFiltered(event, address, this) ){
+        return;
+      }
+    }
+    catch (ChatException e)
+    {
+      throw new RuntimeException(e);
     }
 
     mEventQueue.queueEvent(event);

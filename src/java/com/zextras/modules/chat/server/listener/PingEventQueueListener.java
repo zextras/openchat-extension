@@ -25,6 +25,7 @@ import com.zextras.modules.chat.server.events.EventInterpreter;
 import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.events.Event;
@@ -203,8 +204,14 @@ public class PingEventQueueListener implements EventQueueListener
         ChatSoapResponse chatSoapResponse = new ChatSoapResponse();
         for (Event event : mEventQueue.peekAllEvents(200))
         {
-          SoapEncoder encoder = (SoapEncoder) event.interpret(encoderFactory);
-          encoder.encode(chatSoapResponse, mAddress);
+          try
+          {
+            SoapEncoder encoder = (SoapEncoder) event.interpret(encoderFactory);
+            encoder.encode(chatSoapResponse, mAddress);
+          }
+          catch (ChatException e) {
+            throw new RuntimeException(e);
+          }
         }
         chatSoapResponse.encodeInSoapResponse(response);
         mEventQueue.removeListener();

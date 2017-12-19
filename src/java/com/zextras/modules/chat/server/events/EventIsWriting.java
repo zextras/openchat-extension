@@ -22,6 +22,7 @@ import com.zextras.modules.chat.server.WritingState;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.encoding.EncoderFactory;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 
 public class EventIsWriting extends Event
@@ -45,7 +46,7 @@ public class EventIsWriting extends Event
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
   }

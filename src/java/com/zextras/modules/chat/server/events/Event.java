@@ -17,6 +17,8 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.lib.ActualClock;
 import org.openzal.zal.lib.Clock;
 import com.zextras.modules.chat.server.Target;
@@ -76,7 +78,7 @@ public abstract class Event
     return mSender;
   }
 
-  public abstract <T> T interpret(EventInterpreter<T> interpreter);
+  public abstract <T> T interpret(EventInterpreter<T> interpreter) throws ChatException;
 
   @Override
   public boolean equals(Object object)

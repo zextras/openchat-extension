@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server;
 
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.events.EventInterpreter;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.lib.Clock;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.encoding.EncoderFactory;
@@ -86,19 +87,22 @@ public class QueuedEvent
   public String encodeToXmpp() throws XMLStreamException
   {
     ByteArrayOutputStream out = new ByteArrayOutputStream(256);
-    XmppEncoder encoder = (XmppEncoder)mEvent.interpret(mEncoderFactory);
-    encoder.encode(out, mRecipient);
-    String stanza;
+    XmppEncoder encoder;
     try
     {
-      stanza = new String( out.toByteArray(), "UTF-8" );
+      encoder = (XmppEncoder)mEvent.interpret(mEncoderFactory);
+      encoder.encode(out, mRecipient);
+      String stanza = new String( out.toByteArray(), "UTF-8" );
+      return stanza;
+    }
+    catch (ChatException e)
+    {
+      throw new RuntimeException(e);
     }
     catch (UnsupportedEncodingException e)
     {
       throw new RuntimeException("Unsupported encoding UTF??");
     }
-
-    return stanza;
   }
 
 }

@@ -17,69 +17,40 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.zextras.modules.chat.server.exceptions.ChatException;
+
 public interface EventInterpreter<T>
 {
-  T interpret(Event event);
-
-  T interpret(EventStatusProbe eventStatusProbe);
-
-  T interpret(EventStatuses eventStatuses);
-
-  T interpret(EventStatusChanged eventStatusChanged);
-
-  T interpret(EventSoapSessionRegistered eventSoapSessionRegistered);
-
-  T interpret(EventNewClientVersion eventNewClientVersion);
-
-  T interpret(EventMessageSizeExceeded eventMessageSizeExceeded);
-
-  T interpret(EventMessageBack eventMessageBack);
-
-  T interpret(EventMessageAck eventMessageAck);
-
-  T interpret(EventMessage eventMessage);
-
-  T interpret(EventIsWriting eventIsWriting);
-
-  T interpret(EventGetRelationships eventGetRelationships);
-
-  T interpret(EventGetPrivacy eventGetPrivacy);
-
-  T interpret(EventFriendRenamed eventFriendRenamed);
-
-  T interpret(EventFriendBackRemove eventFriendBackRemove);
-
-  T interpret(EventFriendBackAdded eventFriendBackAdded);
-
-  T interpret(EventFriendBackAccepted eventFriendBackAccepted);
-
-  T interpret(EventFriendAddedForClient eventFriendAddedForClient);
-
-  T interpret(EventFriendAdded eventFriendAdded);
-
-  T interpret(EventFriendAccepted eventFriendAccepted);
-
-  T interpret(EventBindResult eventBindResult);
-
-  T interpret(FriendNotFoundEvent friendNotFoundEvent);
-
-  T interpret(FeatureNotImplementedEvent featureNotImplementedEvent);
-
-  T interpret(EventStreamStarted eventXmppSessionRegistered);
-
-  T interpret(EventIQAuthResult eventIqAuthResult);
-
-  T interpret(EventXmppSASLAuthentication eventXmppSASLAuthentication);
-
-  T interpret(EventXmppSessionFeatures eventXmppSessionFeatures);
-
-  T interpret(EventXmppRedirect eventXmppRedirect);
-
-  T interpret(EventXmppSessionEstablished eventXmppSessionEstablished);
-
-  T interpret(EventXmppPing eventXmppPing);
-
-  T interpret(EventXmppDiscovery event);
-
-  T interpret(EventFloodControl event);
+  T interpret(Event event) throws ChatException;
+  T interpret(EventStatusProbe eventStatusProbe) throws ChatException;
+  T interpret(EventStatuses eventStatuses) throws ChatException;
+  T interpret(EventStatusChanged eventStatusChanged) throws ChatException;
+  T interpret(EventSoapSessionRegistered eventSoapSessionRegistered) throws ChatException;
+  T interpret(EventNewClientVersion eventNewClientVersion) throws ChatException;
+  T interpret(EventMessageSizeExceeded eventMessageSizeExceeded) throws ChatException;
+  T interpret(EventMessageBack eventMessageBack) throws ChatException;
+  T interpret(EventMessageAck eventMessageAck) throws ChatException;
+  T interpret(EventMessage eventMessage) throws ChatException;
+  T interpret(EventIsWriting eventIsWriting) throws ChatException;
+  T interpret(EventGetRelationships eventGetRelationships) throws ChatException;
+  T interpret(EventGetPrivacy eventGetPrivacy) throws ChatException;
+  T interpret(EventFriendRenamed eventFriendRenamed) throws ChatException;
+  T interpret(EventFriendBackRemove eventFriendBackRemove) throws ChatException;
+  T interpret(EventFriendBackAdded eventFriendBackAdded) throws ChatException;
+  T interpret(EventFriendBackAccepted eventFriendBackAccepted) throws ChatException;
+  T interpret(EventFriendAddedForClient eventFriendAddedForClient) throws ChatException;
+  T interpret(EventFriendAdded eventFriendAdded) throws ChatException;
+  T interpret(EventFriendAccepted eventFriendAccepted) throws ChatException;
+  T interpret(EventBindResult eventBindResult) throws ChatException;
+  T interpret(FriendNotFoundEvent friendNotFoundEvent) throws ChatException;
+  T interpret(FeatureNotImplementedEvent featureNotImplementedEvent) throws ChatException;
+  T interpret(EventStreamStarted eventXmppSessionRegistered) throws ChatException;
+  T interpret(EventIQAuthResult eventIqAuthResult) throws ChatException;
+  T interpret(EventXmppSASLAuthentication eventXmppSASLAuthentication) throws ChatException;
+  T interpret(EventXmppSessionFeatures eventXmppSessionFeatures) throws ChatException;
+  T interpret(EventXmppRedirect eventXmppRedirect) throws ChatException;
+  T interpret(EventXmppSessionEstablished eventXmppSessionEstablished) throws ChatException;
+  T interpret(EventXmppPing eventXmppPing) throws ChatException;
+  T interpret(EventXmppDiscovery event) throws ChatException;
+  T interpret(EventFloodControl event) throws ChatException;
 }

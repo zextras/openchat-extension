@@ -20,7 +20,7 @@ package com.zextras.modules.chat.server.exceptions;
 import com.zextras.lib.Error.ErrorCode;
 import com.zextras.lib.Error.ZxError;
 
-public class ChatDbException extends ZxError
+public class ChatDbException extends ChatException
 {
   public ChatDbException(String message)
   {

@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.NoneAddress;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 
 public class EventFloodControl extends Event
 {
@@ -36,7 +37,7 @@ public class EventFloodControl extends Event
   }
 
   @Override
-  public <T> T interpret(EventInterpreter<T> interpreter)
+  public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
   }

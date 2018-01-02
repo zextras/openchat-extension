@@ -17,57 +17,141 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
+import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.EventXmppDiscovery;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class DiscoveryParser extends XmppParser
 {
-
   private String mType;
-  private String mIQId;
+  private String mId;
   private String mTarget;
+  private String mQuery;
+  private String mSender;
+  private Collection<String> mFeatures = Collections.<String>emptyList();
+  private List<EventXmppDiscovery.Result> mResults = Collections.<EventXmppDiscovery.Result>emptyList();
 
-  public DiscoveryParser(InputStream xmlInput, SchemaProvider schemaProvider) {
+  public DiscoveryParser(InputStream xmlInput, SchemaProvider schemaProvider)
+  {
     super("disco-info.xsd", xmlInput, schemaProvider);
   }
 
   // <iq type='get' id='purple841b5737' to='example.com'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>
 
   @Override
-  public void parse() throws XMLStreamException {
+  public void parse() throws XMLStreamException
+  {
     XMLStreamReader2 sr = getStreamReader();
 
-    if (validate()) {
+    if (validate())
+    {
       sr.validateAgainst(getDefaultSchema());
     }
 
-    while (sr.hasNext()) {
-      sr.next();
-      switch (sr.getEventType()) {
-        case XMLStreamReader2.START_ELEMENT: {
-          if (sr.getLocalName().equals("iq")) {
+    while (sr.hasNext())
+    {
+      switch (sr.next())
+      {
+        case XMLStreamReader2.START_ELEMENT:
+        {
+          if (sr.getLocalName().equals("iq"))
+          {
             mType = sr.getAttributeValue(null, "type");
-            mIQId = sr.getAttributeValue(null, "id");
+            mId = sr.getAttributeValue(null, "id");
             mTarget = sr.getAttributeValue(null, "to");
+            mSender = sr.getAttributeValue(null, "from");
+          }
+          else if (sr.getLocalName().equals("query"))
+          {
+            mQuery = sr.getNamespaceURI();
+            parseItems(sr);
+          }
+          else if (sr.getLocalName().equalsIgnoreCase("feature"))
+          {
+            mFeatures = addString(mFeatures, sr.getAttributeValue("", "var"));
           }
         }
       }
     }
   }
 
-  public String getType() {
+  private void parseItems(XMLStreamReader2 sr) throws XMLStreamException
+  {
+    while (sr.hasNext())
+    {
+      switch (sr.next())
+      {
+        case XMLStreamReader2.START_ELEMENT:
+        {
+          if (sr.getLocalName().equals("item"))
+          {
+            if (mResults.isEmpty())
+            {
+              mResults = new LinkedList<>();
+            }
+
+            mResults.add(
+              new EventXmppDiscovery.Result(
+                new SpecificAddress(sr.getAttributeValue(null, "jid")),
+                sr.getAttributeValue(null, "name")
+              )
+            );
+          }
+          break;
+        }
+
+        case XMLStreamReader2.END_ELEMENT:
+        {
+          if (sr.getLocalName().equals("query"))
+          {
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  public String getSender()
+  {
+    return mSender;
+  }
+
+  public String getType()
+  {
     return mType;
   }
 
-  public String getIQId() {
-    return mIQId;
+  public String getId()
+  {
+    return mId;
   }
 
-  public String getTo() {
+  public String getTarget()
+  {
     return mTarget;
+  }
+
+  public String getQuery()
+  {
+    return mQuery;
+  }
+
+  public Collection<String> getFeatures()
+  {
+    return mFeatures;
+  }
+
+  public List<EventXmppDiscovery.Result> getResults()
+  {
+    return mResults;
   }
 }

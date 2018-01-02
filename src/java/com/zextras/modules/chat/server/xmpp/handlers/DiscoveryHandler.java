@@ -17,8 +17,16 @@
 
 package com.zextras.modules.chat.server.xmpp.handlers;
 
+import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventXmppDiscovery;
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.events.EventId;
+import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;
 import com.zextras.modules.chat.server.xmpp.XmppSession;
 import com.zextras.modules.chat.server.xmpp.parsers.DiscoveryParser;
@@ -27,29 +35,70 @@ import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * zextras
- * User: marco
- * Date: 12/11/13 11.37
- */
 public class DiscoveryHandler implements StanzaHandler {
-  private XmppSession mSession;
+  private XmppSession     mSession;
   private DiscoveryParser mParser;
 
-  public DiscoveryHandler(XmppSession session) {
+  public DiscoveryHandler(XmppSession session)
+  {
     mSession = session;
   }
 
   @Override
-  public List<ChatOperation> handle() {
-    return Arrays.<ChatOperation>asList(
-      new XmppDiscovery(
-        mSession,
-        EventId.fromString(mParser.getIQId()),
-        mParser.getTo()
-      )
+  public List<ChatOperation> handle()
+  {
+    return Collections.<ChatOperation>singletonList(
+      new ChatOperation()
+      {
+        @Override
+        public List<Event> exec(SessionManager sessionManager, UserProvider userProvider) throws ChatException, ChatDbException
+        {
+          if (!EventXmppDiscovery.DiscoveryQuery.isSupported(mParser.getQuery()))
+          {
+            return Collections.<Event>emptyList();
+          }
+
+          EventId eventId = EventId.fromString(mParser.getId());
+          SpecificAddress senderAddress = mSession.getExposedAddress();
+          EventXmppDiscovery.DiscoveryQuery query = EventXmppDiscovery.DiscoveryQuery.fromUrl(mParser.getQuery());
+
+          if (mParser.getTarget() != null && mParser.getTarget().equals(mSession.getDomain()))
+          {
+            mSession.getEventQueue().queueEvent(new EventXmppDiscovery(
+              eventId,
+              new SpecificAddress(mSession.getDomain()),
+              new Target(senderAddress),
+              "result",
+              mParser.getFeatures(),
+              Collections.<EventXmppDiscovery.Result>emptyList(),
+              query
+            ));
+            return Collections.<Event>emptyList();
+          }
+
+          if (mParser.getTarget() == null)
+          {
+            return Collections.<Event>emptyList();
+          }
+
+          SpecificAddress targetAddress = new SpecificAddress(mParser.getTarget());
+
+          return Collections.<Event>singletonList(
+            new EventXmppDiscovery(
+              eventId,
+              senderAddress,
+              new Target(targetAddress),
+              mParser.getType(),
+              mParser.getFeatures(),
+              Collections.<EventXmppDiscovery.Result>emptyList(),
+              query
+            )
+          );
+        }
+      }
     );
   }
 

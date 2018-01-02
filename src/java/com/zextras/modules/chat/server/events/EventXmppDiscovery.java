@@ -19,39 +19,131 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.address.NoneAddress;
 import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
+import java.util.Collection;
+import java.util.List;
+
 public class EventXmppDiscovery extends Event
 {
-  public String getDomainName()
+  private final Collection<String> mFeatures;
+  private final List<Result>       mResults;
+  private final DiscoveryQuery     mDiscoveryQuery;
+  private final String             mType;
+
+  public EventXmppDiscovery(
+    EventId eventId,
+    SpecificAddress sender,
+    Target target,
+    String type,
+    Collection<String> features,
+    List<EventXmppDiscovery.Result> results,
+    EventXmppDiscovery.DiscoveryQuery discoveryQuery
+  )
   {
-    return mDomainName;
+    super(eventId, sender, target);
+    mFeatures = features;
+    mResults = results;
+    mDiscoveryQuery = discoveryQuery;
+    mType = type;
   }
 
-  private final String mDomainName;
-
-  public boolean isDomainQuery()
+  public DiscoveryQuery getDiscoveryQuery()
   {
-    return mDomainQuery;
+    return mDiscoveryQuery;
   }
 
-  private final boolean mDomainQuery;
-
-
-  /*
-    constructor for domain query
-  */
-  public EventXmppDiscovery(String domainName, EventId eventId, boolean domainQuery)
+  public String getType()
   {
-    super(eventId, new NoneAddress(), new Target());
-    mDomainName = domainName;
-    mDomainQuery = domainQuery;
+    return mType;
+  }
+
+  public boolean isResult()
+  {
+    return "result".equalsIgnoreCase(mType);
+  }
+
+  public List<Result> getResults()
+  {
+    return mResults;
+  }
+
+  public Collection<String> getFeatures()
+  {
+    return mFeatures;
   }
 
   @Override
   public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
+  }
+
+  public static class Result
+  {
+    public SpecificAddress getAddress()
+    {
+      return mAddress;
+    }
+
+    public String getName()
+    {
+      return mName;
+    }
+
+    private final SpecificAddress mAddress;
+    private final String          mName;
+
+    public Result(SpecificAddress address, String name)
+    {
+      mAddress = address;
+      mName = name;
+    }
+  }
+
+  public enum DiscoveryQuery
+  {
+    info("http://jabber.org/protocol/disco#info"),
+    items("http://jabber.org/protocol/disco#items");
+
+    private final String mUrl;
+
+    DiscoveryQuery(String url)
+    {
+      mUrl = url;
+    }
+
+    public static EventXmppDiscovery.DiscoveryQuery fromUrl(String url)
+    {
+      for (DiscoveryQuery type : DiscoveryQuery.values())
+      {
+        if (type.getUrl().equalsIgnoreCase(url))
+        {
+          return type;
+        }
+      }
+
+      throw new RuntimeException();
+    }
+
+    public String getUrl()
+    {
+      return mUrl;
+    }
+
+    public static boolean isSupported(String url)
+    {
+      for (EventXmppDiscovery.DiscoveryQuery type : DiscoveryQuery.values())
+      {
+        if (type.getUrl().equalsIgnoreCase(url))
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
   }
 }

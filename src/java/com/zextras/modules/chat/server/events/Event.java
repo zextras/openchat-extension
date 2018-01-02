@@ -17,7 +17,6 @@
 
 package com.zextras.modules.chat.server.events;
 
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.lib.ActualClock;
 import org.openzal.zal.lib.Clock;

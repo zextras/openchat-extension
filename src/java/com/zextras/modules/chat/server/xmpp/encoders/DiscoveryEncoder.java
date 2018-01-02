@@ -59,27 +59,44 @@ public class DiscoveryEncoder extends XmppEncoder
   {
     XMLStreamWriter2 sw = getStreamWriter(outputStream);
 
-    if( validate() ) {
+    if( validate() )
+    {
       sw.validateAgainst(getDefaultSchema());
     }
 
     sw.writeStartElement("","iq","jabber:client");
-    sw.writeAttribute("type", "result");
+    sw.writeAttribute("type", mEvent.getType());
 
     sw.writeAttribute("id", mEvent.getId().toString());
 
-    if( !mEvent.getDomainName().isEmpty() ) {
-      sw.writeAttribute("from", mEvent.getDomainName());
-    }
+    sw.writeAttribute("from", mEvent.getSender().resourceAddress());
 
     sw.writeAttribute("to", target.resourceAddress());
 
-    if( validate() ){
-      sw.validateAgainst(getSchema("disco-info.xsd"));
+    if( validate() )
+    {
+      switch (mEvent.getDiscoveryQuery())
+      {
+        case info:
+          sw.validateAgainst(getSchema("disco-info.xsd"));
+          break;
+        case items:
+          sw.validateAgainst(getSchema("disco-items.xsd"));
+          break;
+      }
     }
 
-    sw.writeStartElement("", "query", "http://jabber.org/protocol/disco#info");
+    sw.writeStartElement("", "query", "jabber:client");
+    sw.writeAttribute("xmlns", mEvent.getDiscoveryQuery().getUrl());
 
+    for (String feature : mEvent.getFeatures())
+    {
+      sw.writeStartElement("", "feature", "jabber:client");
+      sw.writeAttribute("var", feature);
+      sw.writeEndElement();
+    }
+
+    /*
     if( !mEvent.isDomainQuery() )
 //    {
 //      sw.writeEmptyElement("", "identity", "http://jabber.org/protocol/disco#info");
@@ -100,6 +117,7 @@ public class DiscoveryEncoder extends XmppEncoder
       sw.writeEmptyElement("","service-unavailable", "urn:ietf:params:xml:ns:xmpp-stanzas");
       sw.writeEndElement();
     }
+    */
 
     sw.writeEndElement();
     sw.close();

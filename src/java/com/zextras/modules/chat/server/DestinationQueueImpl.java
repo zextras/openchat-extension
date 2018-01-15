@@ -20,6 +20,7 @@ package com.zextras.modules.chat.server;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.destinations.EventSenderFactory;
 import com.zextras.modules.chat.server.events.Event;
+import org.openzal.zal.lib.Clock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class DestinationQueueImpl implements DestinationQueue
 {
   private final String mHost;
   private final QueuedEventFactory mQueuedEventFactory;
+  private final Clock mClock;
   private List<QueuedEvent> mQueue;
   private ReentrantLock mLock;
   private Condition mEmptyQueue;
@@ -38,11 +40,13 @@ public class DestinationQueueImpl implements DestinationQueue
   public DestinationQueueImpl(
     String host,
     EventSenderFactory eventSenderFactory,
-    QueuedEventFactory queuedEventFactory
+    QueuedEventFactory queuedEventFactory,
+    Clock clock
   )
   {
     mHost = host;
     mQueuedEventFactory = queuedEventFactory;
+    mClock = clock;
     mQueue = new ArrayList<QueuedEvent>();
     mLock = new ReentrantLock();
     mEmptyQueue = mLock.newCondition();
@@ -103,6 +107,13 @@ public class DestinationQueueImpl implements DestinationQueue
         mEmptyQueue.await();
       }
       event = mQueue.remove(0);
+
+      long sleepTimeMs = event.getNextRetry() - mClock.now();
+      if(  sleepTimeMs >= 10L )
+      {
+        Thread.sleep( sleepTimeMs );
+      }
+
       return event;
     }
     finally

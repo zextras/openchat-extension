@@ -18,14 +18,12 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
 import com.zextras.modules.chat.server.dispatch.SpecificDispatcher;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashSet;
 
 public class SpecificAddress implements ChatAddress
 {
@@ -54,7 +52,7 @@ public class SpecificAddress implements ChatAddress
   }
 
   @Override
-  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider)
+  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider, RoomServerHostSetProvider roomServerHostSetProvider)
   {
     return new SpecificDispatcher(this, eventRouter);
   }
@@ -85,12 +83,6 @@ public class SpecificAddress implements ChatAddress
       return mAddress;
     }
     return mAddress+'/'+mResource;
-  }
-
-  @Override
-  public void explode(HashSet<SpecificAddress> explodedSet, UserProvider openUserProvider) throws ChatDbException
-  {
-    explodedSet.add(this);
   }
 
   public boolean isFromSession( SessionUUID sessionUUID )

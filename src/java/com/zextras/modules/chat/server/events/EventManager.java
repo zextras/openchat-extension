@@ -26,6 +26,7 @@ import com.zextras.lib.filters.FilteredIterator;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import org.openzal.zal.lib.Filter;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
@@ -34,29 +35,29 @@ import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 @Singleton
 public class EventManager implements Service
 {
-  private final UserProvider   mOpenUserProvider;
-  private final SessionManager mSessionManager;
-  private final EventRouter    mEventRouter;
-  //private final ChatReportManager mChatReportManager;
+  private final UserProvider              mOpenUserProvider;
+  private final SessionManager            mSessionManager;
+  private final EventRouter               mEventRouter;
+  private final RoomServerHostSetProvider mRoomServerHostSetProvider;
 
   @Inject
   public EventManager(
     UserProvider openUserProvider,
     SessionManager sessionManager,
-    EventRouter eventRouter/*,
-    ChatReportManager chatReportManager*/)
+    EventRouter eventRouter,
+    RoomServerHostSetProvider roomServerHostSetProvider
+  )
   {
     mOpenUserProvider = openUserProvider;
     mSessionManager = sessionManager;
     mEventRouter = eventRouter;
-    //mChatReportManager = chatReportManager;
+    mRoomServerHostSetProvider = roomServerHostSetProvider;
   }
 
   public void execOperations(List<ChatOperation> chatOperations, Filter<Event> outEventFilter)
@@ -85,7 +86,7 @@ public class EventManager implements Service
   {
     try
     {
-      event.getTarget().dispatch(mEventRouter, mOpenUserProvider, event);
+      event.getTarget().dispatch(mEventRouter, mOpenUserProvider, mRoomServerHostSetProvider, event);
     }
     catch (ZxError e)
     {

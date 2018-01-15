@@ -24,6 +24,7 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class EventXmppDiscovery extends Event
@@ -32,6 +33,7 @@ public class EventXmppDiscovery extends Event
   private final List<Result>       mResults;
   private final DiscoveryQuery     mDiscoveryQuery;
   private final String             mType;
+  private final SpecificAddress mSender;
 
   public EventXmppDiscovery(
     EventId eventId,
@@ -48,6 +50,22 @@ public class EventXmppDiscovery extends Event
     mResults = results;
     mDiscoveryQuery = discoveryQuery;
     mType = type;
+    mSender = sender;
+  }
+
+  public EventXmppDiscovery(
+    EventId eventId,
+    SpecificAddress sender,
+    Target target,
+    EventXmppDiscovery.DiscoveryQuery discoveryQuery
+  )
+  {
+    super(eventId, sender, target);
+    mFeatures = Collections.emptyList();
+    mResults = Collections.emptyList();
+    mDiscoveryQuery = discoveryQuery;
+    mType = "get";
+    mSender = sender;
   }
 
   public DiscoveryQuery getDiscoveryQuery()
@@ -73,6 +91,12 @@ public class EventXmppDiscovery extends Event
   public Collection<String> getFeatures()
   {
     return mFeatures;
+  }
+
+  @Override
+  public SpecificAddress getSender()
+  {
+    return mSender;
   }
 
   @Override

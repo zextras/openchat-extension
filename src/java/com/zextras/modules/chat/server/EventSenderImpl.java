@@ -35,14 +35,14 @@ import java.nio.charset.Charset;
 
 public class EventSenderImpl implements EventSender, Runnable
 {
-  private final Provisioning                mProvisioning;
-  private final LocalXmppConnectionProvider mLocalXmppConnectionProvider;
-  private final DestinationQueue            mDestinationQueue;
-  private final int mSteps;
-  private final String                      mHost;
-  private       Channel                     mChannel;
-  private       boolean                     mRequestStop;
-  private       Thread                      mThread;
+  private final    Provisioning                mProvisioning;
+  private final    LocalXmppConnectionProvider mLocalXmppConnectionProvider;
+  private final    DestinationQueue            mDestinationQueue;
+  private final    int                         mSteps;
+  private final    String                      mHost;
+  private          Channel                     mChannel;
+  private volatile boolean                     mRequestStop;
+  private          Thread                      mThread;
 
   public EventSenderImpl(
     Provisioning provisioning,
@@ -81,19 +81,6 @@ public class EventSenderImpl implements EventSender, Runnable
       ChatLog.log.debug("EventSender: deliverEvent: " + queuedEvent.getEvent().getClass().getName()
         + " to " + queuedEvent.getRecipient().resourceAddress());
       sendEvent(queuedEvent);
-    }
-  }
-
-  private void authConnection(Socket connection)
-  {
-    // TODO!
-    if (
-      mProvisioning.getServerByName(
-        ((InetSocketAddress) connection.getRemoteSocketAddress()).getAddress().getHostName()
-      ) == null
-    )
-    {
-      throw new RuntimeException();
     }
   }
 

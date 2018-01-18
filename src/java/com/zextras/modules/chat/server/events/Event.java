@@ -27,7 +27,7 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 public abstract class Event
 {
   private final EventId     mId;
-  private long        mTimestamp;
+  private final long        mTimestamp;
   private final ChatAddress mSender;
   private final Target      mTarget;
 
@@ -42,6 +42,14 @@ public abstract class Event
     mSender = sender;
     mTarget = target;
     mTimestamp = ActualClock.sInstance.now();
+  }
+
+  protected Event(EventId id, ChatAddress sender, Target target, long timestamp)
+  {
+    mId = id;
+    mSender = sender;
+    mTarget = target;
+    mTimestamp = timestamp;
   }
 
   //VisibleForTesting
@@ -60,11 +68,6 @@ public abstract class Event
   public Target getTarget()
   {
     return mTarget;
-  }
-
-  public void setTimestamp(long timestamp)
-  {
-    mTimestamp = timestamp;
   }
 
   public long getTimestamp()

@@ -5,6 +5,9 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * This class provide a set of mailbox which hosts a room service
+ */
 public class RoomServerHostSetProvider
 {
   public Set<String> get()

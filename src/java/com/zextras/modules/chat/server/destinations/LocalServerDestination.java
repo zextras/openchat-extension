@@ -74,10 +74,21 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
 
     try
     {
-      DestinationQueue destinationQueue;
       String host;
 
-      if( address.getDomain().isEmpty() )
+      boolean isServerAddress = address.getDomain().isEmpty();
+      if( isServerAddress )
+      {
+        if( mRoomServerHostSetProvider.isValidServer(address) )
+        {
+          host = address.toString();
+        }
+        else
+        {
+          host = null;
+        }
+      }
+      else
       {
         Account account = mProvisioning.getAccountByName(address.toString());
         if (account == null)
@@ -89,22 +100,12 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
           host = account.getMailHost();
         }
       }
-      else
-      {
-        if( mRoomServerHostSetProvider.isValidServer(address) )
-        {
-          host = address.toString();
-        }
-        else
-        {
-          host = null;
-        }
-      }
 
       if( host == null ) {
         return;
       }
 
+      DestinationQueue destinationQueue;
       if (mDestinationQueues.containsKey(host))
       {
         destinationQueue = mDestinationQueues.get(host);
@@ -128,38 +129,13 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
   @Override
   public boolean canHandle(SpecificAddress address)
   {
-    ChatLog.log.debug("LocalServerDestination: canHandle: "+address.resourceAddress());
-    if( address.getDomain().isEmpty() ){
-      return false;
-    }
-
-    try
-    {
-      Account account = mProvisioning.getAccountByName(address.toString());
-      if (account != null)
-      {
-        return !mProvisioning.onLocalServer(account);
-      }
-
-      Domain domain = mProvisioning.getDomainByName(address.getDomain());
-      if (domain != null)
-      {
-        return false;
-      }
-
-    }
-    catch (Exception ex)
-    {
-      ChatLog.log.warn("Exception: "+ Utils.exceptionToString(ex));
-    }
-
-    return !address.getDomain().equals(mProvisioning.getLocalServer().getAttr("zimbraServiceHostname"));
+    return true;
   }
 
   @Override
   public Collection<? extends EventDestination> getDestinations(SpecificAddress address)
   {
-    return Arrays.asList(this);
+    return Collections.singletonList(this);
   }
 
   @Override

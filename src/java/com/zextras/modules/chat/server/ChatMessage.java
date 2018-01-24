@@ -23,6 +23,7 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 
 import java.util.Date;
 
+@Deprecated
 public class ChatMessage
 {
   private SpecificAddress mSender;

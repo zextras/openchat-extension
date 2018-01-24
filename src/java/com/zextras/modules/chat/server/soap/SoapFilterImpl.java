@@ -19,7 +19,10 @@ package com.zextras.modules.chat.server.soap;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventInterpreterAdapter;
+import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.events.EventXmppPing;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.filters.EventFilter;
@@ -39,6 +42,21 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
   }
 
   public Boolean interpret(EventXmppPing eventXmppPing)
+  {
+    return true;
+  }
+
+  public Boolean interpret(EventMessageHistory event)
+  {
+    return true;
+  }
+
+  public Boolean interpret(EventMessageHistoryLast event)
+  {
+    return true;
+  }
+
+  public Boolean interpret(EventIQQuery event)
   {
     return true;
   }

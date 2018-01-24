@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.events.*;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 
 @Singleton
@@ -122,6 +123,24 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   public Encoder interpret(EventFloodControl event)
   {
     return new EventFloodControlEncoder(event, mSchemaProvider);
+  }
+
+  @Override
+  public Encoder interpret(EventIQQuery event) throws ChatException
+  {
+    return new EventIQQueryEncoder(event,mSchemaProvider);
+  }
+
+  @Override
+  public Encoder interpret(EventMessageHistory event) throws ChatException
+  {
+    return new EventMessageHistoryEncoder(event,mSchemaProvider);
+  }
+
+  @Override
+  public Encoder interpret(EventMessageHistoryLast event) throws ChatException
+  {
+    return new EventMessageHistoryLastEncoder(event,mSchemaProvider);
   }
 
   @Override

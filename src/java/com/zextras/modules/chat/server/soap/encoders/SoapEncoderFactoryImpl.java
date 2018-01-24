@@ -23,6 +23,7 @@ import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.ChatVersion;
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.events.*;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.MessageSizeExceededException;
 import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
 
@@ -226,7 +227,28 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
   }
 
   @Override
-  public Encoder interpret(final EventFloodControl event)
+  public Encoder interpret(EventFloodControl event)
+  {
+    fail(event);
+    return null;
+  }
+
+  @Override
+  public Encoder interpret(EventIQQuery event) throws ChatException
+  {
+    fail(event);
+    return null;
+  }
+
+  @Override
+  public Encoder interpret(EventMessageHistory event) throws ChatException
+  {
+    fail(event);
+    return null;
+  }
+
+  @Override
+  public Encoder interpret(EventMessageHistoryLast event) throws ChatException
   {
     fail(event);
     return null;

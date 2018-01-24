@@ -20,6 +20,7 @@ package com.zextras.modules.chat.server.xmpp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
 import com.zextras.modules.chat.server.xmpp.handlers.*;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import org.openzal.zal.AuthProvider;
@@ -36,7 +37,8 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
   private final UserProvider        mOpenUserProvider;
   private final AuthProvider        mAuthProvider;
   private final XmppFilterOut mXmppFilterOut;
-  private final XmppEventFilter mXmppEventFilter;
+  private final XmppEventFilter     mXmppEventFilter;
+  private final ImMessageStatements mMessageStatements;
 
   @Inject
   public XmppHandlerFactoryImpl(
@@ -46,8 +48,8 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     StanzaWriterFactory stanzaWriterFactory,
     AuthProvider authProvider,
     XmppFilterOut xmppFilterOut,
-    XmppEventFilter xmppEventFilter
-  )
+    XmppEventFilter xmppEventFilter,
+    ImMessageStatements messageStatements)
   {
     mStanzaRecognizer = stanzaRecognizer;
     mProvisioning = provisioning;
@@ -56,6 +58,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     mAuthProvider = authProvider;
     mXmppFilterOut = xmppFilterOut;
     mXmppEventFilter = xmppEventFilter;
+    mMessageStatements = messageStatements;
   }
 
   public StanzaHandler createHandler(
@@ -178,6 +181,26 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
           mXmppEventFilter,
           mXmppFilterOut
         );
+        break;
+      }
+
+      case Query:
+      {
+        handler = new IQQueryHandler(
+          connectionStatus,
+          mMessageStatements);
+        break;
+      }
+
+      case MessageHistory:
+      {
+        handler = new MessageHistoryHandler();
+        break;
+      }
+
+      case MessageHistoryLast:
+      {
+        handler = new MessageHistoryLastHandler();
         break;
       }
 

@@ -28,7 +28,6 @@ import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.operations.*;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactoryImpl;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
 import org.openzal.zal.Account;

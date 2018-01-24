@@ -111,6 +111,16 @@ public class StanzaRecognizerImpl implements StanzaRecognizer
     {
       return StanzaType.MessageAck;
     }
+    else if (isContained(
+      "result",
+      "xmlns",
+      "",
+      XMLStreamReader.START_ELEMENT,
+      sr
+    ))
+    {
+      return StanzaType.MessageHistory;
+    }
 
     return StanzaType.Message;
   }
@@ -125,7 +135,6 @@ public class StanzaRecognizerImpl implements StanzaRecognizer
       XMLStreamReader.START_ELEMENT, // Type of Event
       sr
     );
-
   }
 
   public boolean isContained(
@@ -230,12 +239,23 @@ public class StanzaRecognizerImpl implements StanzaRecognizer
     if(isContained(
       "query",                                            // LocalName
       "xmlns",                                            // AttributeName
-      "jabber:iq:last",                                   // expected Value
+      "urn:xmpp:mam:2",                                   // expected Value
       XMLStreamReader.START_ELEMENT,                      // Type of Event
       sr
     ))
     {
-      return StanzaType.LastActivity;
+      return StanzaType.Query;
+    }
+
+    if(isContained(
+      "fin",                                            // LocalName
+      "xmlns",                                            // AttributeName
+      "urn:xmpp:mam:2",                                   // expected Value
+      XMLStreamReader.START_ELEMENT,                      // Type of Event
+      sr
+    ))
+    {
+      return StanzaType.MessageHistoryLast;
     }
 
     return StanzaType.UnknownIq;

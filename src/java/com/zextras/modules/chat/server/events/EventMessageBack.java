@@ -17,15 +17,11 @@
 
 package com.zextras.modules.chat.server.events;
 
-//import com.zextras.annotations.VisibleForTesting;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.lib.Clock;
 import org.openzal.zal.lib.ActualClock;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 
 public class EventMessageBack extends Event
 {

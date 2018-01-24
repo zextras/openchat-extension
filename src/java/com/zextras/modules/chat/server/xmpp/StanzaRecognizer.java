@@ -41,6 +41,9 @@ public interface StanzaRecognizer
     Discovery,
     Privacy,
     IQAuth,
+    Query,
+    MessageHistory,
+    MessageHistoryLast,
     UnknownIq,
   }
 

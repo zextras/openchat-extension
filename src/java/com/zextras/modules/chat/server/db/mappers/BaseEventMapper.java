@@ -26,8 +26,7 @@ import java.util.Collection;
  * Event mapper interface.
  */
 public interface BaseEventMapper<T extends Event> {
-  public abstract Collection<T> get(int userId) throws ChatDbException;
-  public abstract int insert(int userId, Event event) throws ChatDbException;
-  public abstract int deleteAll(int userId) throws ChatDbException;
-  public abstract int delete(int userId, String eventId) throws ChatDbException;
+  int insert(int userId, Event event) throws ChatDbException;
+  int deleteAll(int userId) throws ChatDbException;
+  int delete(int userId, String eventId) throws ChatDbException;
 }

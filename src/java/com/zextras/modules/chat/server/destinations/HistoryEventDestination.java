@@ -28,7 +28,6 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactory;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import org.openzal.zal.Utils;
 
 import java.util.*;

@@ -30,11 +30,14 @@ import com.zextras.modules.chat.server.events.EventFriendRenamed;
 import com.zextras.modules.chat.server.events.EventGetPrivacy;
 import com.zextras.modules.chat.server.events.EventGetRelationships;
 import com.zextras.modules.chat.server.events.EventIQAuthResult;
+import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventInterceptorFactory;
 import com.zextras.modules.chat.server.events.EventIsWriting;
 import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageAck;
 import com.zextras.modules.chat.server.events.EventMessageBack;
+import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.events.EventMessageSizeExceeded;
 import com.zextras.modules.chat.server.events.EventNewClientVersion;
 import com.zextras.modules.chat.server.events.EventSoapSessionRegistered;
@@ -50,6 +53,7 @@ import com.zextras.modules.chat.server.events.EventXmppSessionEstablished;
 import com.zextras.modules.chat.server.events.EventXmppSessionFeatures;
 import com.zextras.modules.chat.server.events.FeatureNotImplementedEvent;
 import com.zextras.modules.chat.server.events.FriendNotFoundEvent;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 
 public class StubEventInterceptorFactory implements EventInterceptorFactory
 {
@@ -244,4 +248,23 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
   {
     return new StubEventInterceptor();
   }
+
+  @Override
+  public EventInterceptor interpret(EventIQQuery event) throws ChatException
+  {
+    return new StubEventInterceptor();
+  }
+
+  @Override
+  public EventInterceptor interpret(EventMessageHistory event) throws ChatException
+  {
+    return new StubEventInterceptor();
+  }
+
+  @Override
+  public EventInterceptor interpret(EventMessageHistoryLast event) throws ChatException
+  {
+    return new StubEventInterceptor();
+  }
+
 }

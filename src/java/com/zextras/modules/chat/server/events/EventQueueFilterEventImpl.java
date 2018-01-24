@@ -17,6 +17,8 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.zextras.modules.chat.server.exceptions.ChatException;
+
 public class EventQueueFilterEventImpl implements EventQueueFilterEvent
 {
   @Override
@@ -210,4 +212,23 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
   {
     return false;
   }
+
+  @Override
+  public Boolean interpret(EventIQQuery event) throws ChatException
+  {
+    return false;
+  }
+
+  @Override
+  public Boolean interpret(EventMessageHistory event) throws ChatException
+  {
+    return false;
+  }
+
+  @Override
+  public Boolean interpret(EventMessageHistoryLast event) throws ChatException
+  {
+    return false;
+  }
+
 }

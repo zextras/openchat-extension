@@ -78,7 +78,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
       boolean isServerAddress = address.getDomain().isEmpty();
       if( isServerAddress )
       {
-        if( mRoomServerHostSetProvider.isValidServer(address) )
+        if( mRoomServerHostSetProvider.isValidChatServer(address) )
         {
           host = address.toString();
         }

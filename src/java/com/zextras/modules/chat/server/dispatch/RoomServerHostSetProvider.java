@@ -24,7 +24,7 @@ public class RoomServerHostSetProvider
     );
   }
 
-  public boolean isValidServer(SpecificAddress address)
+  public boolean isValidChatServer(SpecificAddress address)
   {
     return getAddresses().contains(address);
   }

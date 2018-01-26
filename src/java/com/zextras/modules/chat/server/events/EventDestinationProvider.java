@@ -24,7 +24,6 @@ import java.util.Collection;
 
 public interface EventDestinationProvider
 {
-  boolean canHandle(SpecificAddress address);
   Collection<? extends EventDestination> getDestinations(SpecificAddress address);
   Priority getPriority(); // Highest priority is Priority.HIGHEST_PRIORITY
 }

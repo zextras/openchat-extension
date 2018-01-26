@@ -17,12 +17,20 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.zextras.modules.chat.server.exceptions.ChatException;
+
 public class EventQueueFilterEventImpl implements EventQueueFilterEvent
 {
   @Override
   public Boolean interpret(final Event event)
   {
     return false;
+  }
+
+  @Override
+  public Boolean interpret(EventBootCompleted eventBootCompleted) throws ChatException
+  {
+    return true;
   }
 
   @Override

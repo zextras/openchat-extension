@@ -7,6 +7,8 @@ import java.util.Set;
 
 /**
  * This class provide a set of mailbox which hosts a room service
+ *
+ * TODO: working stub, implement me
  */
 public class RoomServerHostSetProvider
 {
@@ -25,5 +27,10 @@ public class RoomServerHostSetProvider
   public boolean isValidServer(SpecificAddress address)
   {
     return getAddresses().contains(address);
+  }
+
+  public SpecificAddress selectNextServer()
+  {
+    return getAddresses().iterator().next();
   }
 }

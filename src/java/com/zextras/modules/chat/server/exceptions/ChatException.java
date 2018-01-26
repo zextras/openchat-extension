@@ -25,7 +25,7 @@ import java.util.logging.Level;
 
 public class ChatException extends ZxError
 {
-  public ChatException(String message)
+  public ChatException(final String message)
   {
     super(new ErrorCode()
     {
@@ -38,7 +38,7 @@ public class ChatException extends ZxError
       @Override
       public String getMessage()
       {
-        return null;
+        return message;
       }
     });
     setDetail("details", message);

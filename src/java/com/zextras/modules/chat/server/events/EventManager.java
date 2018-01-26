@@ -114,7 +114,7 @@ public class EventManager implements Service
     dispatchEvents( it.iterator() );
   }
 
-  private Iterator<Event> createIterator(ArrayList<Event> events, Filter<Event> outEventFilter)
+  private Iterator<Event> createIterator(List<Event> events, Filter<Event> outEventFilter)
   {
     return new FilteredIterator<Event>(
       outEventFilter,

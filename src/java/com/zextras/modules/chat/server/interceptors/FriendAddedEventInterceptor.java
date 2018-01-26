@@ -54,12 +54,12 @@ public class FriendAddedEventInterceptor implements EventInterceptor {
   }
 
   @Override
-  public void intercept(EventManager eventManager, SpecificAddress target)
+  public boolean intercept(EventManager eventManager, SpecificAddress target)
     throws ChatException, ChatDbException, ZimbraException
   {
     if (mEventFriendAdded.getSender().equals(target))
     {
-      return;
+      return false;
     }
 
     User targetUser = mOpenUserProvider.getUser(target);
@@ -108,5 +108,6 @@ public class FriendAddedEventInterceptor implements EventInterceptor {
         ChatLog.log.info(mEventFriendAdded.getSender() + " is now friend with " + targetUser.getAddress());
       }
     }
+    return true;
   }
 }

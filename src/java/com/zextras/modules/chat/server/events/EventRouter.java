@@ -31,7 +31,7 @@ import java.util.List;
 @Singleton
 public class EventRouter implements Service
 {
-  private List<EventDestinationProvider> mEventDestinationProviderList;
+  protected List<EventDestinationProvider> mEventDestinationProviderList;
 
   @Inject
   public EventRouter()
@@ -59,13 +59,14 @@ public class EventRouter implements Service
   {
     for( EventDestinationProvider provider : mEventDestinationProviderList )
     {
-      if( provider.canHandle(address) )
+      for( EventDestination destination : provider.getDestinations(address) )
       {
-        for( EventDestination destination : provider.getDestinations(address) )
+        boolean eventAccepted = destination.deliverEvent(event,address);
+        if( eventAccepted )
         {
-          //ChatLog.log.info("Routing :  " + destination.getClass().getName() + " " + event.toString());
-          destination.deliverEvent(event,address);
+          //ChatLog.log.debug("Routing: processed " + event.toString() + " => "  + destination.getClass().getSimpleName());
         }
+        //ChatLog.log.info("Routing: " + event.getId() + (eventAccepted ? " ACCEPTED" : " REFUSED") + " by " + destination.getClass().getSimpleName());
       }
     }
   }

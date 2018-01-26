@@ -32,6 +32,7 @@ import com.zextras.modules.chat.server.session.SessionUUID;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class GetRelationships implements ChatOperation
@@ -67,6 +68,6 @@ public class GetRelationships implements ChatOperation
     );
     session.getEventQueue().queueEvent(event);
 
-    return Arrays.asList();
+    return Collections.emptyList();
   }
 }

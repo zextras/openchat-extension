@@ -83,7 +83,7 @@ public class RegisterSoapSession implements ChatOperation
 
   @Override
   public List<Event> exec(SessionManager sessionManager, UserProvider userProvider)
-    throws ChatException, ChatDbException
+    throws ChatException
   {
     final Version version;
     if (mClientVersion.isEmpty())

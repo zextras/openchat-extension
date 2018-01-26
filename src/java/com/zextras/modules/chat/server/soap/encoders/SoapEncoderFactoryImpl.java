@@ -23,6 +23,7 @@ import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.ChatVersion;
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.events.*;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.MessageSizeExceededException;
 import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
 
@@ -39,6 +40,12 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
 
   @Override
   public Encoder interpret(Event event)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Encoder interpret(EventBootCompleted eventBootCompleted) throws ChatException
   {
     throw new UnsupportedOperationException();
   }

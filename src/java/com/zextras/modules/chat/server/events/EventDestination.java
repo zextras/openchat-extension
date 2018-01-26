@@ -21,5 +21,5 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 
 public interface EventDestination
 {
-  void deliverEvent(Event event, SpecificAddress address);
+  boolean deliverEvent(Event event, SpecificAddress address);
 }

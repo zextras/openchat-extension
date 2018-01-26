@@ -58,18 +58,13 @@ public class UserEventsDestination implements EventDestination, EventDestination
   }
 
   @Override
-  public boolean canHandle(SpecificAddress address)
-  {
-    return true;
-  }
-
-  @Override
-  public void deliverEvent(Event event, SpecificAddress address) {
+  public boolean deliverEvent(Event event, SpecificAddress address) {
     try {
       EventInterceptor interceptor = event.interpret(mEventInterceptorFactory);
-      interceptor.intercept(mEventManager, address);
+      return interceptor.intercept(mEventManager, address);
     } catch (Exception ex) {
       ChatLog.log.err("Error: " + Utils.exceptionToString(ex));
+      return true;
     }
   }
 

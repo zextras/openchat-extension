@@ -276,12 +276,6 @@ public class SessionManager implements EventDestinationProvider, Service
   }
 
   @Override
-  public boolean canHandle(SpecificAddress address)
-  {
-    return !getUserSessions(address).isEmpty();
-  }
-
-  @Override
   public Collection<? extends EventDestination> getDestinations(SpecificAddress address)
   {
     return getUserSessions(address);

@@ -26,10 +26,12 @@ import com.zextras.modules.chat.server.dispatch.NoneDispatcher;
 
 public class NoneAddress implements ChatAddress
 {
+  public static final NoneAddress sInstance = new NoneAddress();
+
   @Override
   public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider, RoomServerHostSetProvider roomServerHostSetProvider)
   {
-    return new NoneDispatcher();
+    return NoneDispatcher.sNoneDispatcher;
   }
 
   @Override

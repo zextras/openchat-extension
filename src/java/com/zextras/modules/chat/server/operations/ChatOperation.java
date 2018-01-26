@@ -27,6 +27,6 @@ import java.util.List;
 
 public interface ChatOperation
 {
-  public abstract List<Event> exec(SessionManager sessionManager, UserProvider userProvider)
-    throws ChatException, ChatDbException;
+  List<Event> exec(SessionManager sessionManager, UserProvider userProvider)
+    throws ChatException;
 }

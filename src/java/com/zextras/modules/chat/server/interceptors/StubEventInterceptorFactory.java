@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.interceptors;
 
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventBindResult;
+import com.zextras.modules.chat.server.events.EventBootCompleted;
 import com.zextras.modules.chat.server.events.EventFloodControl;
 import com.zextras.modules.chat.server.events.EventFriendAccepted;
 import com.zextras.modules.chat.server.events.EventFriendAdded;
@@ -50,6 +51,7 @@ import com.zextras.modules.chat.server.events.EventXmppSessionEstablished;
 import com.zextras.modules.chat.server.events.EventXmppSessionFeatures;
 import com.zextras.modules.chat.server.events.FeatureNotImplementedEvent;
 import com.zextras.modules.chat.server.events.FriendNotFoundEvent;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 
 public class StubEventInterceptorFactory implements EventInterceptorFactory
 {
@@ -57,6 +59,12 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
   public EventInterceptor interpret(Event event)
   {
     return new StubEventInterceptor();
+  }
+
+  @Override
+  public EventInterceptor interpret(EventBootCompleted eventBootCompleted) throws ChatException
+  {
+    return StubEventInterceptor.sInstance;
   }
 
   @Override

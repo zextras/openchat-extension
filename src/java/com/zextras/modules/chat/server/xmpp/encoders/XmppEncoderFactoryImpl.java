@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.encoding.Encoder;
 import com.zextras.modules.chat.server.events.*;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 
 @Singleton
@@ -42,6 +43,12 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
 
   @Override
   public Encoder interpret(Event event)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Encoder interpret(EventBootCompleted eventBootCompleted) throws ChatException
   {
     throw new UnsupportedOperationException();
   }

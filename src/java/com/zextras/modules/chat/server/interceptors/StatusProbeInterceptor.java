@@ -51,12 +51,12 @@ public class StatusProbeInterceptor implements EventInterceptor
   }
 
   @Override
-  public void intercept(EventManager eventManager, SpecificAddress target)
+  public boolean intercept(EventManager eventManager, SpecificAddress target)
     throws ChatException, ChatDbException, ZimbraException
   {
     List<Session> senderSessionList = mSessionManager.getUserSessions(target);
     if (senderSessionList.isEmpty()) {
-      return;
+      return false;
     }
 
     User user = mOpenUserProvider.getUser(target);
@@ -70,6 +70,8 @@ public class StatusProbeInterceptor implements EventInterceptor
         eventManager.dispatchUnfilteredEvents(statusChangeEventList);
       }
     }
+
+    return true;
   }
 
   private List<Event> createEventChangeListForSender(List<Session> senderSessionList)

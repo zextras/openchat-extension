@@ -22,6 +22,7 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 public interface EventInterpreter<T>
 {
   T interpret(Event event) throws ChatException;
+  T interpret(EventBootCompleted eventBootCompleted) throws ChatException;
   T interpret(EventStatusProbe eventStatusProbe) throws ChatException;
   T interpret(EventStatuses eventStatuses) throws ChatException;
   T interpret(EventStatusChanged eventStatusChanged) throws ChatException;

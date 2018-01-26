@@ -28,6 +28,7 @@ import com.zextras.modules.chat.server.events.EventStatusProbe;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class NotifyFriendsStatus implements ChatOperation
@@ -44,7 +45,7 @@ public class NotifyFriendsStatus implements ChatOperation
   @Override
   public List<Event> exec(SessionManager sessionManager, UserProvider userProvider) throws ChatException, ChatDbException
   {
-    return Arrays.<Event>asList(new EventStatusProbe(
+    return Collections.<Event>singletonList(new EventStatusProbe(
       mSender,
       new Target(new FriendsAddress(mSender))
     ));

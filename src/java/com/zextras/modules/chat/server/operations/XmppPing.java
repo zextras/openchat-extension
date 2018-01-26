@@ -26,7 +26,7 @@ import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class XmppPing implements ChatOperation
@@ -43,7 +43,7 @@ public class XmppPing implements ChatOperation
   @Override
   public List<Event> exec(SessionManager sessionManager, UserProvider userProvider) throws ChatException, ChatDbException
   {
-    return Arrays.<Event>asList(
+    return Collections.<Event>singletonList(
       new EventXmppPing(
         mEventId,
         mSender

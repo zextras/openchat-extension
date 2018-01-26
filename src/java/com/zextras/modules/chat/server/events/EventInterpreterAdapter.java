@@ -16,7 +16,13 @@ public class EventInterpreterAdapter<T> implements EventInterpreter<T>
   {
     return mDefaultValue;
   }
-  
+
+  @Override
+  public T interpret(EventBootCompleted eventBootCompleted) throws ChatException
+  {
+    return mDefaultValue;
+  }
+
   @Override
   public T interpret(EventStatusProbe eventStatusProbe) throws ChatException
   {

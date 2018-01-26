@@ -105,9 +105,25 @@ public class EventXmppDiscovery extends Event
     return interpreter.interpret(this);
   }
 
+  @Override
+  public String toString()
+  {
+    return "Event{" +
+      getClass().getSimpleName() +
+      ", mId=" + getId() +
+      ", mSender=" + mSender.resourceAddress() +
+      ", mTimestamp=" + getTimestamp() +
+      ", mTarget=" + getTarget().toString() +
+      ", mFeatures=" + mFeatures +
+      ", mResults=" + mResults +
+      ", mDiscoveryQuery=" + mDiscoveryQuery +
+      ", mType='" + mType + '\'' +
+      '}';
+  }
+
   public static class Result
   {
-    public SpecificAddress getAddress()
+    public SpecificAddress getRoomAddress()
     {
       return mAddress;
     }
@@ -124,6 +140,12 @@ public class EventXmppDiscovery extends Event
     {
       mAddress = address;
       mName = name;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "{" +mAddress+ ',' +mName+'}';
     }
   }
 

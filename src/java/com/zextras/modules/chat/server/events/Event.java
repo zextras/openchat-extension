@@ -101,11 +101,11 @@ public abstract class Event
   @Override
   public String toString() {
     return "Event{" +
-        "mId=" + mId +
-        ", mTimestamp=" + mTimestamp +
+        getClass().getSimpleName() +
+        ", mId=" + mId +
         ", mSender=" + mSender.resourceAddress() +
+        ", mTimestamp=" + mTimestamp +
         ", mTarget=" + mTarget.toString() +
-        ", class=" + getClass().toString() +
         '}';
   }
 }

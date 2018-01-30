@@ -198,7 +198,7 @@ public class EventInterpreterAdapter<T> implements EventInterpreter<T>
   }
 
   @Override
-  public T interpret(EventXmppDiscovery event) throws ChatException
+  public T interpret(EventDiscovery event) throws ChatException
   {
     return mDefaultValue;
   }

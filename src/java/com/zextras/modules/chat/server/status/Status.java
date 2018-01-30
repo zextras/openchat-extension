@@ -36,7 +36,7 @@ public interface Status extends PartialStatus
     AVAILABLE(1), BUSY(2),
     AWAY(3), INVISIBLE(4),
     NEED_RESPONSE(5), INVITED(6),
-    UNREACHABLE(7);
+    UNREACHABLE(7), UNSUBSCRIBED(8);
 
     private static final Map<Byte, StatusType> mByteToType = new HashMap<Byte, StatusType>();
     static {

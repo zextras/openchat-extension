@@ -102,10 +102,10 @@ public abstract class Event
   public String toString() {
     return "Event{" +
         getClass().getSimpleName() +
-        ", mId=" + mId +
-        ", mSender=" + mSender.resourceAddress() +
-        ", mTimestamp=" + mTimestamp +
-        ", mTarget=" + mTarget.toString() +
+        ", id=" + mId +
+        ", sender=" + mSender.resourceAddress() +
+        ", timestamp=" + mTimestamp +
+        ", target=" + mTarget.toString() +
         '}';
   }
 }

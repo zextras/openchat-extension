@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.xmpp.encoders;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventXmppDiscovery;
+import com.zextras.modules.chat.server.events.EventDiscovery;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamWriter2;
 
@@ -28,10 +28,10 @@ import java.io.OutputStream;
 
 public class DiscoveryEncoder extends XmppEncoder
 {
-  private final EventXmppDiscovery mEvent;
+  private final EventDiscovery mEvent;
 
   public DiscoveryEncoder(
-    EventXmppDiscovery event,
+    EventDiscovery event,
     SchemaProvider schemaProvider
   )
   {

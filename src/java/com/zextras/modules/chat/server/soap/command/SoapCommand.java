@@ -30,6 +30,16 @@ import java.util.Map;
 
 public abstract class SoapCommand
 {
+  //TODO: to be removed!
+  protected final static String TARGET_GROUP                     = "target_group";
+  protected final static String TARGET_NEW_GROUP                 = "new_group";
+  public String getTargetGroup()
+  {
+    String group = mParameterMap.get(TARGET_GROUP);
+    return group == null ? "" : group;
+  }
+  // end to be removed
+
   /**
    * Equivalent to TO
    */
@@ -39,8 +49,6 @@ public abstract class SoapCommand
    */
   protected final static String TO                               = "to";
   protected final static String TARGET_USERNAME                  = "target_username";
-  protected final static String TARGET_GROUP                     = "target_group";
-  protected final static String TARGET_NEW_GROUP                 = "new_group";
   protected final static String MESSAGE                          = "message";
   protected final static String MESSAGE_ID                       = "message_id";
   protected final static String SESSION_ID                       = "session_id";
@@ -75,12 +83,6 @@ public abstract class SoapCommand
       return mParameterMap.get(TARGET_USERNAME);
     }
     return "";
-  }
-
-  public String getTargetGroup()
-  {
-    String group = mParameterMap.get(TARGET_GROUP);
-    return group == null ? "" : group;
   }
 
   public abstract List<ChatOperation> createOperationList()

@@ -26,8 +26,7 @@ import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.events.EventSoapSessionRegistered;
-import com.zextras.modules.chat.server.events.EventXmppDiscovery;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.events.EventDiscovery;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.session.SessionManager;
@@ -36,11 +35,9 @@ import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.soap.SoapSession;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import org.openzal.zal.Provisioning;
 import org.openzal.zal.lib.Version;
 import org.openzal.zal.soap.SoapResponse;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -119,15 +116,15 @@ public class RegisterSoapSession implements ChatOperation
     soapEncoder.encode(response,mSenderAddress);
     response.encodeInSoapResponse(mSoapResponse);
 
-    EventXmppDiscovery eventXmppDiscovery = new EventXmppDiscovery(
+    EventDiscovery eventDiscovery = new EventDiscovery(
       EventId.randomUUID(),
       mSenderAddress,
       new Target(AnyMultichatServerAddress.sInstance),
-      EventXmppDiscovery.DiscoveryQuery.items
+      EventDiscovery.DiscoveryQuery.items
     );
 
     return Collections.<Event>singletonList(
-      eventXmppDiscovery
+      eventDiscovery
     );
   }
 }

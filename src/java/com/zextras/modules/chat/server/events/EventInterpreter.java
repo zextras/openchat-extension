@@ -52,6 +52,6 @@ public interface EventInterpreter<T>
   T interpret(EventXmppRedirect eventXmppRedirect) throws ChatException;
   T interpret(EventXmppSessionEstablished eventXmppSessionEstablished) throws ChatException;
   T interpret(EventXmppPing eventXmppPing) throws ChatException;
-  T interpret(EventXmppDiscovery event) throws ChatException;
+  T interpret(EventDiscovery event) throws ChatException;
   T interpret(EventFloodControl event) throws ChatException;
 }

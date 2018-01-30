@@ -120,7 +120,7 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   }
 
   @Override
-  public Encoder interpret(EventXmppDiscovery event)
+  public Encoder interpret(EventDiscovery event)
   {
     return new DiscoveryEncoder(event, mSchemaProvider);
   }

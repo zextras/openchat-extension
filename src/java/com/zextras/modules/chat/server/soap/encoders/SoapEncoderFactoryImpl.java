@@ -226,7 +226,7 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
   }
 
   @Override
-  public Encoder interpret(EventXmppDiscovery event)
+  public Encoder interpret(EventDiscovery event)
   {
     fail(event);
     return null;

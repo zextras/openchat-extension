@@ -61,4 +61,17 @@ public class EventStatusChanged extends Event
   {
     return interpreter.interpret(this);
   }
+
+  @Override
+  public String toString()
+  {
+    return "Event{" +
+      getClass().getSimpleName() +
+      ", mId=" + getId() +
+      ", mSender=" + mSender.resourceAddress() +
+      ", mTimestamp=" + getTimestamp() +
+      ", mStatus=" + getStatus().getType().toString() +
+      ", mTarget=" + getTarget().toString() +
+      '}';
+  }
 }

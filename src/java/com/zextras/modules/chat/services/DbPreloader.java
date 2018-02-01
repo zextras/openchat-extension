@@ -2,6 +2,7 @@ package com.zextras.modules.chat.services;
 
 import com.google.inject.Inject;
 import com.zextras.lib.switches.Service;
+import com.zextras.modules.chat.server.db.mappers.StatementsFactory;
 import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.DbHandler;
@@ -27,15 +28,18 @@ public class DbPreloader implements Service
 {
   private final DbHandler                 mDbHandler;
   private final DirectRelationshipStorage mDirectRelationshipStorage;
+  private final StatementsFactory         mStatementsFactory;
 
   @Inject
   public DbPreloader(
     DbHandler dbHandler,
-    DirectRelationshipStorage directRelationshipStorage
+    DirectRelationshipStorage directRelationshipStorage,
+    StatementsFactory statementsFactory
   )
   {
     mDbHandler = dbHandler;
     mDirectRelationshipStorage = directRelationshipStorage;
+    mStatementsFactory = statementsFactory;
   }
 
 
@@ -59,8 +63,6 @@ public class DbPreloader implements Service
 
   private class RelationshipsPreloadSqlClosure extends SqlClosure<Void>
   {
-    final static String sSql = "SELECT * FROM RELATIONSHIP";
-
     RelationshipsPreloadSqlClosure(DbHandler dbHandler)
     {
       super(dbHandler);
@@ -70,11 +72,13 @@ public class DbPreloader implements Service
     public Void execute(Connection connection)
       throws ChatDbException
     {
+      String sql = mStatementsFactory.buildSelectAllRelationship();
+
       PreparedStatement stmt = null;
       try
       {
         stmt = connection.prepareStatement(
-          sSql,
+          sql,
           Statement.RETURN_GENERATED_KEYS
         );
 
@@ -98,12 +102,15 @@ public class DbPreloader implements Service
         }
         finally
         {
-          rs.close();
+          if( rs != null)
+          {
+            rs.close();
+          }
         }
       }
       catch (SQLException e)
       {
-        ChatSqlException sqlException = new ChatSqlException(sSql);
+        ChatSqlException sqlException = new ChatSqlException(sql);
         sqlException.initCause(e);
         throw sqlException;
       }

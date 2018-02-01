@@ -131,4 +131,10 @@ public class OpenStatementsFactory implements StatementsFactory
   {
     return new DbInfoSelectStatement();
   }
+
+  @Override
+  public String buildSelectAllRelationship()
+  {
+    return "SELECT * FROM chat.RELATIONSHIP";
+  }
 }

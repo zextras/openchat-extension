@@ -34,4 +34,6 @@ public interface StatementsFactory
   SqlStatement buildUpdateRelationship(int relationshipId, Relationship.RelationshipType relationshipType, SpecificAddress buddyAddress, String buddyNickname, String group);
   SqlStatement buildDeleteRelationship(int userId, String buddyAddress);
   SqlStatement buildDbInfo();
+
+  String buildSelectAllRelationship();
 }

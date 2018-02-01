@@ -168,7 +168,7 @@ public class HistoryMailManager
     QueryResults queryResults = null;
     try
     {
-      String query = "inid:" + Mailbox.ID_FOLDER_IM_LOGS + " date:" + defaultDateFormat.format(currentDate) + " subject:\"ZxChat - " + participant.toString()+"\"";
+      String query = "inid:" + Mailbox.ID_FOLDER_IM_LOGS + " date:" + defaultDateFormat.format(currentDate) + " subject:\""+mChatProperties.getProductName()+" - " + participant.toString()+"\"";
       queryResults = mMailbox.search(
         mMailbox.newOperationContext(),
         query,

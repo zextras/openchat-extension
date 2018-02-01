@@ -42,7 +42,6 @@ public class XmppEventSessionFeaturesEncoder extends XmppEncoder
   @Override
   public void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException
   {
-    //TODO remove video here?
     XMLStreamWriter2 sw = getStreamWriter(outputStream);
 
     if( validate() ) {

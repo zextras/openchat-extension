@@ -80,7 +80,7 @@ public class OpenUserModifier implements UserModifier
   {
     return mRelationshipMapper.insert(userId, relationshipType, buddyAddress, buddyNickname, group);
   }
-  //todo
+
   @Override
   public void updateRelationship(int userId,
                                  Relationship relationship)

@@ -52,11 +52,6 @@ public class FixedStatus extends AbstractStatus implements Status
     return new StatusId(mType.toByte());
   }
 
-  @Override
-  public boolean canBeStored() {
-    return false;
-  }
-
   public static Status fromId(StatusId statusId)
   {
     return new FixedStatus(StatusType.fromByte((byte) statusId.id()));

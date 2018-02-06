@@ -19,11 +19,7 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.*;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.status.Status;
 import org.openzal.zal.lib.Clock;
 
@@ -41,12 +37,14 @@ public class EventStatusChanged extends Event
 
   private final SpecificAddress mSender;
   private final Status          mStatus;
+  private final EventType       mType;
 
   public EventStatusChanged(SpecificAddress sender, Target target, Status status)
   {
     super(sender, target);
     mSender = sender;
     mStatus = status;
+    mType = EventType.Chat;
   }
 
   public EventStatusChanged(EventId eventId, SpecificAddress sender, Target target, Status status, Clock clock)
@@ -54,6 +52,15 @@ public class EventStatusChanged extends Event
     super(eventId, sender, target, clock);
     mSender = sender;
     mStatus = status;
+    mType = EventType.Chat;
+  }
+
+  public EventStatusChanged(SpecificAddress sender, Target target, Status status, EventType type)
+  {
+    super(sender, target);
+    mSender = sender;
+    mStatus = status;
+    mType = type;
   }
 
   @Override
@@ -68,10 +75,21 @@ public class EventStatusChanged extends Event
     return "Event{" +
       getClass().getSimpleName() +
       ", mId=" + getId() +
+      ", mType=" + mType +
       ", mSender=" + mSender.resourceAddress() +
       ", mTimestamp=" + getTimestamp() +
       ", mStatus=" + getStatus().getType().toString() +
       ", mTarget=" + getTarget().toString() +
       '}';
+  }
+
+  public EventType getType()
+  {
+    return mType;
+  }
+
+  public boolean isRoomEvent()
+  {
+    return mType != EventType.Chat;
   }
 }

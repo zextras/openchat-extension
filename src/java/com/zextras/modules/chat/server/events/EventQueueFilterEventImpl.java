@@ -30,7 +30,7 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
   @Override
   public Boolean interpret(EventBootCompleted eventBootCompleted) throws ChatException
   {
-    return true;
+    return false;
   }
 
   @Override

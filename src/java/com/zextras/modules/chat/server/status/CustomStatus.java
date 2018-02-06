@@ -48,11 +48,6 @@ public class CustomStatus extends AbstractStatus implements Status, PersistentEn
   }
 
   @Override
-  public boolean canBeStored() {
-    return true;
-  }
-
-  @Override
   public int getEntityId()
   {
     return mId.id();

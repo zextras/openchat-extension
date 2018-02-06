@@ -30,7 +30,7 @@ public interface Status extends PartialStatus
   boolean isOffline();
 
   @JsonSerialize(using = ToJSONSerializer.class)
-  public static enum StatusType implements Jsonable
+  enum StatusType implements Jsonable
   {
     UNKNOWN(-1), OFFLINE(0),
     AVAILABLE(1), BUSY(2),
@@ -70,6 +70,4 @@ public interface Status extends PartialStatus
   }
 
   StatusId getId();
-
-  boolean canBeStored();
 }

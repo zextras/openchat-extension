@@ -35,12 +35,6 @@ public class VolatileStatus extends AbstractStatus implements Status
   }
 
   @Override
-  public boolean canBeStored()
-  {
-    return false;
-  }
-
-  @Override
   public String getText()
   {
     return mText;

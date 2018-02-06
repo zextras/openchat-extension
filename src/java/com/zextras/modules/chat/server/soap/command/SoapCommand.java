@@ -48,6 +48,7 @@ public abstract class SoapCommand
   protected final static String VALUE                            = "value";
   protected final static String SESSION_SUCCESSFULLY_SENT_EVENTS = "received_events";
   public static final    String TOPIC                            = "topic";
+  public static final    String MEETINGS                         = "meetings";
 
   public static final String DOMAIN = "domain";
   public static final String NAME   = "name";

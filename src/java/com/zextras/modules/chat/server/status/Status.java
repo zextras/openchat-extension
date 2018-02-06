@@ -18,16 +18,25 @@
 package com.zextras.modules.chat.server.status;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.utils.Jsonable;
 import com.zextras.utils.ToJSONSerializer;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface Status extends PartialStatus
 {
+  long validSince();
+  List<SpecificAddress> meetings();
+
   boolean isInvisible();
   boolean isOffline();
+
+  Status onlyMeeting(SpecificAddress address);
+  Status withoutMeetings();
 
   @JsonSerialize(using = ToJSONSerializer.class)
   enum StatusType implements Jsonable

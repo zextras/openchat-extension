@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.soap.encoders;
 
+import com.zextras.lib.json.JSONArray;
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.status.Status;
@@ -47,6 +48,9 @@ public class EventStatusChangedEncoder implements SoapEncoder
     message.put("from", mEvent.getSender().resourceAddress());
     message.put("timestampSent", System.currentTimeMillis());
     message.put("group", mEvent.getType().toString());
+
+    message.put("validSince", mEvent.getStatus().validSince());
+    message.put("meetings", new JSONArray(mEvent.getStatus().meetings()));
 
     response.addResponse(message);
   }

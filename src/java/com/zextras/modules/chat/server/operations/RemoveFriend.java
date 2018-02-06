@@ -66,7 +66,7 @@ public class RemoveFriend implements ChatOperation
         events.add( new EventStatusChanged(
           mSender,
           new Target(mFriendToRemove),
-          new FixedStatus( Status.StatusType.OFFLINE )
+          new FixedStatus(Status.StatusType.OFFLINE )
         ));
       }
 

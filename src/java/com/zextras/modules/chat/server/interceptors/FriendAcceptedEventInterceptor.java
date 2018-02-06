@@ -97,9 +97,9 @@ public class FriendAcceptedEventInterceptor implements EventInterceptor {
       eventManager.dispatchUnfilteredEvents(
         Collections.<Event>singletonList(
           new EventStatusChanged(
-              target,
-              new Target(senderAddress),
-              FixedStatus.Offline
+            target,
+            new Target(senderAddress),
+            FixedStatus.Offline
           )
       ));
 

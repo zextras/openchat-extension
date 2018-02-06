@@ -17,39 +17,11 @@
 
 package com.zextras.modules.chat.server.status;
 
-import com.zextras.modules.chat.server.db.PersistentEntity;
-
-public class CustomStatus extends AbstractStatus implements Status, PersistentEntity
+public abstract class StatusAdapter implements Status
 {
-  private final StatusId mId;
-  private final StatusType mType;
-  private final String mText;
-
-  public CustomStatus(int id,
-                      String text,
-                      StatusType type)
+  public boolean isInvisible()
   {
-    mId = new StatusId(id);
-    mType = type;
-    mText = text;
+    return getType().equals(StatusType.INVISIBLE);
   }
-
-  public String getText() {
-    return mText;
-  }
-
-  public StatusType getType() {
-    return mType;
-  }
-
-  @Override
-  public StatusId getId() {
-    return mId;
-  }
-
-  @Override
-  public int getEntityId()
-  {
-    return mId.id();
-  }
+  public boolean isOffline() { return getType().equals(StatusType.OFFLINE); }
 }

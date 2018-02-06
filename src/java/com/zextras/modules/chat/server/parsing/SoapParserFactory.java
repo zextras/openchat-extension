@@ -25,6 +25,7 @@ import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.lib.Clock;
 import org.openzal.zal.soap.SoapResponse;
 import org.openzal.zal.soap.ZimbraContext;
 
@@ -35,7 +36,8 @@ public class SoapParserFactory implements ParserFactory
   private final SoapSessionFactory mSoapSessionFactory;
   private final LdapChatProperties mChatProperties;
   private final ActivityManager    mActivityManager;
-  private final EventQueueFactory mEventQueueFactory;
+  private final EventQueueFactory  mEventQueueFactory;
+  private final Clock              mClock;
 
   @Inject
   public SoapParserFactory(
@@ -44,7 +46,8 @@ public class SoapParserFactory implements ParserFactory
     SoapSessionFactory soapSessionFactory,
     LdapChatProperties chatProperties,
     ActivityManager activityManager,
-    EventQueueFactory eventQueueFactory
+    EventQueueFactory eventQueueFactory,
+    Clock clock
   )
   {
     mProvisioning = provisioning;
@@ -53,6 +56,7 @@ public class SoapParserFactory implements ParserFactory
     mChatProperties = chatProperties;
     mActivityManager = activityManager;
     mEventQueueFactory = eventQueueFactory;
+    mClock = clock;
   }
 
   @Override
@@ -67,7 +71,8 @@ public class SoapParserFactory implements ParserFactory
       mEventQueueFactory,
       senderAddress,
       zimbraContext,
-      soapResponse
+      soapResponse,
+      mClock
     );
   }
 }

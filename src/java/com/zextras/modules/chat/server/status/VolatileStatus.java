@@ -17,15 +17,94 @@
 
 package com.zextras.modules.chat.server.status;
 
-public class VolatileStatus extends AbstractStatus implements Status
-{
-  private final StatusType mType;
-  private final String     mText;
+import com.zextras.modules.chat.server.address.SpecificAddress;
+import java.util.Collections;
+import java.util.List;
 
-  public VolatileStatus(StatusType type, String text)
+public class VolatileStatus extends StatusAdapter implements Status
+{
+  private final StatusType            mType;
+  private final String                mText;
+  private final long                  mValidSince;
+  private final List<SpecificAddress> mMeetings;
+
+  public VolatileStatus(
+    StatusType type,
+    String text,
+    long validSinceTimestamp,
+    List<SpecificAddress> meetings
+  )
   {
     mType = type;
     mText = text;
+    mValidSince = validSinceTimestamp;
+    mMeetings = meetings;
+  }
+
+  public VolatileStatus(StatusType type, String statusText)
+  {
+    mType = type;
+    mText = statusText;
+    mValidSince = 0L;
+    mMeetings = Collections.emptyList();
+  }
+
+  @Override
+  public long validSince()
+  {
+    return mValidSince;
+  }
+
+  @Override
+  public List<SpecificAddress> meetings()
+  {
+    return mMeetings;
+  }
+
+  @Override
+  public Status onlyMeeting(SpecificAddress address)
+  {
+    if( mMeetings.isEmpty() )
+    {
+      return this;
+    }
+    else
+    {
+      List<SpecificAddress> newMeetings;
+      if (mMeetings.contains(address))
+      {
+        newMeetings = Collections.singletonList(address);
+      }
+      else
+      {
+        newMeetings = Collections.emptyList();
+      }
+
+      return new VolatileStatus(
+        mType,
+        mText,
+        mValidSince,
+        newMeetings
+      );
+    }
+  }
+
+  @Override
+  public Status withoutMeetings()
+  {
+    if( mMeetings.isEmpty() )
+    {
+      return this;
+    }
+    else
+    {
+      return new VolatileStatus(
+        mType,
+        mText,
+        mValidSince,
+        Collections.<SpecificAddress>emptyList()
+      );
+    }
   }
 
   @Override

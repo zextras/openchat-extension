@@ -17,28 +17,40 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
+import com.zextras.lib.json.JSONArray;
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.session.SessionUUID;
-import com.zextras.modules.chat.server.status.StatusId;
+import com.zextras.modules.chat.server.status.Status;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.SetStatus;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
+import com.zextras.modules.chat.server.status.VolatileStatus;
+import org.openzal.zal.Utils;
+import org.openzal.zal.lib.Clock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class SoapCommandSetStatus extends SoapCommand
 {
+  private final Clock mClock;
+
   public SoapCommandSetStatus(
     SpecificAddress senderAddress,
-    Map<String, String> parameters
+    Map<String, String> parameters,
+    Clock clock
   )
   {
     super(senderAddress,
           parameters
     );
+    mClock = clock;
   }
 
   @Override
@@ -47,20 +59,51 @@ public class SoapCommandSetStatus extends SoapCommand
   {
     final SessionUUID sessionId = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
     final String status = mParameterMap.get(STATUS_ID);
-    final StatusId statusId;
+    Status.StatusType statusType;
 
     try
     {
-      statusId = new StatusId( Integer.parseInt(status) );
+     statusType = Status.StatusType.fromByte(
+        Byte.valueOf(status)
+      );
     }
     catch(NumberFormatException e)
     {
       throw new InvalidParameterException("Invalid value " + status + " for parameter state: must be a number.");
     }
 
+    JSONArray rawMeetings;
+    try
+    {
+      rawMeetings = JSONArray.fromString(mParameterMap.get(SoapCommand.MEETINGS));
+    }
+    catch (Exception e)
+    {
+      ChatLog.log.err(Utils.exceptionToString(e));
+      return Collections.emptyList();
+    }
+
+    Collection<SpecificAddress> meetings;
+    if( rawMeetings.isEmpty() )
+    {
+      meetings = Collections.emptyList();
+    }
+    else
+    {
+      meetings = new ArrayList<>(rawMeetings.length());
+      for (Object rawMeeting : rawMeetings) {
+        meetings.add(new SpecificAddress(rawMeeting.toString()));
+      }
+    }
+
     final ChatOperation setStatus = new SetStatus(
       sessionId,
-      statusId
+      new VolatileStatus(
+        statusType,
+        "",
+        mClock.now(),
+        meetings
+      )
     );
 
     return Arrays.<ChatOperation>asList(setStatus);

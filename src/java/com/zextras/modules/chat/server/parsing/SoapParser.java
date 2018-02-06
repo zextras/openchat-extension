@@ -26,6 +26,7 @@ import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import com.zextras.modules.chat.server.soap.command.*;
 import com.zextras.modules.chat.server.exceptions.ParserException;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.lib.Clock;
 import org.openzal.zal.soap.SoapResponse;
 import org.openzal.zal.soap.ZimbraContext;
 
@@ -57,6 +58,7 @@ public class SoapParser implements Parser
   final         SoapSessionFactory mSoapSessionFactory;
   final         ZimbraContext      mZimbraContext;
   final         SoapResponse       mSoapResponse;
+  private final Clock mClock;
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
@@ -74,7 +76,8 @@ public class SoapParser implements Parser
     EventQueueFactory eventQueueFactory,
     SpecificAddress senderAddress,
     ZimbraContext zimbraContext,
-    SoapResponse soapResponse
+    SoapResponse soapResponse,
+    Clock clock
   )
   {
     mProvisioning = provisioning;
@@ -86,6 +89,7 @@ public class SoapParser implements Parser
     mSoapSessionFactory = soapSessionFactory;
     mZimbraContext = zimbraContext;
     mSoapResponse = soapResponse;
+    mClock = clock;
     mCommandCreatorMap = new HashMap<String, CommandCreator>(32);
     setupCommands();
   }
@@ -162,7 +166,7 @@ public class SoapParser implements Parser
     {
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandSetStatus(mSenderAddress,commandParameters); }
+      { return new SoapCommandSetStatus(mSenderAddress,commandParameters, mClock); }
     });
     setupCommand(ACTION_UNBLOCK_FRIEND, new CommandCreator()
     {

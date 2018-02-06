@@ -118,7 +118,7 @@ public class PresenceHandler implements StanzaHandler
     if( mParser.getType().equals("invisible") )
     {
       Status.StatusType type = Status.StatusType.INVISIBLE;
-      Status newStatus = new VolatileStatus(type,mParser.getStatusText());
+      Status newStatus = new VolatileStatus(type, mParser.getStatusText());
 
       ChatOperation setStatus = new SetStatus(
         mSession.getId(),
@@ -151,7 +151,7 @@ public class PresenceHandler implements StanzaHandler
         type = Status.StatusType.AVAILABLE;
       }
 
-      Status newStatus = new VolatileStatus(type,mParser.getStatusText());
+      Status newStatus = new VolatileStatus(type, mParser.getStatusText());
 
       SetStatus setStatus = new SetStatus(
         mSession.getId(),

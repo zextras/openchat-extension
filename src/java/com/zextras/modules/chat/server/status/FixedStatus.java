@@ -17,20 +17,25 @@
 
 package com.zextras.modules.chat.server.status;
 
-public class FixedStatus extends AbstractStatus implements Status
+import com.zextras.modules.chat.server.address.SpecificAddress;
+
+import java.util.Collections;
+import java.util.List;
+
+public class FixedStatus extends StatusAdapter implements Status
 {
   private final StatusType mType;
 
-  public static final FixedStatus Unknown = new FixedStatus(StatusType.UNKNOWN);
-  public static final FixedStatus Offline = new FixedStatus(StatusType.OFFLINE);
-  public static final FixedStatus Available = new FixedStatus(StatusType.AVAILABLE);
-  public static final FixedStatus Busy = new FixedStatus(StatusType.BUSY);
-  public static final FixedStatus Away = new FixedStatus(StatusType.AWAY);
-  public static final FixedStatus Invisible = new FixedStatus(StatusType.INVISIBLE);
+  public static final FixedStatus Unknown      = new FixedStatus(StatusType.UNKNOWN);
+  public static final FixedStatus Offline      = new FixedStatus(StatusType.OFFLINE);
+  public static final FixedStatus Available    = new FixedStatus(StatusType.AVAILABLE);
+  public static final FixedStatus Busy         = new FixedStatus(StatusType.BUSY);
+  public static final FixedStatus Away         = new FixedStatus(StatusType.AWAY);
+  public static final FixedStatus Invisible    = new FixedStatus(StatusType.INVISIBLE);
   public static final FixedStatus NeedResponse = new FixedStatus(StatusType.NEED_RESPONSE);
-  public static final FixedStatus Invited = new FixedStatus(StatusType.INVITED);
-  public static final FixedStatus Unreachable = new FixedStatus(StatusType.UNREACHABLE);
-  public static final FixedStatus Unsuscribed = new FixedStatus(StatusType.UNSUBSCRIBED);
+  public static final FixedStatus Invited      = new FixedStatus(StatusType.INVITED);
+  public static final FixedStatus Unreachable  = new FixedStatus(StatusType.UNREACHABLE);
+  public static final FixedStatus Unsuscribed  = new FixedStatus(StatusType.UNSUBSCRIBED);
 
   public FixedStatus(StatusType type)
   {
@@ -45,6 +50,30 @@ public class FixedStatus extends AbstractStatus implements Status
   @Override
   public StatusType getType() {
     return mType;
+  }
+
+  @Override
+  public long validSince()
+  {
+    return 0L;
+  }
+
+  @Override
+  public List<SpecificAddress> meetings()
+  {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Status onlyMeeting(SpecificAddress address)
+  {
+    return this;
+  }
+
+  @Override
+  public Status withoutMeetings()
+  {
+    return this;
   }
 
   @Override

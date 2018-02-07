@@ -143,11 +143,6 @@ public class EventQueue
 
   public void queueEvent(Event event)
   {
-    if (mEventQueue.contains(event)) {
-      ChatLog.log.info("Duplicate Event dump: "+event.toString());
-      return;
-    }
-
     try
     {
       if (mStartFloodWarningThreshold > 0 && event.interpret(mEventQueueFilterEvent))

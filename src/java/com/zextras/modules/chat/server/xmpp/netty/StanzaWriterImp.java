@@ -20,7 +20,6 @@ package com.zextras.modules.chat.server.xmpp.netty;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.log.CurrentLogContext;
 import com.zextras.lib.log.LogContext;
-import com.zextras.modules.chat.server.events.EventInterceptorFactory;
 import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -96,7 +95,7 @@ public class StanzaWriterImp implements StanzaWriter
 
           final SpecificAddress exposedAddress = mXmppConnectionHandler.getSession().getExposedAddress();
 
-          encoder.encode(out, exposedAddress);
+          encoder.encode(out, exposedAddress, false);
 
           String stanzaDebug = new String(out.toByteArray(), "UTF-8");
           ChatLog.log.debug("writing: " + event.getClass().getName());

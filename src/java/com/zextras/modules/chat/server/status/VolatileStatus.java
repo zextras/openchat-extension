@@ -124,4 +124,33 @@ public class VolatileStatus extends StatusAdapter implements Status
   {
     return mType;
   }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    VolatileStatus that = (VolatileStatus) o;
+
+    if (mValidSince != that.mValidSince)
+      return false;
+    if (mType != that.mType)
+      return false;
+    if (!mText.equals(that.mText))
+      return false;
+    return mMeetings.equals(that.mMeetings);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = mType.hashCode();
+    result = 31 * result + mText.hashCode();
+    result = 31 * result + (int) (mValidSince ^ (mValidSince >>> 32));
+    result = 31 * result + mMeetings.hashCode();
+    return result;
+  }
 }

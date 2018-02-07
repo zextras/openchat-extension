@@ -43,7 +43,7 @@ public class PingEncoder extends XmppEncoder
   // <iq from='juliet@capulet.lit/balcony' to='capulet.lit' id='s2c1' type='result'/>
 
   @Override
-  public void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException
+  public void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException
   {
     XMLStreamWriter2 sr = getStreamWriter(outputStream);
     sr.writeStartElement("iq");

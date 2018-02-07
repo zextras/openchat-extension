@@ -63,6 +63,14 @@ public class EventStatusChanged extends Event
     mType = type;
   }
 
+  public EventStatusChanged(EventId eventId,SpecificAddress sender, Target target, Status status, EventType type, Clock clock)
+  {
+    super(eventId, sender, target, clock);
+    mSender = sender;
+    mStatus = status;
+    mType = type;
+  }
+
   @Override
   public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
@@ -91,5 +99,35 @@ public class EventStatusChanged extends Event
   public boolean isRoomEvent()
   {
     return mType != EventType.Chat;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    EventStatusChanged that = (EventStatusChanged) o;
+
+    if (!mSender.equals(that.mSender))
+      return false;
+    if (!mStatus.equals(that.mStatus))
+      return false;
+    if (!getTarget().equals(that.getTarget()))
+      return false;
+    return mType == that.mType;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = 1584;
+    result = 31 * result + mSender.hashCode();
+    result = 31 * result + mStatus.hashCode();
+    result = 31 * result + mType.hashCode();
+    result = 31 * result + getTarget().hashCode();
+    return result;
   }
 }

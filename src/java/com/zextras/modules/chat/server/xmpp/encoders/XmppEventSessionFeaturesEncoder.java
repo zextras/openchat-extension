@@ -40,7 +40,7 @@ public class XmppEventSessionFeaturesEncoder extends XmppEncoder
   }
 
   @Override
-  public void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException
+  public void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException
   {
     XMLStreamWriter2 sw = getStreamWriter(outputStream);
 

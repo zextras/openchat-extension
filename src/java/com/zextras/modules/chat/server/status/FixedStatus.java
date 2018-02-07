@@ -85,4 +85,23 @@ public class FixedStatus extends StatusAdapter implements Status
   {
     return new FixedStatus(StatusType.fromByte((byte) statusId.id()));
   }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    FixedStatus that = (FixedStatus) o;
+
+    return mType == that.mType;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return mType.hashCode();
+  }
 }

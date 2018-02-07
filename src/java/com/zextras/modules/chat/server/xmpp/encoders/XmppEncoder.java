@@ -68,5 +68,5 @@ public abstract class XmppEncoder implements Encoder
     return getSchema(mSchemaName);
   }
 
-  public abstract void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException;
+  public abstract void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException;
 }

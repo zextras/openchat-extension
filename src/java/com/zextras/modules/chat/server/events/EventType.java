@@ -11,6 +11,16 @@ public enum EventType
       return GroupChat;
     }
 
+    if (Space.name().equalsIgnoreCase(typeString))
+    {
+      return Space;
+    }
+
+    if (Channel.name().equalsIgnoreCase(typeString))
+    {
+      return Channel;
+    }
+
     return Chat;
   }
 }

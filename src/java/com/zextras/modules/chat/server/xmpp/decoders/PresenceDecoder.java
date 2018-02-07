@@ -73,34 +73,6 @@ public class PresenceDecoder implements EventDecoder
     SpecificAddress sender = new SpecificAddress(parser.getFrom());
     Target target = new Target(targetAddress);
 
-    if (parser.isMucPresence())
-    {
-      Status status;
-      if ("unavailable".equals(parser.getType()))
-      {
-        status = FixedStatus.Offline;
-      }
-      else
-      {
-        if (sShowToStatusMap.containsKey(parser.getShow()))
-        {
-          status = new VolatileStatus(sShowToStatusMap.get(parser.getShow()), parser.getStatusText());
-        }
-        else
-        {
-          status = FixedStatus.Available;
-        }
-      }
-      return Collections.<Event>singletonList(
-        new EventStatusChanged(
-          sender,
-          target,
-          status,
-          EventType.GroupChat
-        )
-      );
-    }
-
     if (parser.getType().equals("subscribed"))
     {
       String buddyNickname = getFriendNickname(sender, targetAddress);
@@ -136,26 +108,63 @@ public class PresenceDecoder implements EventDecoder
       Status newStatus = new FixedStatus(Status.StatusType.OFFLINE);
       return Arrays.<Event>asList(
         new EventStatusChanged(
+          //EventId.fromString(parser.getId())
           sender,
           target,
-          newStatus
+          newStatus,
+          parser.getGroupType()
+        )
+      );
+    }
+
+    if (parser.isMucPresence())
+    {
+      Status status;
+      if ("unavailable".equals(parser.getType()))
+      {
+        status = FixedStatus.Offline;
+      }
+      else
+      {
+        if (sShowToStatusMap.containsKey(parser.getShow()))
+        {
+          status = new VolatileStatus(sShowToStatusMap.get(parser.getShow().toLowerCase()), parser.getStatusText());
+        }
+        else
+        {
+          status = FixedStatus.Available;
+        }
+      }
+      return Collections.<Event>singletonList(
+        new EventStatusChanged(
+          sender,
+          target,
+          status,
+          EventType.GroupChat
         )
       );
     }
 
     if( parser.getType().isEmpty() )
     {
-      Status.StatusType type = sShowToStatusMap.get(parser.getShow());
+      Status.StatusType type = sShowToStatusMap.get(parser.getShow().toLowerCase());
       if( type == null ) {
-        type = Status.StatusType.AVAILABLE;
+        type = Status.StatusType.valueOf(parser.getShow().toUpperCase());
       }
 
-      Status newStatus = new VolatileStatus(type, parser.getStatusText());
+      Status newStatus = new VolatileStatus(
+        type,
+        parser.getStatusText(),
+        parser.getValidSince(),
+        parser.getMeetings()
+      );
+
       return Arrays.<Event>asList(
         new EventStatusChanged(
           sender,
           target,
-          newStatus
+          newStatus,
+          parser.getGroupType()
         )
       );
     }

@@ -45,7 +45,7 @@ public class EventFriendAddedEncoder extends XmppEncoder
     </iq>
 
         sw.writeStartElement("","iq","jabber:client");
-      sw.writeAttribute("to",mEvent.getTarget().resourceAddress());
+      sw.writeAttribute("to",mEvent.getTargetAddress().resourceAddress());
       sw.writeAttribute("type","set");
       sw.writeAttribute("id",mEvent.getId().toString());
       sw.writeAttribute("from",mEvent.getSender().toString());
@@ -56,13 +56,13 @@ public class EventFriendAddedEncoder extends XmppEncoder
 
       sw.writeStartElement("","query","jabber:iq:roster");
       sw.writeEmptyElement("","item","jabber:iq:roster");
-      sw.writeAttribute("jid",mEvent.getTarget().toString());
+      sw.writeAttribute("jid",mEvent.getTargetAddress().toString());
       sw.writeAttribute("subscription", "from" );
       sw.writeEndElement();
       sw.writeEndElement();
   */
   @Override
-  public void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException
+  public void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException
   {
     XMLStreamWriter2 sw = getStreamWriter(outputStream);
 

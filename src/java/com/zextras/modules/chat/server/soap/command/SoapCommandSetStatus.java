@@ -83,7 +83,7 @@ public class SoapCommandSetStatus extends SoapCommand
       return Collections.emptyList();
     }
 
-    Collection<SpecificAddress> meetings;
+    List<SpecificAddress> meetings;
     if( rawMeetings.isEmpty() )
     {
       meetings = Collections.emptyList();

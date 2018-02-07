@@ -42,7 +42,7 @@ public class XmppSessionEstablishedEncoder extends XmppEncoder {
    */
 
   @Override
-  public void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException
+  public void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException
   {
     XMLStreamWriter2 sr = getStreamWriter(outputStream);
     sr.writeStartElement("iq");

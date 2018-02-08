@@ -70,10 +70,14 @@ public class EventIQQueryEncoder extends XmppEncoder
 
     sw.writeStartElement("", "iq");
       sw.writeAttribute("type", "set");
-      //sw.writeAttribute("to", target.resourceAddress());
+      sw.writeAttribute("to", target.resourceAddress());
       sw.writeAttribute("id", mEventIQQuery.getId().toString());
 
       sw.writeStartElement("","query","urn:xmpp:mam:2" );
+      if (!mEventIQQuery.getQueryId().isEmpty())
+      {
+        sw.writeAttribute("queryid", mEventIQQuery.getQueryId());
+      }
       if (!StringUtils.isEmpty(mEventIQQuery.getWith()) ||
           !StringUtils.isEmpty(mEventIQQuery.getStart()) ||
           !StringUtils.isEmpty(mEventIQQuery.getEnd()))

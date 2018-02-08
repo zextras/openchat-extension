@@ -24,7 +24,10 @@ import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.xmpp.decoders.EventDecoder;
 import com.zextras.modules.chat.server.xmpp.decoders.MessageAckDecoder;
 import com.zextras.modules.chat.server.xmpp.decoders.MessageDecoder;
+import com.zextras.modules.chat.server.xmpp.decoders.MessageHistoryDecoder;
+import com.zextras.modules.chat.server.xmpp.decoders.MessageHistoryLastDecoder;
 import com.zextras.modules.chat.server.xmpp.decoders.PresenceDecoder;
+import com.zextras.modules.chat.server.xmpp.decoders.QueryDecoder;
 import com.zextras.modules.chat.server.xmpp.decoders.StatusProbeDecoder;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.openzal.zal.Provisioning;
@@ -87,6 +90,15 @@ public class XmppEventFactoryImpl implements XmppEventFactory
 
       case StatusProbe:
         return new StatusProbeDecoder(mSchemaProvider);
+
+      case Query:
+        return new QueryDecoder(mSchemaProvider);
+
+      case MessageHistory:
+        return new MessageHistoryDecoder(mSchemaProvider);
+
+      case MessageHistoryLast:
+        return new MessageHistoryLastDecoder(mSchemaProvider);
 
       case Unknown:
       default:

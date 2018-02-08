@@ -20,10 +20,12 @@ package com.zextras.modules.chat.server.operations;
 import com.zextras.lib.sql.DbPrefetchIterator;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.NoneAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
@@ -76,6 +78,16 @@ public class History implements ChatOperation
       else
       {
         it = mMessageStatements.query(connectedUser,with);
+
+//        events.add(new EventIQQuery(
+//          EventId.randomUUID(),
+//          mParser.getQueryId(),
+//          new SpecificAddress(with),
+//          "",
+//          connectedUser,
+//          "",
+//          ""
+//        ));
       }
 
       ImMessage lastMessage = null;

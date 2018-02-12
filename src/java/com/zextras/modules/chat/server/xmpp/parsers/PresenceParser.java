@@ -17,10 +17,8 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
-import com.zextras.lib.JSONWriter;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventType;
-import com.zextras.modules.chat.server.events.RoomType;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 

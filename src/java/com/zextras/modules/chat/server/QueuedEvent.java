@@ -90,7 +90,7 @@ public class QueuedEvent
     try
     {
       encoder = (XmppEncoder)mEvent.interpret(mEncoderFactory);
-      encoder.encode(out, mRecipient, false);
+      encoder.encode(out, mRecipient, true);
       String stanza = new String( out.toByteArray(), "UTF-8" );
       return stanza;
     }

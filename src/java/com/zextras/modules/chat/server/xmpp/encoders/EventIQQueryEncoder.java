@@ -64,13 +64,16 @@ public class EventIQQueryEncoder extends XmppEncoder
   public void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException
   {
     XMLStreamWriter2 sw = getStreamWriter(outputStream);
-    if( validate() ) {
+    if (validate())
+    {
       sw.validateAgainst(getDefaultSchema());
     }
 
     sw.writeStartElement("", "iq");
-      sw.writeAttribute("type", "set");
-      sw.writeAttribute("to", target.resourceAddress());
+    sw.writeAttribute("type", "set");
+
+      sw.writeAttribute("from", mEventIQQuery.getSender().toString()); // no-xmpp-standard
+      sw.writeAttribute("to", target.toString()); // no-xmpp-standard
       sw.writeAttribute("id", mEventIQQuery.getId().toString());
 
       sw.writeStartElement("","query","urn:xmpp:mam:2" );

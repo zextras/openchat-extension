@@ -47,6 +47,11 @@ public abstract class SoapCommand
   public final static String STATUS_ID                        = "status_id";
   protected final static String VALUE                            = "value";
   protected final static String SESSION_SUCCESSFULLY_SENT_EVENTS = "received_events";
+  protected final static String NODE                             = "node";
+  protected final static String START                            = "start";
+  protected final static String END                              = "end";
+  protected final static String WITH                             = "with";
+  protected final static String MAX                              = "max";
 
   protected final SpecificAddress     mSenderAddress;
   protected final Map<String, String> mParameterMap;

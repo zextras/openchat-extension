@@ -18,12 +18,16 @@
 package com.zextras.modules.chat.server.xmpp.handlers;
 
 import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
+import com.zextras.modules.chat.server.events.EventManager;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
 import com.zextras.modules.chat.server.operations.ChatOperation;
-import com.zextras.modules.chat.server.operations.History;
+import com.zextras.modules.chat.server.operations.QueryArchive;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;
+import com.zextras.modules.chat.server.xmpp.XmppSession;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import com.zextras.modules.chat.server.xmpp.parsers.IQQueryXmppParser;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
+import org.openzal.zal.Provisioning;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
@@ -32,25 +36,40 @@ import java.util.List;
 
 public class IQQueryHandler implements StanzaHandler
 {
+  private final Provisioning mProvisioning;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
+  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final EventManager mEventManager;
   private IQQueryXmppParser mParser = null;
-  private ImMessageStatements mMessageStatements;
 
   public IQQueryHandler(
+    Provisioning provisioning,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
-    ImMessageStatements messageStatements)
+    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    EventManager eventManager
+  )
   {
+    mProvisioning = provisioning;
     mXmppConnectionHandler = xmppConnectionHandler;
-    mMessageStatements = messageStatements;
+    mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
+    mEventManager = eventManager;
   }
 
   @Override
   public List<ChatOperation> handle()
   {
-    return Arrays.<ChatOperation>asList(new History(
-      mXmppConnectionHandler,
-      mMessageStatements,
-      mParser
+    XmppSession session = mXmppConnectionHandler.getSession();
+
+    return Arrays.<ChatOperation>asList(new QueryArchive(
+      mProvisioning,
+      mUserHistoryInterceptorFactoryImpl2,
+      mEventManager,
+      session.getMainAddress(),
+      mParser.getQueryId(),
+      mParser.getWith(),
+      mParser.getStart(),
+      mParser.getEnd(),
+      mParser.getNode()
     ));
   }
 

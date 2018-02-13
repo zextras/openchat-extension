@@ -30,6 +30,7 @@ import com.zextras.modules.chat.server.events.EventDestinationProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
 import org.openzal.zal.Domain;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.Server;
 import org.openzal.zal.Utils;
 import org.openzal.zal.Account;
 
@@ -68,10 +69,18 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
     {
       DestinationQueue destinationQueue;
       String host = null;
+      String s = address.toString();
       try
       {
-        Account account = mProvisioning.getAccountByName(address.toString());
-        host = account.getMailHost();
+        if (!s.contains("@"))
+        {
+          host = s;
+        }
+        else
+        {
+          Account account = mProvisioning.getAccountByName(address.toString());
+          host = account.getMailHost();
+        }
       }
       catch (Exception ignore) {}
 
@@ -103,6 +112,13 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
   public boolean canHandle(SpecificAddress address)
   {
     ChatLog.log.debug("LocalServerDestination: canHandle: "+address.resourceAddress());
+    String s = address.toString();
+
+    if (!s.contains("@"))
+    {
+      return !mProvisioning.getLocalServer().getName().equals(s);
+    }
+
     if( address.getDomain().isEmpty() ){
       return false;
     }

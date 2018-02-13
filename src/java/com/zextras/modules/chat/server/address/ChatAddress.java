@@ -40,4 +40,5 @@ public interface ChatAddress
   ChatAddress withoutResource();
 
   boolean isFromSession( SessionUUID sessionUUID );
+
 }

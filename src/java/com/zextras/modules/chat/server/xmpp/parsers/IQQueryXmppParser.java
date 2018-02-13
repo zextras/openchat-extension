@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
+import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +41,7 @@ public class IQQueryXmppParser extends XmppParser
   private String mWith;
   private String mStart;
   private String mEnd;
+  private String mSender;
 
   public IQQueryXmppParser(
     InputStream xmlInput,
@@ -54,6 +56,7 @@ public class IQQueryXmppParser extends XmppParser
     mWith = "";
     mStart = "";
     mEnd = "";
+    mSender = "";
   }
 
 /*
@@ -87,6 +90,7 @@ public class IQQueryXmppParser extends XmppParser
           {
             case "iq":
             {
+              mSender = emptyStringWhenNull(sr.getAttributeValue("", "from"));
               mTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
               mId = emptyStringWhenNull(sr.getAttributeValue("", "id"));
               break;
@@ -242,5 +246,11 @@ public class IQQueryXmppParser extends XmppParser
   public String getEnd()
   {
     return mEnd;
+  }
+
+  @NotNull
+  public SpecificAddress getSender()
+  {
+    return new SpecificAddress(mSender);
   }
 }

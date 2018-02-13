@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.Target;
-import com.zextras.modules.chat.server.address.NoneAddress;
+import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryLastEncoder;
@@ -38,13 +38,14 @@ public class EventMessageHistoryLast extends Event
 
   public EventMessageHistoryLast(
     EventId eventId,
+    ChatAddress sender,
     String queryId,
     SpecificAddress messageTo,
     String firstId,
     String lastId
   )
   {
-    super(eventId,new NoneAddress(),new Target(messageTo));
+    super(eventId,sender,new Target(messageTo));
     mQueryId = queryId;
     mMessageTo = messageTo;
     mFirstId = firstId;

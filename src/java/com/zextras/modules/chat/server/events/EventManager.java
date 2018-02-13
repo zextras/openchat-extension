@@ -95,7 +95,7 @@ public class EventManager implements Service
     }
   }
 
-  private void dispatchEvents(Iterator<Event> it)
+  private void dispatchEvents(Iterator<? extends Event> it)
   {
     while( it.hasNext() )
     {
@@ -108,7 +108,7 @@ public class EventManager implements Service
     dispatchEvent( event );
   }
 
-  public void dispatchUnfilteredEvents(List<Event> it)
+  public void dispatchUnfilteredEvents(List<? extends Event> it)
   {
     dispatchEvents( it.iterator() );
   }

@@ -43,8 +43,9 @@ import com.zextras.modules.chat.server.history.ImHistoryQueueHandlerFactory;
 import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
+import com.zextras.modules.chat.server.parsing.Parser;
 import com.zextras.modules.chat.server.parsing.ParserFactory;
-import com.zextras.modules.chat.server.parsing.SoapParserFactory;
+import com.zextras.modules.chat.server.parsing.SoapParser;
 import com.zextras.modules.chat.server.relationship.RelationshipModifier;
 import com.zextras.modules.chat.server.relationship.RelationshipModifierProxy;
 import com.zextras.modules.chat.server.relationship.RelationshipProvider;
@@ -105,7 +106,6 @@ public class OpenChatModule extends AbstractModule
     bind(Clock.class).to(ActualClock.class);
     bind(ChatProperties.class).to(LdapChatProperties.class);
     bind(StatementsFactory.class).to(OpenStatementsFactory.class);
-    bind(ParserFactory.class).to(SoapParserFactory.class);
     bind(EventInterceptorFactory.class).to(UserEventInterceptorFactory.class);
     bind(SoapEncoderFactory.class).to(SoapEncoderFactoryImpl.class);
     bind(UserHistoryInterceptorFactory.class).to(UserHistoryInterceptorFactoryImpl2.class);
@@ -132,5 +132,8 @@ public class OpenChatModule extends AbstractModule
     install(new FactoryModuleBuilder().build(ImHistoryQueueHandlerFactory.class));
     install(new FactoryModuleBuilder().build(HistoryMailManagerFactory.class));
     install(new FactoryModuleBuilder().build(EventQueueFactory.class));
+    install(new FactoryModuleBuilder()
+      .implement(Parser.class,SoapParser.class)
+      .build(ParserFactory.class));
   }
 }

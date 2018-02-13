@@ -19,11 +19,14 @@ package com.zextras.modules.chat.server.xmpp;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventInterpreterAdapter;
+import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.events.EventXmppPing;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.filters.EventFilter;
 import com.zextras.modules.chat.server.session.Session;
+import com.zextras.modules.chat.server.soap.SoapFilterImpl;
 
 public class XmppFilterImpl extends EventInterpreterAdapter<Boolean> implements XmppFilter
 {
@@ -42,5 +45,21 @@ public class XmppFilterImpl extends EventInterpreterAdapter<Boolean> implements 
   {
     return true;
   }
+
+  public Boolean interpret(EventIQQuery eventIQQuery)
+  {
+    return true;
+  }
+
+  public Boolean interpret(EventMessageHistory event)
+  {
+    return !SoapFilterImpl.isUser(event.getSender());
+  }
+
+  public Boolean interpret(EventMessageHistoryLast event)
+  {
+    return !SoapFilterImpl.isUser(event.getSender());
+  }
+
 
 }

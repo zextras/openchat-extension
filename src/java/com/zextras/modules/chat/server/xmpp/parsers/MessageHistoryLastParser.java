@@ -36,6 +36,7 @@ import java.io.InputStream;
 public class MessageHistoryLastParser extends XmppParser
 {
   private String mId;
+  private String mSender;
   private String mTo;
   private String mQueryId;
   private String mFirst;
@@ -52,6 +53,7 @@ public class MessageHistoryLastParser extends XmppParser
     mQueryId = "";
     mFirst = "";
     mLast = "";
+    mSender = "";
   }
 
 /*
@@ -81,6 +83,7 @@ public class MessageHistoryLastParser extends XmppParser
           {
             case "iq":
             {
+              mSender = emptyStringWhenNull(sr.getAttributeValue("", "from"));
               mTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
               mId = emptyStringWhenNull(sr.getAttributeValue("", "id"));
               break;
@@ -183,6 +186,12 @@ public class MessageHistoryLastParser extends XmppParser
   public String getId()
   {
     return mId;
+  }
+
+  @NotNull
+  public String getSender()
+  {
+    return mSender;
   }
 
   @NotNull

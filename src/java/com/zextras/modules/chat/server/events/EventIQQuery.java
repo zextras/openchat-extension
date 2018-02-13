@@ -18,11 +18,8 @@
 package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.Target;
-import com.zextras.modules.chat.server.address.ChatAddress;
-import com.zextras.modules.chat.server.address.NoneAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryEncoder;
 
 /**
  * @see com.zextras.modules.chat.server.xmpp.encoders.EventIQQueryEncoder
@@ -39,14 +36,16 @@ public class EventIQQuery extends Event
 
   public EventIQQuery(
     EventId eventId,
+    SpecificAddress sender,
     String queryId,
-    ChatAddress messageTo,
+    Target messageTo,
     String node,
     String with,
     String start,
-    String end)
+    String end
+  )
   {
-    super(eventId,new NoneAddress(),new Target(messageTo));
+    super(eventId,sender,messageTo);
     mQueryId = queryId;
     mNode = node;
     mWith = with;

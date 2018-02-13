@@ -22,6 +22,7 @@ import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.destinations.LocalServerDestination;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +70,21 @@ public class EventRouter implements Service
       }
     }
   }
+
+//  public void deliverToAnyone(Event event)
+//  {
+//    for( EventDestinationProvider provider : mEventDestinationProviderList )
+//    {
+//      //if( provider.canHandle(address) )
+//      {
+//        for( EventDestination destination : provider.getDestinations(address) )
+//        {
+//          //ChatLog.log.info("Routing :  " + destination.getClass().getName() + " " + event.toString());
+//          destination.deliverEvent(event,address);
+//        }
+//      }
+//    }
+//  }
 
   @Override
   public void start() throws ServiceStartException

@@ -23,7 +23,9 @@ import org.openzal.zal.soap.ZimbraContext;
 
 public interface ParserFactory
 {
-  public Parser create(SpecificAddress senderAddress,
-                           ZimbraContext zimbraContext,
-                           SoapResponse soapResponse);
+  Parser create(
+    SpecificAddress senderAddress,
+    ZimbraContext zimbraContext,
+    SoapResponse soapResponse
+  );
 }

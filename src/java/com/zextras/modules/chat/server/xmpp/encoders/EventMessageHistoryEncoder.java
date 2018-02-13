@@ -74,7 +74,8 @@ public class EventMessageHistoryEncoder extends XmppEncoder
 
     sw.writeStartElement("", "message");
       sw.writeAttribute("id", mEvent.getId().toString());
-      sw.writeAttribute("to", target.resourceAddress());
+      sw.writeAttribute("from", mEvent.getSender().toString()); // not really standard
+      sw.writeAttribute("to", target.resourceAddress()); // not really standard
 
       sw.writeStartElement("","result","urn:xmpp:mam:2" );
         sw.writeAttribute("queryid",mEvent.getQueryId());

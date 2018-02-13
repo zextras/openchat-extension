@@ -119,18 +119,25 @@ public class UserHistoryInterceptorFactoryImpl2 extends StubEventInterceptorFact
       @Override
       public void intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        // To another thread?
         String queryId = event.getQueryId();
         if (queryId.isEmpty())
         {
           queryId = UUID.randomUUID().toString();
         }
+
+        String sender = event.getSender().withoutResource().toString();
+        Account account = mProvisioning.getAccountByName(sender);
+        if (account != null && account.isLocalAccount())
+        {
+          prepareQuery(queryId);
+        }
+
         MessageHistory histories = mMessages.get(queryId);
         if (histories != null)
         {
           histories.query();
         }
-        List<Event> events = query(event.getWith(), event.getTarget().toSingleAddressIncludeResource(), queryId);
+        List<Event> events = query(event.getSender().withoutResource().toString(), event.getWith(), queryId);
         if (!events.isEmpty())
         {
           mEventManager.dispatchUnfilteredEvents(events);
@@ -174,11 +181,13 @@ public class UserHistoryInterceptorFactoryImpl2 extends StubEventInterceptorFact
   }
 
 
-  public void prepareQuery(String queryId)
+  public MessageHistory prepareQuery(String queryId)
   {
     mMessages.remove(queryId);
     MessageHistory histories = new MessageHistory();
+    histories.query();
     mMessages.put(queryId,histories);
+    return histories;
   }
 
   public void purgeQuery(String queryId)
@@ -213,45 +222,46 @@ public class UserHistoryInterceptorFactoryImpl2 extends StubEventInterceptorFact
       DbPrefetchIterator<ImMessage> it;
       if (user2.isEmpty())
       {
-        it = mImMessageStatements.query(user1); // TODO: add
+        it = mImMessageStatements.query(user1);
       }
       else
       {
         it = mImMessageStatements.query(user1, user2);
       }
 
-      ImMessage lastMessage = null;
-      ImMessage firstMessage = null;
+      String lastMessageId = "";
+      String firstMessageId = "";
+      String sender = mProvisioning.getLocalServer().getName();
       while (it.hasNext())
       {
-        lastMessage = it.next();
-        if (firstMessage == null)
+        ImMessage message = it.next();
+        lastMessageId = message.getId();
+        if (firstMessageId.isEmpty())
         {
-          firstMessage = lastMessage;
+          firstMessageId = lastMessageId;
         }
         events.add(new EventMessageHistory(
           EventId.randomUUID(),
+          new SpecificAddress(sender),
           queryId,
           new SpecificAddress(user1),
           new EventMessage(
-            EventId.fromString(lastMessage.getId()),
-            new SpecificAddress(lastMessage.getSender()),
-            new Target(new SpecificAddress(lastMessage.getDestination())),
-            lastMessage.getText(),
-            new FakeClock(lastMessage.getSentTimestamp())
+            EventId.fromString(message.getId()),
+            new SpecificAddress(message.getSender()),
+            new Target(new SpecificAddress(message.getDestination())),
+            message.getText(),
+            new FakeClock(message.getSentTimestamp())
           )
         ));
       }
-      if (lastMessage != null)
-      {
-        events.add(new EventMessageHistoryLast(
-          EventId.randomUUID(),
-          queryId,
-          new SpecificAddress(user1),
-          firstMessage.getId(),
-          lastMessage.getId()
-        ));
-      }
+      events.add(new EventMessageHistoryLast(
+        EventId.randomUUID(),
+        new SpecificAddress(sender),
+        queryId,
+        new SpecificAddress(user1),
+        firstMessageId,
+        lastMessageId
+      ));
     } catch (SQLException e)
     {
       throw new ChatException(e.getMessage());

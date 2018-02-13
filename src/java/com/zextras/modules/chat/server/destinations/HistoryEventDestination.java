@@ -22,12 +22,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
+import com.zextras.modules.chat.server.address.NoneAddress;
 import com.zextras.modules.chat.server.history.ImHistoryQueue;
 import com.zextras.modules.chat.server.Priority;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactory;
+import org.openzal.zal.Account;
+import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 
 import java.util.*;
@@ -40,6 +43,7 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
   private final EventManager                  mEventManager;
   private final UserHistoryInterceptorFactory mUserHistoryInterceptorFactory;
   private final ImHistoryQueue                mImHistoryQueue;
+  private final Provisioning                  mProvisioning;
   private final Priority mPriority = new Priority(4);
 
   @Inject
@@ -47,13 +51,15 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
     EventRouter eventRouter,
     EventManager eventManager,
     UserHistoryInterceptorFactory userHistoryInterceptorFactory,
-    ImHistoryQueue imHistoryQueue
+    ImHistoryQueue imHistoryQueue,
+    Provisioning provisioning
   )
   {
     mEventRouter = eventRouter;
     mEventManager = eventManager;
     mUserHistoryInterceptorFactory = userHistoryInterceptorFactory;
     mImHistoryQueue = imHistoryQueue;
+    mProvisioning = provisioning;
   }
 
   @Override
@@ -74,7 +80,13 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
   @Override
   public boolean canHandle(SpecificAddress address)
   {
-    return true;
+    String s = address.toString();
+    if (s.contains("@"))
+    {
+      Account account = mProvisioning.getAccountByName(s);
+      return account != null && account.isLocalAccount();
+    }
+    return mProvisioning.getLocalServer().getName().equals(s);
   }
 
   @Override

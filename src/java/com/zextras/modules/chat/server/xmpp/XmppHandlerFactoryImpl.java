@@ -21,6 +21,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
+import com.zextras.modules.chat.server.events.EventManager;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
 import com.zextras.modules.chat.server.xmpp.handlers.*;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import org.openzal.zal.AuthProvider;
@@ -38,7 +40,8 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
   private final AuthProvider        mAuthProvider;
   private final XmppFilterOut mXmppFilterOut;
   private final XmppEventFilter     mXmppEventFilter;
-  private final ImMessageStatements mMessageStatements;
+  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final EventManager mEventManager;
 
   @Inject
   public XmppHandlerFactoryImpl(
@@ -49,7 +52,9 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     AuthProvider authProvider,
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter,
-    ImMessageStatements messageStatements)
+    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    EventManager eventManager
+    )
   {
     mStanzaRecognizer = stanzaRecognizer;
     mProvisioning = provisioning;
@@ -58,7 +63,8 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     mAuthProvider = authProvider;
     mXmppFilterOut = xmppFilterOut;
     mXmppEventFilter = xmppEventFilter;
-    mMessageStatements = messageStatements;
+    mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
+    mEventManager = eventManager;
   }
 
   public StanzaHandler createHandler(
@@ -186,9 +192,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
 
       case Query:
       {
-        handler = new IQQueryHandler(
-          connectionStatus,
-          mMessageStatements);
+        handler = new IQQueryHandler(mProvisioning,connectionStatus,mUserHistoryInterceptorFactoryImpl2,mEventManager);
         break;
       }
 

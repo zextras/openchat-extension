@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.server.xmpp.decoders;
 
+import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventIQQuery;
@@ -34,8 +35,9 @@ public class QueryDecoder implements EventDecoder
     }
     return Collections.<Event>singletonList(new EventIQQuery(
       EventId.fromString(eventId),
+      parser.getSender(),
       parser.getQueryId(),
-      new SpecificAddress(parser.getTo()),
+      new Target(new SpecificAddress(parser.getTo())),
       parser.getNode(),
       parser.getWith(),
       parser.getStart(),

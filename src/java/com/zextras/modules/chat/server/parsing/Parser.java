@@ -24,6 +24,5 @@ import java.util.Map;
 
 public interface Parser
 {
-  public SoapCommand parse() throws ParserException;
-
+  SoapCommand parse() throws ParserException;
 }

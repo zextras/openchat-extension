@@ -17,6 +17,8 @@
 
 package com.zextras.modules.chat.server.soap;
 
+import com.zextras.modules.chat.server.address.ChatAddress;
+import com.zextras.modules.chat.server.address.NoneAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventIQQuery;
@@ -27,6 +29,7 @@ import com.zextras.modules.chat.server.events.EventXmppPing;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.filters.EventFilter;
 import com.zextras.modules.chat.server.session.Session;
+import org.junit.Test;
 
 public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements SoapFilter
 {
@@ -48,16 +51,31 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
 
   public Boolean interpret(EventMessageHistory event)
   {
-    return true;
+    if (!isUser(event.getSender()))
+    {
+      return true;
+    }
+    return false;
   }
 
   public Boolean interpret(EventMessageHistoryLast event)
   {
-    return true;
+    if (!isUser(event.getSender()))
+    {
+      return true;
+    }
+    return false;
   }
 
   public Boolean interpret(EventIQQuery event)
   {
     return true;
   }
+
+  public static boolean isUser(ChatAddress address)
+  {
+    return  !(address instanceof NoneAddress) &&
+            address.withoutResource().toString().contains("@");
+  }
+
 }

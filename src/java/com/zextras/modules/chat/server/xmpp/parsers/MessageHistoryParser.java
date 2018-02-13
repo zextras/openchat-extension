@@ -43,6 +43,7 @@ public class MessageHistoryParser extends XmppParser
   private String mMessageTo;
   private String mMessageFrom;
   private String mBody;
+  private String mSender;
 
   public MessageHistoryParser(
     InputStream xmlInput,
@@ -51,6 +52,7 @@ public class MessageHistoryParser extends XmppParser
   {
     super("jabber-client.xsd", xmlInput, schemaProvider);
     mId = "";
+    mSender = "";
     mTo = "";
     mQueryId = "";
     mMessageId = "";
@@ -89,6 +91,7 @@ public class MessageHistoryParser extends XmppParser
           {
             case "message":
             {
+              mSender = emptyStringWhenNull(sr.getAttributeValue("", "from"));
               mTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
               mId = emptyStringWhenNull(sr.getAttributeValue("", "id"));
               break;
@@ -239,6 +242,12 @@ public class MessageHistoryParser extends XmppParser
   public String getTo()
   {
     return mTo;
+  }
+
+  @NotNull
+  public String getSender()
+  {
+    return mSender;
   }
 
   @NotNull

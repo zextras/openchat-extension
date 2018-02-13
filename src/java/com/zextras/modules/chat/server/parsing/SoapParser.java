@@ -17,10 +17,15 @@
 
 package com.zextras.modules.chat.server.parsing;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
+import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import com.zextras.modules.chat.server.soap.command.*;
@@ -52,11 +57,14 @@ public class SoapParser implements Parser
   public final static String ACTION_MESSAGE_RECEIVED      = "notify_msg_received";
   public final static String ACTION_SET_AUTO_AWAY         = "set_auto_away";
   public final static String ACTION_RENAME_GROUP          = "rename_group";
+  public final static String ACTION_QUERY_ARCHIVE         = "query_archive";
 
   final         Provisioning       mProvisioning;
   final         SoapSessionFactory mSoapSessionFactory;
   final         ZimbraContext      mZimbraContext;
   final         SoapResponse       mSoapResponse;
+  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final EventManager mEventManager;
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
@@ -65,16 +73,19 @@ public class SoapParser implements Parser
   final         SoapEncoderFactory          mSoapEncoderFactory;
   private final Map<String, CommandCreator> mCommandCreatorMap;
 
+  @Inject
   public SoapParser(
+    @Assisted SpecificAddress senderAddress,
+    @Assisted ZimbraContext zimbraContext,
+    @Assisted SoapResponse soapResponse,
     Provisioning provisioning,
     SoapEncoderFactory soapEncoderFactory,
     SoapSessionFactory soapSessionFactory,
     ChatProperties chatProperties,
     ActivityManager activityManager,
     EventQueueFactory eventQueueFactory,
-    SpecificAddress senderAddress,
-    ZimbraContext zimbraContext,
-    SoapResponse soapResponse
+    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    EventManager eventManager
   )
   {
     mProvisioning = provisioning;
@@ -86,6 +97,8 @@ public class SoapParser implements Parser
     mSoapSessionFactory = soapSessionFactory;
     mZimbraContext = zimbraContext;
     mSoapResponse = soapResponse;
+    mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
+    mEventManager = eventManager;
     mCommandCreatorMap = new HashMap<String, CommandCreator>(32);
     setupCommands();
   }
@@ -205,6 +218,19 @@ public class SoapParser implements Parser
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
       { return new SoapCommandRenameGroup( mSenderAddress,commandParameters); }
+    });
+    setupCommand(ACTION_QUERY_ARCHIVE, new CommandCreator()
+    {
+      @Override
+      public SoapCommand create(Map<String, String> commandParameters)
+      { return new SoapCommandQueryArchive(
+        mProvisioning,
+        mUserHistoryInterceptorFactoryImpl2,
+        mEventManager,
+        mSoapResponse,
+        mSenderAddress,
+        commandParameters);
+      }
     });
   }
 

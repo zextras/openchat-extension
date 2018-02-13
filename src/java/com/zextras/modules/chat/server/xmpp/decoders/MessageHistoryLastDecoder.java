@@ -42,6 +42,7 @@ public class MessageHistoryLastDecoder implements EventDecoder
     }
     return Collections.<Event>singletonList(new EventMessageHistoryLast(
       EventId.fromString(eventId),
+      new SpecificAddress(parser.getSender()),
       parser.getQueryId(),
       new SpecificAddress(parser.getTo()),
       parser.getFirst(),

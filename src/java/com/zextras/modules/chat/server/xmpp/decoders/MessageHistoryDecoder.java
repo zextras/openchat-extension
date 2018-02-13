@@ -7,8 +7,6 @@ import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
-import com.zextras.modules.chat.server.xmpp.decoders.EventDecoder;
-import com.zextras.modules.chat.server.xmpp.parsers.IQQueryXmppParser;
 import com.zextras.modules.chat.server.xmpp.parsers.MessageHistoryParser;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.openzal.zal.lib.FakeClock;
@@ -16,8 +14,6 @@ import org.openzal.zal.lib.FakeClock;
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,6 +41,7 @@ public class MessageHistoryDecoder implements EventDecoder
     {
       return Collections.<Event>singletonList(new EventMessageHistory(
         EventId.fromString(eventId),
+        new SpecificAddress(parser.getSender()),
         parser.getQueryId(),
         new SpecificAddress(parser.getTo()),
         new EventMessage(

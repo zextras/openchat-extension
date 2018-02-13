@@ -18,12 +18,10 @@
 package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.Target;
-import com.zextras.modules.chat.server.address.NoneAddress;
+import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryEncoder;
-import org.openzal.zal.lib.ActualClock;
-import org.openzal.zal.lib.Clock;
 
 /**
  * @see EventMessageHistory
@@ -38,12 +36,13 @@ public class EventMessageHistory extends Event
 
   public EventMessageHistory(
     EventId eventId,
+    ChatAddress sender,
     String queryId,
     SpecificAddress messageTo,
     EventMessage originalMessage
   )
   {
-    super(eventId,new NoneAddress(),new Target(messageTo));
+    super(eventId,sender,new Target(messageTo));
     mQueryId = queryId;
     mMessageTo = messageTo;
     mOriginalMessage = originalMessage;
@@ -69,5 +68,6 @@ public class EventMessageHistory extends Event
   {
     return mQueryId;
   }
+
 }
 

@@ -17,7 +17,6 @@
 
 package com.zextras.modules.chat.server.xmpp.handlers;
 
-import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
 import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
 import com.zextras.modules.chat.server.operations.ChatOperation;

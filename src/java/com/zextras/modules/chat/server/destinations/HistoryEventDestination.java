@@ -84,7 +84,7 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
     if (s.contains("@"))
     {
       Account account = mProvisioning.getAccountByName(s);
-      return account != null && account.isLocalAccount();
+      return account != null && mProvisioning.onLocalServer(account);
     }
     return mProvisioning.getLocalServer().getName().equals(s);
   }

@@ -68,14 +68,14 @@ public class SoapCommandQueryArchive extends SoapCommand
     final String end = StringUtils.defaultString(mParameterMap.get(END));
     final String with = StringUtils.defaultString(mParameterMap.get(WITH));
     final String max = StringUtils.defaultString(mParameterMap.get(MAX));
-    final EventId messageId = EventId.randomUUID();
+    final EventId queryId = EventId.randomUUID();
 
     ChatOperation sendMessage = new QueryArchive(
       mProvisioning,
       mUserHistoryInterceptorFactoryImpl2,
       mEventManager,
       mSenderAddress,
-      EventId.randomUUID().toString(),
+      queryId.toString(),
       with,
       start,
       end,
@@ -87,7 +87,7 @@ public class SoapCommandQueryArchive extends SoapCommand
       @Override
       public void encode(ChatSoapResponse response, SpecificAddress target) {
         JSONObject message = new JSONObject();
-        message.put("message_id",messageId.toString());
+        message.put("query_id",queryId.toString());
         response.addResponse(message);
       }
     };

@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.soap.encoders;
 
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.client_contstants.ClientEventType;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
@@ -38,11 +39,14 @@ public class EventMessageHistoryLastEncoder implements SoapEncoder
   {
     final JSONObject message = new JSONObject();
 
+    message.put("type", ClientEventType.HISTORY_LAST);
     message.put("from",  mEventHistoryLast.getSender().toString());
     message.put("to", target.toString());
     message.put("query_id", mEventHistoryLast.getQueryId());
-    message.put("first_id", mEventHistoryLast.getFirstId());
-    message.put("last_id",  mEventHistoryLast.getLastId());
+//    message.put("first_index",  mEventHistoryLast.getFirstIndex());
+    message.put("first", mEventHistoryLast.getFirstId());
+    message.put("last",  mEventHistoryLast.getLastId());
+//    message.put("count",  mEventHistoryLast.getCount());
 
     response.addResponse(message);
   }

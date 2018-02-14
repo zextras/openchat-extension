@@ -42,6 +42,7 @@ public class EventMessageHistoryEncoder implements SoapEncoder
     ChatSoapResponse dummyResponse = new ChatSoapResponse();
     originalMessageEnc.encode(dummyResponse,new SpecificAddress(mEventHistory.getOriginalMessage().getTarget().toSingleAddress()));
 
+    message.put("type", ClientEventType.HISTORY);
     message.put("from",  mEventHistory.getSender().toString());
     message.put("to", target.toString());
     message.put("id", mEventHistory.getId().toString());

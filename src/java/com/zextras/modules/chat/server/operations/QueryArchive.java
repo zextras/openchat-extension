@@ -117,7 +117,7 @@ public class QueryArchive implements ChatOperation
         @Override
         public int compare(EventMessageHistory m1, EventMessageHistory m2)
         {
-          return (int) (m2.getOriginalMessage().getTimestamp() - m1.getOriginalMessage().getTimestamp());
+          return (int) (m1.getOriginalMessage().getTimestamp() - m2.getOriginalMessage().getTimestamp());
         }
       });
 

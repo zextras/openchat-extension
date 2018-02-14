@@ -75,9 +75,9 @@ public class ImMessageStatements
       "    FROM MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
-      "    ORDER BY SENT_TIMESTAMP" +
+      "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?" ;
-  private final static String sql_select_only_sender =
+  private final static String sql_select_only_destination =
     "    SELECT ID," +
       "    SENT_TIMESTAMP," +
       "    EDIT_TIMESTAMP," +
@@ -91,8 +91,8 @@ public class ImMessageStatements
       "    TYPE_EXTRAINFO," +
       "    DELIVERED" +
       "    FROM MESSAGE " +
-      "    WHERE SENDER = ? " +
-      "    ORDER BY SENT_TIMESTAMP" +
+      "    WHERE DESTINATION = ? " +
+      "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?" ;
   private final static String sql_text =
     "    SELECT ID," +
@@ -111,7 +111,7 @@ public class ImMessageStatements
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
       "    AND TEXT LIKE ? ESCAPE '!'" +
-      "    ORDER BY SENT_TIMESTAMP" +
+      "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?";
   private final static String sql_text_insensitive =
     "    SELECT ID," +
@@ -130,7 +130,7 @@ public class ImMessageStatements
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
       "    AND TRANSLATE( LOWER(TEXT), 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') LIKE TRANSLATE( ?, 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') ESCAPE '!'" +
-      "    ORDER BY SENT_TIMESTAMP" +
+      "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?";
 
   private final DbHandler mDbHandler;
@@ -234,7 +234,7 @@ public class ImMessageStatements
     }, mMessageFactory,100);
   }
 
-  public DbPrefetchIterator<ImMessage> query(final String sender) throws SQLException
+  public DbPrefetchIterator<ImMessage> query(final String destination) throws SQLException
   {
     return new DbPrefetchIterator<ImMessage>(new QueryExecutor()
     {
@@ -245,8 +245,8 @@ public class ImMessageStatements
       {
         mConnection = mDbHandler.getConnection();
         assertDBConnection(mConnection);
-        PreparedStatement query = mConnection.prepareStatement(sql_select_only_sender);
-        query.setString(1, sender);
+        PreparedStatement query = mConnection.prepareStatement(sql_select_only_destination);
+        query.setString(1, destination);
         query.setInt(2, size);
         query.setInt(3, start);
         return query.executeQuery();

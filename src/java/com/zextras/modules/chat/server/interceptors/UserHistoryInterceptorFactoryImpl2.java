@@ -138,10 +138,7 @@ public class UserHistoryInterceptorFactoryImpl2 extends StubEventInterceptorFact
           histories.query();
         }
         List<Event> events = query(event.getSender().withoutResource().toString(), event.getWith(), queryId);
-        if (!events.isEmpty())
-        {
-          mEventManager.dispatchUnfilteredEvents(events);
-        }
+        mEventManager.dispatchUnfilteredEvents(events);
       }
     };
   }

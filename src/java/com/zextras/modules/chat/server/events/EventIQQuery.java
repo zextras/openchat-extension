@@ -25,6 +25,7 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
  * @see com.zextras.modules.chat.server.xmpp.encoders.EventIQQueryEncoder
  * @see com.zextras.modules.chat.server.events.EventIQQuery
  * @see com.zextras.modules.chat.server.xmpp.parsers.IQQueryXmppParser
+ * @see com.zextras.modules.chat.server.soap.command.SoapCommandQueryArchive
  */
 public class EventIQQuery extends Event
 {

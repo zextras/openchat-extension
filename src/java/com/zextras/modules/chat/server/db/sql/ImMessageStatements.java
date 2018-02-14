@@ -336,8 +336,7 @@ public class ImMessageStatements
       }
       else
       {
-        throw new NoSuchMessageException(
-          new RuntimeException("No InstantMessage found for id : " + id));
+        throw new RuntimeException("No InstantMessage found for id : " + id);
       }
     }
     finally

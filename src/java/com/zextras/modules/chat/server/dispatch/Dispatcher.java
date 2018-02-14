@@ -23,5 +23,5 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 
 public interface Dispatcher
 {
-  public void dispatch(Event event) throws ChatException, ChatDbException;
+  void dispatch(Event event) throws ChatException;
 }

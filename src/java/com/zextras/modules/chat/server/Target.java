@@ -20,15 +20,14 @@ package com.zextras.modules.chat.server;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventRouter;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 public class Target
 {
@@ -46,28 +45,12 @@ public class Target
     mAddresses = addresses;
   }
 
-  public Set<SpecificAddress> explode(UserProvider openUserProvider)
-    throws ChatDbException
-  {
-    if (mExploded)
-    {
-      return mExplodedSet;
-    }
-
-    for (ChatAddress address : mAddresses)
-    {
-      address.explode(mExplodedSet, openUserProvider);
-    }
-
-    return mExplodedSet;
-  }
-
-  public void dispatch(EventRouter eventRouter, UserProvider openUserProvider, Event event)
-    throws ChatException, ChatDbException
+  public void dispatch(EventRouter eventRouter, UserProvider openUserProvider, RoomServerHostSetProvider roomServerHostSetProvider, Event event)
+    throws ChatException
   {
     for (ChatAddress address : mAddresses)
     {
-      address.createDispatcher(eventRouter, openUserProvider).dispatch(event);
+      address.createDispatcher(eventRouter, openUserProvider, roomServerHostSetProvider).dispatch(event);
     }
   }
 

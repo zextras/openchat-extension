@@ -18,15 +18,11 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
-import com.zextras.modules.chat.server.relationship.Relationship;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.session.SessionUUID;
-import com.zextras.modules.chat.server.User;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
 import com.zextras.modules.chat.server.dispatch.FriendsDispatcher;
-
-import java.util.HashSet;
 
 public class FriendsAddress implements ChatAddress
 {
@@ -42,7 +38,7 @@ public class FriendsAddress implements ChatAddress
   }
 
   @Override
-  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider)
+  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider, RoomServerHostSetProvider roomServerHostSetProvider)
   {
     return new FriendsDispatcher(mOrigin, eventRouter, openUserProvider);
   }
@@ -57,15 +53,6 @@ public class FriendsAddress implements ChatAddress
   public String resourceAddress()
   {
     return "";
-  }
-
-  @Override
-  public void explode(HashSet<SpecificAddress> explodedSet, UserProvider openUserProvider) throws ChatDbException
-  {
-    User user = openUserProvider.getUser(mOrigin);
-    for( Relationship relationship : user.getRelationships() ) {
-      explodedSet.add(relationship.getBuddyAddress());
-    }
   }
 
   @Override

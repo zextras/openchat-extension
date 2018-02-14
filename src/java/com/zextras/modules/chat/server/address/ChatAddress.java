@@ -18,23 +18,22 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
 
-import java.util.HashSet;
-
 public interface ChatAddress
 {
-  Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider);
+  Dispatcher createDispatcher(
+    EventRouter eventRouter,
+    UserProvider openUserProvider,
+    RoomServerHostSetProvider roomServerHostSetProvider
+  );
 
   String toString();
   String resource();
   String resourceAddress();
-
-  @Deprecated
-  void explode(HashSet<SpecificAddress> explodedSet, UserProvider openUserProvider) throws ChatDbException;
 
   ChatAddress withoutSession();
   ChatAddress withoutResource();

@@ -18,18 +18,16 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
 import com.zextras.modules.chat.server.dispatch.NoneDispatcher;
 
-import java.util.HashSet;
-
 public class NoneAddress implements ChatAddress
 {
   @Override
-  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider)
+  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider, RoomServerHostSetProvider roomServerHostSetProvider)
   {
     return new NoneDispatcher();
   }
@@ -44,11 +42,6 @@ public class NoneAddress implements ChatAddress
   public String resourceAddress()
   {
     return "";
-  }
-
-  @Override
-  public void explode(HashSet<SpecificAddress> explodedSet, UserProvider openUserProvider) throws ChatDbException
-  {
   }
 
   public boolean equals(Object object)

@@ -24,6 +24,7 @@ import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.DestinationQueue;
 import com.zextras.modules.chat.server.Priority;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventDestination;
 import com.zextras.modules.chat.server.events.EventDestinationProvider;
@@ -41,21 +42,27 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
 {
   public static final int DEFAULT_LOCAL_XMPP_PORT = 5269;
 
-  private final Provisioning                  mProvisioning;
-  private final Map<String, DestinationQueue> mDestinationQueues;
-  private final DestinationQueueFactory       mDestinationQueueFactory;
-  private final EventRouter                   mEventRouter;
+  private final Provisioning                   mProvisioning;
+  private final Map<String, DestinationQueue>  mDestinationQueues;
+  private final DestinationQueueFactory        mDestinationQueueFactory;
+  private final PassiveRoomResolverDestination mPassiveRoomResolverDestination;
+  private final RoomServerHostSetProvider      mRoomServerHostSetProvider;
+  private final EventRouter                    mEventRouter;
   private final Priority mPriority = new Priority(2);
 
   @Inject
   public LocalServerDestination(
     Provisioning provisioning,
     EventRouter eventRouter,
-    DestinationQueueFactory destinationQueueFactory
+    DestinationQueueFactory destinationQueueFactory,
+    PassiveRoomResolverDestination passiveRoomResolverDestination,
+    RoomServerHostSetProvider roomServerHostSetProvider
   )
   {
     mProvisioning = provisioning;
     mDestinationQueueFactory = destinationQueueFactory;
+    mPassiveRoomResolverDestination = passiveRoomResolverDestination;
+    mRoomServerHostSetProvider = roomServerHostSetProvider;
     mDestinationQueues = new HashMap<String, DestinationQueue>();
     mEventRouter = eventRouter;
   }
@@ -68,25 +75,34 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
     try
     {
       DestinationQueue destinationQueue;
-      String host = null;
-      String s = address.toString();
-      try
+      String host;
+
+      if( address.getDomain().isEmpty() )
       {
-        if (!s.contains("@"))
+        Account account = mProvisioning.getAccountByName(address.toString());
+        if (account == null)
         {
-          host = s;
+          host = mPassiveRoomResolverDestination.tryResolveRoomAddress(address);
         }
         else
         {
-          Account account = mProvisioning.getAccountByName(address.toString());
           host = account.getMailHost();
         }
       }
-      catch (Exception ignore) {}
-
-      if (host == null)
+      else
       {
-        host = address.getDomain();
+        if( mRoomServerHostSetProvider.isValidServer(address) )
+        {
+          host = address.toString();
+        }
+        else
+        {
+          host = null;
+        }
+      }
+
+      if( host == null ) {
+        return;
       }
 
       if (mDestinationQueues.containsKey(host))
@@ -101,10 +117,11 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
       }
       destinationQueue.addEvent(event, address);
     }
-    catch (Throwable ex)
+    catch (Exception ex)
     {
       ChatLog.log.warn("unable to relay message: " + Utils.exceptionToString(ex));
       ChatLog.log.debug("event: " + event.getClass().getName());
+      ChatLog.log.debug(Utils.exceptionToString(ex));
     }
   }
 

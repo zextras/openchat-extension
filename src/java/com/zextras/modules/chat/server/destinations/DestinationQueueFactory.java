@@ -21,21 +21,28 @@ import com.google.inject.Inject;
 import com.zextras.modules.chat.server.DestinationQueue;
 import com.zextras.modules.chat.server.DestinationQueueImpl;
 import com.zextras.modules.chat.server.QueuedEventFactory;
+import org.openzal.zal.lib.Clock;
 
 public class DestinationQueueFactory
 {
   private final EventSenderFactory mEventSenderFactory;
   private final QueuedEventFactory mQueuedEventFactory;
+  private final Clock mClock;
 
   @Inject
-  public DestinationQueueFactory(EventSenderFactory eventSenderFactory, QueuedEventFactory queuedEventFactory)
+  public DestinationQueueFactory(
+    EventSenderFactory eventSenderFactory,
+    QueuedEventFactory queuedEventFactory,
+    Clock clock
+  )
   {
     mEventSenderFactory = eventSenderFactory;
     mQueuedEventFactory = queuedEventFactory;
+    mClock = clock;
   }
 
   public DestinationQueue createQueue(String address)
   {
-    return new DestinationQueueImpl(address, mEventSenderFactory, mQueuedEventFactory);
+    return new DestinationQueueImpl(address, mEventSenderFactory, mQueuedEventFactory, mClock);
   }
 }

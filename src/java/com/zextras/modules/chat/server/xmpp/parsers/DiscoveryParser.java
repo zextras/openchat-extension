@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.xmpp.parsers;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventXmppDiscovery;
+import com.zextras.modules.chat.server.events.EventDiscovery;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 
@@ -37,8 +37,8 @@ public class DiscoveryParser extends XmppParser
   private String mTarget;
   private String mQuery;
   private String mSender;
-  private Collection<String> mFeatures = Collections.<String>emptyList();
-  private List<EventXmppDiscovery.Result> mResults = Collections.<EventXmppDiscovery.Result>emptyList();
+  private Collection<String>          mFeatures = Collections.<String>emptyList();
+  private List<EventDiscovery.Result> mResults  = Collections.<EventDiscovery.Result>emptyList();
 
   public DiscoveryParser(InputStream xmlInput, SchemaProvider schemaProvider)
   {
@@ -100,7 +100,7 @@ public class DiscoveryParser extends XmppParser
             }
 
             mResults.add(
-              new EventXmppDiscovery.Result(
+              new EventDiscovery.Result(
                 new SpecificAddress(sr.getAttributeValue(null, "jid")),
                 sr.getAttributeValue(null, "name")
               )
@@ -150,7 +150,7 @@ public class DiscoveryParser extends XmppParser
     return mFeatures;
   }
 
-  public List<EventXmppDiscovery.Result> getResults()
+  public List<EventDiscovery.Result> getResults()
   {
     return mResults;
   }

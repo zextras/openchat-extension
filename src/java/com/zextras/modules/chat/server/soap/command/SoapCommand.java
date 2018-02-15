@@ -44,9 +44,15 @@ public abstract class SoapCommand
   protected final static String MESSAGE                          = "message";
   protected final static String MESSAGE_ID                       = "message_id";
   protected final static String SESSION_ID                       = "session_id";
-  public final static String STATUS_ID                        = "status_id";
+  public final static    String STATUS_ID                        = "status_id";
   protected final static String VALUE                            = "value";
   protected final static String SESSION_SUCCESSFULLY_SENT_EVENTS = "received_events";
+  public static final    String TOPIC                            = "topic";
+  public static final    String MEETINGS                         = "meetings";
+
+  public static final String DOMAIN = "domain";
+  public static final String NAME   = "name";
+
   protected final static String NODE                             = "node";
   protected final static String START                            = "start";
   protected final static String END                              = "end";
@@ -81,12 +87,6 @@ public abstract class SoapCommand
     return "";
   }
 
-  public String getTargetGroup()
-  {
-    String group = mParameterMap.get(TARGET_GROUP);
-    return group == null ? "" : group;
-  }
-
   public abstract List<ChatOperation> createOperationList()
     throws MissingParameterException, InvalidParameterException, ChatException;
 
@@ -113,5 +113,11 @@ public abstract class SoapCommand
     }
 
     return new SpecificAddress(targetAddressString);
+  }
+
+  public String getTargetGroup()
+  {
+    String group = mParameterMap.get(TARGET_GROUP);
+    return group == null ? "" : group;
   }
 }

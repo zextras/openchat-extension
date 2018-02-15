@@ -26,6 +26,8 @@ import com.zextras.modules.chat.server.ChatVersion;
 import com.zextras.modules.chat.server.OpenchatVersion;
 import com.zextras.modules.chat.server.LocalXmppConnectionProvider;
 import com.zextras.modules.chat.server.LocalXmppConnectionProviderImpl;
+import com.zextras.modules.chat.server.address.AddressResolver;
+import com.zextras.modules.chat.server.address.AddressResolverStub;
 import com.zextras.modules.chat.server.db.DbHandler;
 import com.zextras.modules.chat.server.db.MariaDbHandler;
 import com.zextras.modules.chat.server.db.mappers.OpenStatementsFactory;
@@ -126,6 +128,7 @@ public class OpenChatModule extends AbstractModule
     bind(XmppFilter.class).to(XmppFilterImpl.class);
     bind(CommonSessionEventFilter.class).to(CommonSessionEventFilterImpl.class);
     bind(ChatVersion.class).to(OpenchatVersion.class);
+    bind(AddressResolver.class).to(AddressResolverStub.class);
     install(new FactoryModuleBuilder().build(SoapHandlerCreatorFactory.class));
     install(new FactoryModuleBuilder().build(InitialSoapRequestHandlerFactory.class));
     install(new FactoryModuleBuilder().build(SoapSessionFactory.class));

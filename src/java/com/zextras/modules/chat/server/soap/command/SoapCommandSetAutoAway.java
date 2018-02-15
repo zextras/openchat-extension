@@ -17,14 +17,15 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
+import com.zextras.modules.chat.server.operations.SetStatus;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.operations.ChatOperation;
-import com.zextras.modules.chat.server.operations.SetAutoAway;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
+import com.zextras.modules.chat.server.status.FixedStatus;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -44,12 +45,13 @@ public class SoapCommandSetAutoAway extends SoapCommand
   public List<ChatOperation> createOperationList()
     throws MissingParameterException, InvalidParameterException
   {
-    final SessionUUID sessionId = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
+    SessionUUID sessionId = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
 
-    final ChatOperation sendStatusEvent = new SetAutoAway(
-      sessionId
+    ChatOperation sendStatusEvent = new SetStatus(
+      sessionId,
+      FixedStatus.Away
     );
 
-    return Arrays.<ChatOperation>asList(sendStatusEvent);
+    return Collections.<ChatOperation>singletonList(sendStatusEvent);
   }
 }

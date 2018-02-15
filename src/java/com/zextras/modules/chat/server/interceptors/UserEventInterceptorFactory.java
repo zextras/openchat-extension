@@ -75,7 +75,7 @@ public class UserEventInterceptorFactory extends StubEventInterceptorFactory
     return new EventInterceptor()
     {
       @Override
-      public void intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
+      public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
         List<Session> sessions = mSessionManager.getUserSessions(
           new SpecificAddress(event.getTarget().toSingleAddressIncludeResource())
@@ -92,6 +92,8 @@ public class UserEventInterceptorFactory extends StubEventInterceptorFactory
             session.acceptInputEvents();
           }
         }
+
+        return true;
       }
     };
   }

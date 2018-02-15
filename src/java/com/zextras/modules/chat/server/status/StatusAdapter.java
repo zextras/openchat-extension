@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.status;
 
-public abstract class AbstractStatus implements Status
+public abstract class StatusAdapter implements Status
 {
   public boolean isInvisible()
   {

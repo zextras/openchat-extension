@@ -45,7 +45,7 @@ public class XmppEventInterceptorFactoryImpl extends StubEventInterceptorFactory
     return new EventInterceptor()
     {
       @Override
-      public void intercept(EventManager eventManager, SpecificAddress target)
+      public boolean intercept(EventManager eventManager, SpecificAddress target)
         throws ChatException, ChatDbException, ZimbraException
       {
         ChatOperation operation = new SendMessageAck(
@@ -57,6 +57,7 @@ public class XmppEventInterceptorFactoryImpl extends StubEventInterceptorFactory
         eventManager.execOperations(
           Collections.<ChatOperation>singletonList(operation)
         );
+        return true;
       }
     };
   }

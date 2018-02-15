@@ -22,7 +22,6 @@ import com.zextras.modules.chat.server.events.EventInterpreter;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.lib.Clock;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoder;
 
@@ -91,7 +90,7 @@ public class QueuedEvent
     try
     {
       encoder = (XmppEncoder)mEvent.interpret(mEncoderFactory);
-      encoder.encode(out, mRecipient);
+      encoder.encode(out, mRecipient, true);
       String stanza = new String( out.toByteArray(), "UTF-8" );
       return stanza;
     }

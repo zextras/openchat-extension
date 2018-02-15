@@ -60,7 +60,7 @@ public class SendMessageAck implements ChatOperation
       return Collections.<Event>emptyList();
     }
 
-    return Arrays.<Event>asList(
+    return Collections.<Event>singletonList(
       new EventMessageAck(
         mSender,
         mTarget.withoutSession(),

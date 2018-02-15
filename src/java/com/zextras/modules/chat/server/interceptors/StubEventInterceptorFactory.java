@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.interceptors;
 
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventBindResult;
+import com.zextras.modules.chat.server.events.EventBootCompleted;
 import com.zextras.modules.chat.server.events.EventFloodControl;
 import com.zextras.modules.chat.server.events.EventFriendAccepted;
 import com.zextras.modules.chat.server.events.EventFriendAdded;
@@ -45,7 +46,7 @@ import com.zextras.modules.chat.server.events.EventStatusChanged;
 import com.zextras.modules.chat.server.events.EventStatusProbe;
 import com.zextras.modules.chat.server.events.EventStatuses;
 import com.zextras.modules.chat.server.events.EventStreamStarted;
-import com.zextras.modules.chat.server.events.EventXmppDiscovery;
+import com.zextras.modules.chat.server.events.EventDiscovery;
 import com.zextras.modules.chat.server.events.EventXmppPing;
 import com.zextras.modules.chat.server.events.EventXmppRedirect;
 import com.zextras.modules.chat.server.events.EventXmppSASLAuthentication;
@@ -61,6 +62,12 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
   public EventInterceptor interpret(Event event)
   {
     return new StubEventInterceptor();
+  }
+
+  @Override
+  public EventInterceptor interpret(EventBootCompleted eventBootCompleted) throws ChatException
+  {
+    return StubEventInterceptor.sInstance;
   }
 
   @Override
@@ -238,7 +245,7 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
   }
 
   @Override
-  public EventInterceptor interpret(EventXmppDiscovery event)
+  public EventInterceptor interpret(EventDiscovery event)
   {
     return new StubEventInterceptor();
   }

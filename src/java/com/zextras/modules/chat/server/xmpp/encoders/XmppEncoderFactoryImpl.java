@@ -48,6 +48,12 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   }
 
   @Override
+  public Encoder interpret(EventBootCompleted eventBootCompleted) throws ChatException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Encoder interpret(EventNewClientVersion eventNewClientVersion)
   {
     throw new UnsupportedOperationException();
@@ -114,7 +120,7 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   }
 
   @Override
-  public Encoder interpret(EventXmppDiscovery event)
+  public Encoder interpret(EventDiscovery event)
   {
     return new DiscoveryEncoder(event, mSchemaProvider);
   }

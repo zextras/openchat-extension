@@ -22,6 +22,7 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 public interface EventInterpreter<T>
 {
   T interpret(Event event) throws ChatException;
+  T interpret(EventBootCompleted eventBootCompleted) throws ChatException;
   T interpret(EventStatusProbe eventStatusProbe) throws ChatException;
   T interpret(EventStatuses eventStatuses) throws ChatException;
   T interpret(EventStatusChanged eventStatusChanged) throws ChatException;
@@ -51,7 +52,7 @@ public interface EventInterpreter<T>
   T interpret(EventXmppRedirect eventXmppRedirect) throws ChatException;
   T interpret(EventXmppSessionEstablished eventXmppSessionEstablished) throws ChatException;
   T interpret(EventXmppPing eventXmppPing) throws ChatException;
-  T interpret(EventXmppDiscovery event) throws ChatException;
+  T interpret(EventDiscovery event) throws ChatException;
   T interpret(EventFloodControl event) throws ChatException;
   T interpret(EventIQQuery event) throws ChatException;
   T interpret(EventMessageHistory event) throws ChatException;

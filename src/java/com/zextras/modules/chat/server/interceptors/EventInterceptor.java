@@ -26,7 +26,7 @@ import org.openzal.zal.exceptions.ZimbraException;
 
 public interface EventInterceptor
 {
-  void intercept(EventManager eventManager, SpecificAddress target)
+  boolean intercept(EventManager eventManager, SpecificAddress target)
     throws ChatException;
 }
 

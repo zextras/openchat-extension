@@ -109,7 +109,14 @@ public class SpecificAddress implements ChatAddress
 
   public SpecificAddress withoutResource()
   {
-    return new SpecificAddress(mAddress, "");
+    if( mResource.isEmpty() )
+    {
+      return this;
+    }
+    else
+    {
+      return new SpecificAddress(mAddress, "");
+    }
   }
 
   @NotNull

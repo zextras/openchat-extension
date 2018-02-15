@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.encoders;
 
-import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventStatusChanged;
@@ -29,6 +29,8 @@ import java.io.OutputStream;
 
 public class EventStatusChangedEncoder extends XmppEncoder
 {
+  public static final String sProtocolZextrasStatus = "http://zextras.com/protocol/chat/status";
+
   private final EventStatusChanged mEvent;
 
   protected EventStatusChangedEncoder(EventStatusChanged event, SchemaProvider schemaProvider)
@@ -38,7 +40,7 @@ public class EventStatusChangedEncoder extends XmppEncoder
   }
 
   @Override
-  public void encode(OutputStream outputStream, SpecificAddress target) throws XMLStreamException
+  public void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException
   {
     XMLStreamWriter2 sw = getStreamWriter(outputStream);
     if (validate())
@@ -51,6 +53,16 @@ public class EventStatusChangedEncoder extends XmppEncoder
   <show>dnd</show>
   <status>Wooing Juliet</status>
   <status xml:lang='cs'>Dvo&#x0159;&#x00ED;m se Julii</status>
+</presence>
+
+<presence from='romeo@example.net/orchard' xml:lang='en'>
+  <show>unsubscribed</show>
+  <status>Wooing Juliet</status>
+  <status xml:lang='cs'>Dvo&#x0159;&#x00ED;m se Julii</status>
+  <x ns="http://zextras.com/chat/status" validSince="123">
+    <meeting jid="meeting1@example.com" />
+    <meeting jid="meeting1@example.com" />
+  </x>
 </presence>
 
 online: chat
@@ -67,18 +79,39 @@ busy: dnd
     {
       sw.writeAttribute("from", mEvent.getSender().resourceAddress());
       sw.writeAttribute("type", "unavailable");
-      sw.writeEndElement();
     }
     else
     {
       sw.writeAttribute("from", mEvent.getSender().resourceAddress());
       sw.writeStartElement("jabber:client", "show");
-      sw.writeCharacters(getShow(status));
+      sw.writeCharacters(getShow(status).toLowerCase());
       sw.writeEndElement();
       if( !mEvent.getStatus().getText().isEmpty() )
       {
         sw.writeStartElement("jabber:client","status");
         sw.writeCharacters(mEvent.getStatus().getText());
+        sw.writeEndElement();
+      }
+    }
+
+    if( extensions )
+    {
+      sw.writeStartElement("", "x", sProtocolZextrasStatus);
+      sw.writeAttribute("validSince", String.valueOf(mEvent.getStatus().validSince()));
+      sw.writeAttribute("groupType", String.valueOf(mEvent.getType()).toLowerCase());
+      for (SpecificAddress meeting : mEvent.getStatus().meetings())
+      {
+        sw.writeStartElement("meeting");
+        sw.writeAttribute("jid", meeting.toString());
+        sw.writeEndElement();
+      }
+      sw.writeEndElement();
+    }
+    else
+    {
+      if(mEvent.getType() != EventType.Chat)
+      {
+        sw.writeStartElement("", "x", "http://jabber.org/protocol/muc#user");
         sw.writeEndElement();
       }
     }
@@ -96,9 +129,11 @@ busy: dnd
       case AWAY:
         return "away";
 
-      default:
       case AVAILABLE:
         return "chat";
+
+      default:
+        return status.getType().name();
     }
   }
 }

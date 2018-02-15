@@ -44,6 +44,19 @@ public class EventMessage extends Event
     SpecificAddress sender,
     Target target,
     String message,
+    long timestamp
+  )
+  {
+    super(eventId, sender, target, timestamp);
+    mSender = sender;
+    mMessage = message;
+  }
+
+  public EventMessage(
+    EventId eventId,
+    SpecificAddress sender,
+    Target target,
+    String message,
     Clock clock
   )
   {

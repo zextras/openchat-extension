@@ -28,6 +28,7 @@ import com.zextras.modules.chat.server.events.EventIsWriting;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class SendIsWriting implements ChatOperation
@@ -56,7 +57,7 @@ public class SendIsWriting implements ChatOperation
       mState
     );
 
-    return Arrays.asList(event);
+    return Collections.singletonList(event);
   }
 
 }

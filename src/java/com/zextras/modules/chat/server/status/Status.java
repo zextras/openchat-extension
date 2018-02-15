@@ -18,25 +18,34 @@
 package com.zextras.modules.chat.server.status;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.utils.Jsonable;
 import com.zextras.utils.ToJSONSerializer;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface Status extends PartialStatus
 {
+  long validSince();
+  List<SpecificAddress> meetings();
+
   boolean isInvisible();
   boolean isOffline();
 
+  Status onlyMeeting(SpecificAddress address);
+  Status withoutMeetings();
+
   @JsonSerialize(using = ToJSONSerializer.class)
-  public static enum StatusType implements Jsonable
+  enum StatusType implements Jsonable
   {
     UNKNOWN(-1), OFFLINE(0),
     AVAILABLE(1), BUSY(2),
     AWAY(3), INVISIBLE(4),
     NEED_RESPONSE(5), INVITED(6),
-    UNREACHABLE(7);
+    UNREACHABLE(7), UNSUBSCRIBED(8);
 
     private static final Map<Byte, StatusType> mByteToType = new HashMap<Byte, StatusType>();
     static {
@@ -70,6 +79,4 @@ public interface Status extends PartialStatus
   }
 
   StatusId getId();
-
-  boolean canBeStored();
 }

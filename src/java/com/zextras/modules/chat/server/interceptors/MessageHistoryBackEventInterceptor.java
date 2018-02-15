@@ -52,7 +52,7 @@ public class MessageHistoryBackEventInterceptor implements EventInterceptor
   }
 
   @Override
-  public void intercept(EventManager eventManager, SpecificAddress target)
+  public boolean intercept(EventManager eventManager, SpecificAddress target)
     throws ChatException, ChatDbException, ZimbraException
   {
     if (mChatProperties.isChatHistoryEnabled(target.toString()))
@@ -83,6 +83,8 @@ public class MessageHistoryBackEventInterceptor implements EventInterceptor
       {
         ChatLog.log.warn("Cannot save history for " + target.withoutSession().toString() + ": " + e.getMessage());
       }
+      return true;
     }
+    return false;
   }
 }

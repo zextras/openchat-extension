@@ -46,7 +46,7 @@ public class EventBindResultEncoder extends XmppEncoder {
    */
 
   @Override
-  public void encode(OutputStream outputStream, SpecificAddress target)
+  public void encode(OutputStream outputStream, SpecificAddress target, boolean extensions)
     throws XMLStreamException
   {
     XMLStreamWriter2 sw = getStreamWriter(outputStream);

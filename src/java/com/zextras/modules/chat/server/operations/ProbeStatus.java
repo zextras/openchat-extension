@@ -27,6 +27,7 @@ import com.zextras.modules.chat.server.events.EventStatusProbe;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ProbeStatus implements ChatOperation
@@ -47,6 +48,6 @@ public class ProbeStatus implements ChatOperation
       mSender,
       new Target(mTarget)
     );
-    return Arrays.asList(event);
+    return Collections.singletonList(event);
   }
 }

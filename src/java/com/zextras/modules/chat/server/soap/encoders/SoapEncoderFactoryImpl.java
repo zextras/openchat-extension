@@ -45,6 +45,12 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public Encoder interpret(EventBootCompleted eventBootCompleted) throws ChatException
+  {
+    throw new UnsupportedOperationException();
+  }
+
   //common events
   @Override
   public Encoder interpret(EventIsWriting eventIsWriting)
@@ -221,7 +227,7 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
   }
 
   @Override
-  public Encoder interpret(EventXmppDiscovery event)
+  public Encoder interpret(EventDiscovery event)
   {
     fail(event);
     return null;

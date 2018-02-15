@@ -125,16 +125,16 @@ public abstract class BaseSession implements Session
   public abstract void refuseInputEvents();
   public abstract void acceptInputEvents();
 
-  public void deliverEvent(Event event, SpecificAddress address)
+  public boolean deliverEvent(Event event, SpecificAddress address)
   {
     if( event.getSender().isFromSession(getId()) ) {
-      return;
+      return false;
     }
 
     try
     {
       if( getEventFilter().isFiltered(event, address, this) ){
-        return;
+        return false;
       }
     }
     catch (ChatException e)
@@ -143,6 +143,7 @@ public abstract class BaseSession implements Session
     }
 
     mEventQueue.queueEvent(event);
+    return true;
   }
 
   @Override

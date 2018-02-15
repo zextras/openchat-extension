@@ -56,7 +56,7 @@ public class EventIQAuthResultEncoder extends XmppEncoder
 */
 
   @Override
-  public void encode(OutputStream outputStream, SpecificAddress target)
+  public void encode(OutputStream outputStream, SpecificAddress target, boolean extensions)
     throws XMLStreamException
   {
     XMLStreamWriter2 sr = getStreamWriter(outputStream);

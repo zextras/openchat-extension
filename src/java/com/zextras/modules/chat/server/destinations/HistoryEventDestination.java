@@ -63,30 +63,35 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
   }
 
   @Override
-  public void deliverEvent(Event event, SpecificAddress target)
+  public boolean deliverEvent(Event event, SpecificAddress target)
   {
     try
     {
-      EventInterceptor interceptor = event.interpret(mUserHistoryInterceptorFactory);
-      interceptor.intercept(mEventManager,target);
+      String s = target.toString();
+      if (s.contains("@"))
+      {
+        Account account = mProvisioning.getAccountByName(s);
+        return account != null && mProvisioning.onLocalServer(account);
+      }
+      if (mProvisioning.getLocalServer().getName().equals(s))
+      {
+        EventInterceptor interceptor = event.interpret(mUserHistoryInterceptorFactory);
+        return interceptor.intercept(mEventManager, target);
+      }
     }
-    catch (Throwable ex)
+    catch (Exception ex)
     {
       ChatLog.log.warn("unable to relay message: " + Utils.exceptionToString(ex));
       ChatLog.log.debug("event: " + event.getClass().getName());
+      return true;
     }
+    return false;
   }
 
   @Override
   public boolean canHandle(SpecificAddress address)
   {
-    String s = address.toString();
-    if (s.contains("@"))
-    {
-      Account account = mProvisioning.getAccountByName(s);
-      return account != null && mProvisioning.onLocalServer(account);
-    }
-    return mProvisioning.getLocalServer().getName().equals(s);
+    return true;
   }
 
   @Override

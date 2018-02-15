@@ -28,6 +28,12 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
   }
 
   @Override
+  public Boolean interpret(EventBootCompleted eventBootCompleted) throws ChatException
+  {
+    return false;
+  }
+
+  @Override
   public Boolean interpret(EventStatusProbe eventStatusProbe)
   {
     return false;
@@ -202,7 +208,7 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
   }
 
   @Override
-  public Boolean interpret(EventXmppDiscovery event)
+  public Boolean interpret(EventDiscovery event)
   {
     return false;
   }

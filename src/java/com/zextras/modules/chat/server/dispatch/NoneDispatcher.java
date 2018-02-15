@@ -23,8 +23,10 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 
 public class NoneDispatcher implements Dispatcher
 {
+  public final static NoneDispatcher sNoneDispatcher = new NoneDispatcher();
+
   @Override
-  public void dispatch(Event event) throws ChatException, ChatDbException
+  public void dispatch(Event event) throws ChatException
   {
   }
 }

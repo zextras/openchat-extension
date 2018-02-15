@@ -17,17 +17,15 @@
 
 package com.zextras.modules.chat.server.events;
 
-import com.zextras.modules.chat.server.address.NoneAddress;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class EventXmppDiscovery extends Event
+public class EventDiscovery extends Event
 {
   private final Collection<String> mFeatures;
   private final List<Result>       mResults;
@@ -35,14 +33,14 @@ public class EventXmppDiscovery extends Event
   private final String             mType;
   private final SpecificAddress mSender;
 
-  public EventXmppDiscovery(
+  public EventDiscovery(
     EventId eventId,
     SpecificAddress sender,
     Target target,
     String type,
     Collection<String> features,
-    List<EventXmppDiscovery.Result> results,
-    EventXmppDiscovery.DiscoveryQuery discoveryQuery
+    List<EventDiscovery.Result> results,
+    EventDiscovery.DiscoveryQuery discoveryQuery
   )
   {
     super(eventId, sender, target);
@@ -53,11 +51,11 @@ public class EventXmppDiscovery extends Event
     mSender = sender;
   }
 
-  public EventXmppDiscovery(
+  public EventDiscovery(
     EventId eventId,
     SpecificAddress sender,
     Target target,
-    EventXmppDiscovery.DiscoveryQuery discoveryQuery
+    EventDiscovery.DiscoveryQuery discoveryQuery
   )
   {
     super(eventId, sender, target);
@@ -105,9 +103,25 @@ public class EventXmppDiscovery extends Event
     return interpreter.interpret(this);
   }
 
+  @Override
+  public String toString()
+  {
+    return "Event{" +
+      getClass().getSimpleName() +
+      ", id=" + getId() +
+      ", sender=" + mSender.resourceAddress() +
+      ", timestamp=" + getTimestamp() +
+      ", target=" + getTarget().toString() +
+      ", features=" + mFeatures +
+      ", results=" + mResults +
+      ", discoveryQuery=" + mDiscoveryQuery +
+      ", type='" + mType + '\'' +
+      '}';
+  }
+
   public static class Result
   {
-    public SpecificAddress getAddress()
+    public SpecificAddress getRoomAddress()
     {
       return mAddress;
     }
@@ -125,6 +139,12 @@ public class EventXmppDiscovery extends Event
       mAddress = address;
       mName = name;
     }
+
+    @Override
+    public String toString()
+    {
+      return "{" +mAddress+ ',' +mName+'}';
+    }
   }
 
   public enum DiscoveryQuery
@@ -139,7 +159,7 @@ public class EventXmppDiscovery extends Event
       mUrl = url;
     }
 
-    public static EventXmppDiscovery.DiscoveryQuery fromUrl(String url)
+    public static EventDiscovery.DiscoveryQuery fromUrl(String url)
     {
       for (DiscoveryQuery type : DiscoveryQuery.values())
       {
@@ -159,7 +179,7 @@ public class EventXmppDiscovery extends Event
 
     public static boolean isSupported(String url)
     {
-      for (EventXmppDiscovery.DiscoveryQuery type : DiscoveryQuery.values())
+      for (EventDiscovery.DiscoveryQuery type : DiscoveryQuery.values())
       {
         if (type.getUrl().equalsIgnoreCase(url))
         {

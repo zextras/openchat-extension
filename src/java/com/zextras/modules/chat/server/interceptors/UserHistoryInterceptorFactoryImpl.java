@@ -54,7 +54,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Singleton
-public class UserHistoryInterceptorFactoryImpl2 extends StubEventInterceptorFactory implements UserHistoryInterceptorFactory
+public class UserHistoryInterceptorFactoryImpl extends StubEventInterceptorFactory implements UserHistoryInterceptorFactory
 {
   private final Provisioning   mProvisioning;
   private final ChatProperties mChatProperties;
@@ -63,7 +63,7 @@ public class UserHistoryInterceptorFactoryImpl2 extends StubEventInterceptorFact
   private final Map<String,MessageHistory> mMessages;
 
   @Inject
-  public UserHistoryInterceptorFactoryImpl2(
+  public UserHistoryInterceptorFactoryImpl(
     Provisioning provisioning,
     ChatProperties chatProperties,
     ImMessageStatements imMessageStatements,

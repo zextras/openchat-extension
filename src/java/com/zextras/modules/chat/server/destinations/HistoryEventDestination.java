@@ -22,15 +22,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
-import com.zextras.modules.chat.server.address.NoneAddress;
 import com.zextras.modules.chat.server.history.ImHistoryQueue;
 import com.zextras.modules.chat.server.Priority;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactory;
-import org.openzal.zal.Account;
-import org.openzal.zal.Provisioning;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import org.openzal.zal.Utils;
 
 import java.util.*;
@@ -43,7 +41,6 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
   private final EventManager                  mEventManager;
   private final UserHistoryInterceptorFactory mUserHistoryInterceptorFactory;
   private final ImHistoryQueue                mImHistoryQueue;
-  private final Provisioning                  mProvisioning;
   private final Priority mPriority = new Priority(4);
 
   @Inject
@@ -51,15 +48,13 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
     EventRouter eventRouter,
     EventManager eventManager,
     UserHistoryInterceptorFactory userHistoryInterceptorFactory,
-    ImHistoryQueue imHistoryQueue,
-    Provisioning provisioning
+    ImHistoryQueue imHistoryQueue
   )
   {
     mEventRouter = eventRouter;
     mEventManager = eventManager;
     mUserHistoryInterceptorFactory = userHistoryInterceptorFactory;
     mImHistoryQueue = imHistoryQueue;
-    mProvisioning = provisioning;
   }
 
   @Override
@@ -67,17 +62,8 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
   {
     try
     {
-      String s = target.toString();
-      if (s.contains("@"))
-      {
-        Account account = mProvisioning.getAccountByName(s);
-        return account != null && mProvisioning.onLocalServer(account);
-      }
-      if (mProvisioning.getLocalServer().getName().equals(s))
-      {
-        EventInterceptor interceptor = event.interpret(mUserHistoryInterceptorFactory);
-        return interceptor.intercept(mEventManager, target);
-      }
+      EventInterceptor interceptor = event.interpret(mUserHistoryInterceptorFactory);
+      return interceptor.intercept(mEventManager,target);
     }
     catch (Exception ex)
     {
@@ -85,13 +71,6 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
       ChatLog.log.debug("event: " + event.getClass().getName());
       return true;
     }
-    return false;
-  }
-
-  @Override
-  public boolean canHandle(SpecificAddress address)
-  {
-    return true;
   }
 
   @Override

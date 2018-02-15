@@ -22,10 +22,9 @@ import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
 import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import com.zextras.modules.chat.server.soap.command.*;
@@ -64,7 +63,7 @@ public class SoapParser implements Parser
   final         SoapSessionFactory mSoapSessionFactory;
   final         ZimbraContext      mZimbraContext;
   final         SoapResponse       mSoapResponse;
-  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
   private final EventManager mEventManager;
   private final Clock mClock;
   final         ChatProperties     mChatProperties;
@@ -86,11 +85,8 @@ public class SoapParser implements Parser
     ChatProperties chatProperties,
     ActivityManager activityManager,
     EventQueueFactory eventQueueFactory,
-    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
     EventManager eventManager,
-    SpecificAddress senderAddress,
-    ZimbraContext zimbraContext,
-    SoapResponse soapResponse,
     Clock clock
   )
   {

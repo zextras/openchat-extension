@@ -44,7 +44,7 @@ import com.zextras.modules.chat.server.history.HistoryMailManagerFactory;
 import com.zextras.modules.chat.server.history.ImHistoryQueueHandlerFactory;
 import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactory;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.parsing.Parser;
 import com.zextras.modules.chat.server.parsing.ParserFactory;
 import com.zextras.modules.chat.server.parsing.SoapParser;
@@ -110,7 +110,7 @@ public class OpenChatModule extends AbstractModule
     bind(StatementsFactory.class).to(OpenStatementsFactory.class);
     bind(EventInterceptorFactory.class).to(UserEventInterceptorFactory.class);
     bind(SoapEncoderFactory.class).to(SoapEncoderFactoryImpl.class);
-    bind(UserHistoryInterceptorFactory.class).to(UserHistoryInterceptorFactoryImpl2.class);
+    bind(UserHistoryInterceptorFactory.class).to(UserHistoryInterceptorFactoryImpl.class);
     bind(UserProvider.class).to(OpenUserProvider.class);
     bind(UserModifier.class).to(OpenUserModifier.class);
     bind(StanzaRecognizer.class).to(StanzaRecognizerImpl.class);

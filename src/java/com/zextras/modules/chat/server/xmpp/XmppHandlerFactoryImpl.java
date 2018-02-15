@@ -20,9 +20,8 @@ package com.zextras.modules.chat.server.xmpp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
-import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
 import com.zextras.modules.chat.server.events.EventManager;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.xmpp.handlers.*;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import org.openzal.zal.AuthProvider;
@@ -40,7 +39,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
   private final AuthProvider        mAuthProvider;
   private final XmppFilterOut mXmppFilterOut;
   private final XmppEventFilter     mXmppEventFilter;
-  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
   private final EventManager mEventManager;
 
   @Inject
@@ -52,7 +51,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     AuthProvider authProvider,
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter,
-    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
     EventManager eventManager
     )
   {

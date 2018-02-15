@@ -23,7 +23,7 @@ import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.QueryArchive;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
@@ -39,13 +39,13 @@ import java.util.Map;
 public class SoapCommandQueryArchive extends SoapCommand
 {
   private final Provisioning mProvisioning;
-  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
   private final EventManager mEventManager;
   private final SoapResponse mSoapResponse;
 
   public SoapCommandQueryArchive(
     Provisioning provisioning,
-    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
     EventManager eventManager,
     SoapResponse soapResponse,
     SpecificAddress senderAddress,

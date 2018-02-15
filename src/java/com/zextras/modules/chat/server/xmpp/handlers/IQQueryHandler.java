@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.xmpp.handlers;
 
 import com.zextras.modules.chat.server.events.EventManager;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.QueryArchive;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;
@@ -37,14 +37,14 @@ public class IQQueryHandler implements StanzaHandler
 {
   private final Provisioning mProvisioning;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
-  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
   private final EventManager mEventManager;
   private IQQueryXmppParser mParser = null;
 
   public IQQueryHandler(
     Provisioning provisioning,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
-    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
     EventManager eventManager
   )
   {

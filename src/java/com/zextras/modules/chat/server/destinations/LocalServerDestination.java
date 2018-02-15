@@ -23,15 +23,14 @@ import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.DestinationQueue;
 import com.zextras.modules.chat.server.Priority;
+import com.zextras.modules.chat.server.address.AddressResolver;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventDestination;
 import com.zextras.modules.chat.server.events.EventDestinationProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
-import org.openzal.zal.Domain;
 import org.openzal.zal.Provisioning;
-import org.openzal.zal.Server;
 import org.openzal.zal.Utils;
 import org.openzal.zal.Account;
 
@@ -41,57 +40,45 @@ import java.util.*;
 public class LocalServerDestination implements EventDestination, EventDestinationProvider, Service
 {
   public static final int DEFAULT_LOCAL_XMPP_PORT = 5269;
-
-  private final Provisioning                   mProvisioning;
-  private final Map<String, DestinationQueue>  mDestinationQueues;
-  private final DestinationQueueFactory        mDestinationQueueFactory;
-  private final PassiveRoomResolverDestination mPassiveRoomResolverDestination;
-  private final RoomServerHostSetProvider      mRoomServerHostSetProvider;
-  private final EventRouter                    mEventRouter;
   private final Priority mPriority = new Priority(2);
+
+  private final Provisioning                  mProvisioning;
+  private final Map<String, DestinationQueue> mDestinationQueues;
+  private final DestinationQueueFactory       mDestinationQueueFactory;
+  private final AddressResolver               mAddressResolver;
+  private final RoomServerHostSetProvider     mRoomServerHostSetProvider;
+  private final EventRouter                   mEventRouter;
 
   @Inject
   public LocalServerDestination(
     Provisioning provisioning,
     EventRouter eventRouter,
     DestinationQueueFactory destinationQueueFactory,
-    PassiveRoomResolverDestination passiveRoomResolverDestination,
+    AddressResolver addressResolver,
     RoomServerHostSetProvider roomServerHostSetProvider
   )
   {
     mProvisioning = provisioning;
     mDestinationQueueFactory = destinationQueueFactory;
-    mPassiveRoomResolverDestination = passiveRoomResolverDestination;
+    mAddressResolver = addressResolver;
     mRoomServerHostSetProvider = roomServerHostSetProvider;
     mDestinationQueues = new HashMap<String, DestinationQueue>();
     mEventRouter = eventRouter;
   }
 
   @Override
-  public void deliverEvent(Event event, SpecificAddress address)
+  public boolean deliverEvent(Event event, SpecificAddress address)
   {
     ChatLog.log.debug("LocalServerDestination: deliverEvent: "+event.getClass().getName()+" to "+address.resourceAddress());
 
     try
     {
-      DestinationQueue destinationQueue;
       String host;
 
-      if( address.getDomain().isEmpty() )
+      boolean isServerAddress = address.getDomain().isEmpty();
+      if( isServerAddress )
       {
-        Account account = mProvisioning.getAccountByName(address.toString());
-        if (account == null)
-        {
-          host = mPassiveRoomResolverDestination.tryResolveRoomAddress(address);
-        }
-        else
-        {
-          host = account.getMailHost();
-        }
-      }
-      else
-      {
-        if( mRoomServerHostSetProvider.isValidServer(address) )
+        if( mRoomServerHostSetProvider.isValidChatServer(address) )
         {
           host = address.toString();
         }
@@ -100,11 +87,24 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
           host = null;
         }
       }
-
-      if( host == null ) {
-        return;
+      else
+      {
+        Account account = mProvisioning.getAccountByName(address.toString());
+        if (account == null)
+        {
+          host = mAddressResolver.tryResolveAddress(address);
+        }
+        else
+        {
+          host = account.getMailHost();
+        }
       }
 
+      if( host == null || host.equals(mProvisioning.getLocalServer().getServerHostname()) ) {
+        return false;
+      }
+
+      DestinationQueue destinationQueue;
       if (mDestinationQueues.containsKey(host))
       {
         destinationQueue = mDestinationQueues.get(host);
@@ -116,57 +116,21 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
         mDestinationQueues.put(host, destinationQueue);
       }
       destinationQueue.addEvent(event, address);
+      return true;
     }
     catch (Exception ex)
     {
       ChatLog.log.warn("unable to relay message: " + Utils.exceptionToString(ex));
       ChatLog.log.debug("event: " + event.getClass().getName());
       ChatLog.log.debug(Utils.exceptionToString(ex));
+      return true;
     }
-  }
-
-  @Override
-  public boolean canHandle(SpecificAddress address)
-  {
-    ChatLog.log.debug("LocalServerDestination: canHandle: "+address.resourceAddress());
-    String s = address.toString();
-
-    if (!s.contains("@"))
-    {
-      return !mProvisioning.getLocalServer().getName().equals(s);
-    }
-
-    if( address.getDomain().isEmpty() ){
-      return false;
-    }
-
-    try
-    {
-      Account account = mProvisioning.getAccountByName(address.toString());
-      if (account != null)
-      {
-        return !mProvisioning.onLocalServer(account);
-      }
-
-      Domain domain = mProvisioning.getDomainByName(address.getDomain());
-      if (domain != null)
-      {
-        return false;
-      }
-
-    }
-    catch (Exception ex)
-    {
-      ChatLog.log.warn("Exception: "+ Utils.exceptionToString(ex));
-    }
-
-    return !address.getDomain().equals(mProvisioning.getLocalServer().getAttr("zimbraServiceHostname"));
   }
 
   @Override
   public Collection<? extends EventDestination> getDestinations(SpecificAddress address)
   {
-    return Arrays.asList(this);
+    return Collections.singletonList(this);
   }
 
   @Override

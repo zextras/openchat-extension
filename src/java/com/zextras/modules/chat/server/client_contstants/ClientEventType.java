@@ -36,7 +36,7 @@ public class ClientEventType
   public static final int TYPE_CLIENT_UPDATE    = 12;
   public static final int TYPE_SHUTDOWN         = 13;
   public static final int ERROR                 = 14;
-  public static final int HISTORY               = 15;
-  public static final int HISTORY_LAST          = 16;
+  public static final int HISTORY               = 49;
+  public static final int HISTORY_LAST          = 50;
 
 }

@@ -29,7 +29,7 @@ import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl2;
+import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Server;
@@ -55,11 +55,11 @@ public class QueryArchive implements ChatOperation
   private final String mStart;
   private final String mEnd;
   private final String mNode;
-  private final UserHistoryInterceptorFactoryImpl2 mUserHistoryInterceptorFactoryImpl2;
+  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
 
   public QueryArchive(
     Provisioning provisioning,
-    UserHistoryInterceptorFactoryImpl2 userHistoryInterceptorFactoryImpl2,
+    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
     EventManager eventManager,
     SpecificAddress senderAddress,
     String queryid,

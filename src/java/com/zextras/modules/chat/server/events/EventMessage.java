@@ -80,4 +80,9 @@ public class EventMessage extends Event
   {
     return interpreter.interpret(this);
   }
+
+  public EventType getType()
+  {
+    return EventType.Chat;
+  }
 }

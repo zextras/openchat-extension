@@ -20,6 +20,7 @@ package com.zextras.modules.chat.server.soap.encoders;
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;
+import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.events.EventMessage;
@@ -43,6 +44,7 @@ public class EventMessageEncoder implements SoapEncoder
     message.put("from", mEvent.getSender().toString());
     message.put("to", target.toString());
     message.put("ID", mEvent.getId());
+    message.put("message_type", EventType.Chat);
 
     response.addResponse(message);
   }

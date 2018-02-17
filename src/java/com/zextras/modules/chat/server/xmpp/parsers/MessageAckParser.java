@@ -17,24 +17,26 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
+import com.zextras.lib.DateUtils;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
+import java.text.ParseException;
 
 public class MessageAckParser extends XmppParser
 {
   private String mTo;
   private String mFrom;
   private String mMessageId;
-  private long   mTimestamp;
+  private String mTimestamp;
 
   public MessageAckParser(InputStream xmlInput, SchemaProvider schemaProvider)
   {
     super("jabber-client.xsd", xmlInput, schemaProvider);
-    mTimestamp = -1;
+    mTimestamp = "";
   }
 
 /*
@@ -63,7 +65,7 @@ public class MessageAckParser extends XmppParser
         {
           mTo = emptyStringWhenNull(sr.getAttributeValue(null,"to"));
           mFrom = emptyStringWhenNull(sr.getAttributeValue(null,"from"));
-          mTimestamp = Long.getLong(sr.getAttributeValue(null,"timestamp"),-1);
+          mTimestamp = emptyStringWhenNull(sr.getAttributeValue(null,"timestamp"));
           parseReceived(sr);
           return;
         }
@@ -105,6 +107,13 @@ public class MessageAckParser extends XmppParser
 
   public long getTimestamp() // not really xmmp standard
   {
-    return mTimestamp;
+    try
+    {
+      return DateUtils.parseUTCDate(mTimestamp);
+    }
+    catch (ParseException e)
+    {
+      return System.currentTimeMillis();
+    }
   }
 }

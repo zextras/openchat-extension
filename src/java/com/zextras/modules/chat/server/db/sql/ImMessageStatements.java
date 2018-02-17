@@ -6,6 +6,7 @@ import com.zextras.lib.sql.DbPrefetchIterator;
 import com.zextras.lib.sql.QueryExecutor;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.dbutils.DbUtils;
@@ -57,7 +58,7 @@ public class ImMessageStatements
       "    DESTINATION," +
       "    TEXT," +
       "    REACTIONS," +
-      "    TYPE_EXTRAINFO," +
+      "    TYPE_EXTRAINFO" +
       "    FROM MESSAGE " +
       "    WHERE ID = ? ";
   private final static String sql_select =
@@ -71,7 +72,7 @@ public class ImMessageStatements
       "    DESTINATION," +
       "    TEXT," +
       "    REACTIONS," +
-      "    TYPE_EXTRAINFO," +
+      "    TYPE_EXTRAINFO" +
       "    FROM MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
@@ -88,7 +89,7 @@ public class ImMessageStatements
       "    DESTINATION," +
       "    TEXT," +
       "    REACTIONS," +
-      "    TYPE_EXTRAINFO," +
+      "    TYPE_EXTRAINFO" +
       "    FROM MESSAGE " +
       "    WHERE DESTINATION = ? " +
       "    ORDER BY SENT_TIMESTAMP ASC" +
@@ -104,7 +105,7 @@ public class ImMessageStatements
       "    DESTINATION," +
       "    TEXT," +
       "    REACTIONS," +
-      "    TYPE_EXTRAINFO," +
+      "    TYPE_EXTRAINFO" +
       "    FROM MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
@@ -122,7 +123,7 @@ public class ImMessageStatements
       "    DESTINATION," +
       "    TEXT, " +
       "    REACTIONS," +
-      "    TYPE_EXTRAINFO," +
+      "    TYPE_EXTRAINFO" +
       "    FROM MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
@@ -130,9 +131,15 @@ public class ImMessageStatements
       "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?";
 
-  private final static String sUPSERT_MESSAGE_READ =
-      "INSERT INTO MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) " +
-      "  ON DUPLICATE KEY UPDATE TIMESTAMP=?,MESSAGE_ID=?";
+//  private final static String sUPSERT_MESSAGE_READ =
+//      "INSERT INTO MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) " +
+//      "  ON DUPLICATE KEY UPDATE TIMESTAMP=?,MESSAGE_ID=?";
+
+  private final static String sINSERT_MESSAGE_READ =
+    "INSERT INTO MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) ";
+
+  private final static String sDELETE_MESSAGE_READ =
+    "DELETE FROM MESSAGE_READ WHERE SENDER=? AND DESTINATION=?";
 
   private final static String sSELECT_MESSAGE_READ =
     "SELECT TIMESTAMP FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?)";
@@ -168,7 +175,7 @@ public class ImMessageStatements
       statement.setString(i++, imMessage.getId());
       statement.setLong(i++, imMessage.getSentTimestamp());
       statement.setLong(i++, imMessage.getEditTimestamp());
-      statement.setShort(i++, imMessage.getMessageType());
+      statement.setShort(i++, EventType.toShort(imMessage.getMessageType()));
       statement.setBoolean(i++, imMessage.isMultichat());
       statement.setShort(i++, imMessage.getIndexStatus());
       statement.setString(i++, imMessage.getText());
@@ -196,7 +203,7 @@ public class ImMessageStatements
       statement = connection.prepareStatement(sql_update);
       statement.setLong(i++, imMessage.getSentTimestamp());
       statement.setLong(i++, imMessage.getEditTimestamp());
-      statement.setShort(i++, imMessage.getMessageType());
+      statement.setShort(i++, EventType.toShort(imMessage.getMessageType()));
       statement.setBoolean(i++, imMessage.isMultichat());
       statement.setShort(i++, imMessage.getIndexStatus());
       statement.setString(i++, imMessage.getText());
@@ -357,18 +364,38 @@ public class ImMessageStatements
 
   public void upsertMessageRead(final String sender,final String destination,final long timestamp,final String id) throws SQLException
   {
-    mChatDbHelper.query(sUPSERT_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
+    ChatDbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
+    try
     {
-      @Override
-      public void create(PreparedStatement preparedStatement) throws SQLException
+      mChatDbHelper.query(connection, sDELETE_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
       {
-        int i = 1;
-        preparedStatement.setString(i++,sender);
-        preparedStatement.setString(i++,destination);
-        preparedStatement.setLong(i++,timestamp);
-        preparedStatement.setString(i++,id);
-      }
-    });
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          int i = 1;
+          preparedStatement.setString(i++, sender);
+          preparedStatement.setString(i++, destination);
+        }
+      });
+      mChatDbHelper.query(connection, sINSERT_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          int i = 1;
+          preparedStatement.setString(i++, sender);
+          preparedStatement.setString(i++, destination);
+          preparedStatement.setLong(i++, timestamp);
+          preparedStatement.setString(i++, id);
+        }
+      });
+      connection.commitAndClose();
+    }
+    catch (SQLException e)
+    {
+      connection.rollbackAndClose();
+      throw e;
+    }
   }
 
   public long getLastMessageRead(final String sender, final String destination) throws SQLException

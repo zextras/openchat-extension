@@ -40,6 +40,7 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.Utils;
 import org.openzal.zal.exceptions.ZimbraException;
 import org.openzal.zal.lib.FakeClock;
 
@@ -87,7 +88,8 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        if (mChatProperties.isChatHistoryEnabled(target.toString()))
+        String sender = eventMessage.getSender().withoutResource().toString();
+        if (mChatProperties.isChatHistoryEnabled(sender))
         {
             Account account = mProvisioning.assertAccountByName(target.toString());
             if (mProvisioning.onLocalServer(account))
@@ -101,14 +103,14 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
                   eventMessage.getMessage(),
                   EventType.Chat);
 
-                mImMessageStatements.insert(message);
-              }
-              catch (Exception e)
-              {
-                ChatLog.log.warn("Cannot save history for " + target.withoutSession().toString() + ": " + e.getMessage());
-              }
+              mImMessageStatements.insert(message);
             }
-          return true;
+            catch (Exception e)
+            {
+              ChatLog.log.warn("Cannot save history for " + sender + ": " + Utils.exceptionToString(e));
+            }
+            return true;
+          }
         }
         return false;
       }
@@ -123,29 +125,25 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        if (mChatProperties.isChatHistoryEnabled(target.toString()))
+        String sender = eventMessage.getSender().withoutResource().toString();
+        try
         {
-          try
+          Account account = mProvisioning.assertAccountByName(sender);
+          if (mProvisioning.onLocalServer(account))
           {
-            Account account = mProvisioning.assertAccountByName(target.toString());
-
-            if (mProvisioning.onLocalServer(account))
-            {
-              mImMessageStatements.upsertMessageRead(
-                eventMessage.getSender().resourceAddress().toString(),
-                eventMessage.getTarget().toSingleAddressIncludeResource(),
-                eventMessage.getTimestamp(),
-                eventMessage.getId().toString()
-              );
-            }
+            mImMessageStatements.upsertMessageRead(
+              sender,
+              eventMessage.getTarget().toSingleAddress(),
+              eventMessage.getTimestamp(),
+              eventMessage.getId().toString()
+            );
           }
-          catch (Exception e)
-          {
-            ChatLog.log.warn("Cannot save message_read for " + target.withoutSession().toString() + ": " + e.getMessage());
-          }
-          return true;
         }
-        return false;
+        catch (Exception e)
+        {
+          ChatLog.log.warn("Cannot save message_read for " + target.withoutSession().toString() + ": " + Utils.exceptionToString(e));
+        }
+        return true;
       }
     };
   }
@@ -176,7 +174,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
         {
           histories.query();
         }
-        List<Event> events = query(event.getSender().withoutResource().toString(), event.getWith(), queryId,event.getMax());
+        List<Event> events = query(event.getWith(), sender, queryId,event.getMax());
         mEventManager.dispatchUnfilteredEvents(events);
 
         return true;
@@ -327,7 +325,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       }
     } catch (SQLException e)
     {
-      throw new ChatException(e.getMessage());
+      throw new ChatException(Utils.exceptionToString(e));
     }
 
     return events;

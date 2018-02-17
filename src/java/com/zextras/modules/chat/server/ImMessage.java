@@ -8,7 +8,7 @@ public class ImMessage
   private final String mId;
   private final long mEditTimestamp;
   private final long mSentTimestamp;
-  private final short mMessageType;
+  private final EventType mMessageType;
   private final boolean mIsMultichat;
   private final short mIndexStatus;
   private final String mSender;
@@ -29,7 +29,7 @@ public class ImMessage
       id,
       sentTimestamp,
       (long) 0,
-      (short) 0,
+      EventType.Chat,
       false,
       (short) 0,
       sender,
@@ -51,7 +51,7 @@ public class ImMessage
       id,
       System.currentTimeMillis(),
       (long) 0,
-      (short)type.ordinal(),
+      type,
       false,
       (short) 0,
       sender,
@@ -65,7 +65,7 @@ public class ImMessage
     String id,
     long sentTimestamp,
     long editTimestamp,
-    short messageType,
+    EventType messageType,
     boolean isMultichat,
     short indexStatus,
     String sender,
@@ -102,7 +102,7 @@ public class ImMessage
     return mEditTimestamp;
   }
 
-  public short getMessageType()
+  public EventType getMessageType()
   {
     return mMessageType;
   }

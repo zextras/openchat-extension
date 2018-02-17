@@ -91,14 +91,6 @@ public class ChatDbHelper
     }
   }
 
-  static class NoResults implements ResultSetFactory
-  {
-    @Override
-    public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
-    {
-    }
-  }
-
   public interface ResultSetFactory
   {
     void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException;
@@ -120,11 +112,6 @@ public class ChatDbHelper
     query(sql, new NoParameters() ,rsFactory);
   }
 
-  public void query(String sql,ParametersFactory parametersFactory) throws SQLException
-  {
-    query(sql, parametersFactory ,new NoResults());
-  }
-
   public void query(String sql, ParametersFactory parametersFactory, ResultSetFactory rsFactory) throws SQLException
   {
     DbConnection connection = new DbConnection(mDbHandler.getConnection());
@@ -138,12 +125,12 @@ public class ChatDbHelper
     }
   }
 
-  protected void query(DbConnection connection, String query,ParametersFactory parametersFactory) throws SQLException
+  public void query(DbConnection connection, String query,ParametersFactory parametersFactory) throws SQLException
   {
-    executeQuery(connection,query, parametersFactory, new NoResults());
+    executeQuery(connection,query, parametersFactory);
   }
 
-  protected void query(DbConnection connection, String query,ResultSetFactory rsFactory) throws SQLException
+  public void query(DbConnection connection, String query,ResultSetFactory rsFactory) throws SQLException
   {
     executeQuery(connection,query, new NoParameters(), rsFactory);
   }

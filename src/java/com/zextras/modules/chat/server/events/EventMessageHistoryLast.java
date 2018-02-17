@@ -48,7 +48,7 @@ public class EventMessageHistoryLast extends Event
     String lastId
   )
   {
-    this(eventId,sender,queryId,messageTo,firstId,lastId,(Long)null,0);
+    this(eventId,sender,queryId,messageTo,firstId,lastId,null,0);
   }
 
   public EventMessageHistoryLast(
@@ -58,7 +58,7 @@ public class EventMessageHistoryLast extends Event
     SpecificAddress messageTo,
     String firstId,
     String lastId,
-    long count,
+    Long count,
     long timestamp
   )
   {
@@ -94,6 +94,11 @@ public class EventMessageHistoryLast extends Event
   public String getLastId()
   {
     return mLastId;
+  }
+
+  public boolean hasCount()
+  {
+    return mCount != null;
   }
 
   @Nullable

@@ -22,8 +22,8 @@ import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.SendMessageAck;
-import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +61,7 @@ public class SoapCommandMessageReceived extends SoapCommand
           mSenderAddress,
           new SpecificAddress(mParameterMap.get("target_address")),
           eventId,
-          Long.valueOf(mParameterMap.get("message_date")),
+          NumberUtils.toLong(mParameterMap.get("message_date"),System.currentTimeMillis()),
           sessionUUID)
         );
   }

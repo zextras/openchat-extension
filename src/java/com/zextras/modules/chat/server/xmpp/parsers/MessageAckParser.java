@@ -29,10 +29,12 @@ public class MessageAckParser extends XmppParser
   private String mTo;
   private String mFrom;
   private String mMessageId;
+  private long   mTimestamp;
 
   public MessageAckParser(InputStream xmlInput, SchemaProvider schemaProvider)
   {
     super("jabber-client.xsd", xmlInput, schemaProvider);
+    mTimestamp = -1;
   }
 
 /*
@@ -61,6 +63,7 @@ public class MessageAckParser extends XmppParser
         {
           mTo = emptyStringWhenNull(sr.getAttributeValue(null,"to"));
           mFrom = emptyStringWhenNull(sr.getAttributeValue(null,"from"));
+          mTimestamp = Long.getLong(sr.getAttributeValue(null,"timestamp"),-1);
           parseReceived(sr);
           return;
         }
@@ -98,5 +101,10 @@ public class MessageAckParser extends XmppParser
   public String getMessageId()
   {
     return mMessageId;
+  }
+
+  public long getTimestamp() // not really xmmp standard
+  {
+    return mTimestamp;
   }
 }

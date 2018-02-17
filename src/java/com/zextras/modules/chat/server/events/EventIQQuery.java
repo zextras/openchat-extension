@@ -34,6 +34,7 @@ public class EventIQQuery extends Event
   private String mWith;
   private String mStart;
   private String mEnd;
+  private final long mMax;
 
   public EventIQQuery(
     EventId eventId,
@@ -43,7 +44,21 @@ public class EventIQQuery extends Event
     String node,
     String with,
     String start,
-    String end
+    String end)
+  {
+    this(eventId,sender,queryId,messageTo,node,with,start,end,Long.MAX_VALUE);
+  }
+
+  public EventIQQuery(
+    EventId eventId,
+    SpecificAddress sender,
+    String queryId,
+    Target messageTo,
+    String node,
+    String with,
+    String start,
+    String end,
+    long max
   )
   {
     super(eventId,sender,messageTo);
@@ -52,6 +67,7 @@ public class EventIQQuery extends Event
     mWith = with;
     mStart = start;
     mEnd = end;
+    mMax = max;
   }
 
   @Override
@@ -83,6 +99,11 @@ public class EventIQQuery extends Event
   public String getEnd()
   {
     return mEnd;
+  }
+
+  public long getMax()
+  {
+    return mMax;
   }
 }
 

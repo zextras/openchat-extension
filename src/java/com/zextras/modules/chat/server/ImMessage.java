@@ -1,6 +1,8 @@
 package com.zextras.modules.chat.server;
 
 
+import com.zextras.modules.chat.server.events.EventType;
+
 public class ImMessage
 {
   private final String mId;
@@ -14,7 +16,6 @@ public class ImMessage
   private final String mText;
   private final String mReactions;
   private final String mTypeExtrainfo;
-  private String mDelivered;
 
   public ImMessage(
     String id,
@@ -35,7 +36,6 @@ public class ImMessage
       destination,
       text,
       "",
-      "",
       "");
   }
 
@@ -43,19 +43,20 @@ public class ImMessage
     String id,
     String sender,
     String destination,
-    String text)
+    String text,
+    EventType type
+  )
   {
     this(
       id,
       System.currentTimeMillis(),
       (long) 0,
-      (short) 0,
+      (short)type.ordinal(),
       false,
       (short) 0,
       sender,
       destination,
       text,
-      "",
       "",
       "");
   }
@@ -71,8 +72,7 @@ public class ImMessage
     String destination,
     String text,
     String reactions,
-    String typeExtrainfo,
-    String delivered)
+    String typeExtrainfo)
   {
     mId = id;
     mSentTimestamp = sentTimestamp;
@@ -85,7 +85,6 @@ public class ImMessage
     mDestination = destination;
     mReactions = reactions;
     mTypeExtrainfo = typeExtrainfo;
-    mDelivered = delivered;
   }
 
   public String getId()
@@ -141,15 +140,5 @@ public class ImMessage
   public String getTypeExtrainfo()
   {
     return mTypeExtrainfo;
-  }
-
-  public String getDelivered()
-  {
-    return mDelivered;
-  }
-
-  public void setDelivered(String delivered)
-  {
-    mDelivered = delivered;
   }
 }

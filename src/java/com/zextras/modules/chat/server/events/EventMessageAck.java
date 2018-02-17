@@ -17,14 +17,11 @@
 
 package com.zextras.modules.chat.server.events;
 
-//import com.zextras.annotations.VisibleForTesting;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.encoding.Encoder;
-import com.zextras.modules.chat.server.encoding.EncoderFactory;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 
+// TODO: it's not compatible wit older code
 public class EventMessageAck extends Event
 {
   public EventId getMessageId()
@@ -48,12 +45,11 @@ public class EventMessageAck extends Event
 
   private final long mTimestamp;
 
-  public EventMessageAck(SpecificAddress sender, SpecificAddress target, EventId messageId)
+  public EventMessageAck(SpecificAddress sender, SpecificAddress target, EventId messageId, long timestamp)
   {
-    this(EventId.randomUUID(), sender, target, messageId, System.currentTimeMillis());
+    this(EventId.randomUUID(), sender, target, messageId, timestamp);
   }
 
-  //@VisibleForTesting
   public EventMessageAck(EventId id, SpecificAddress sender, SpecificAddress target, EventId messageId, long timestamp)
   {
     super(id, sender, new Target(target));

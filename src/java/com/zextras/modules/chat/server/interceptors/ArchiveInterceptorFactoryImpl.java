@@ -32,8 +32,10 @@ import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.events.EventMessage;
+import com.zextras.modules.chat.server.events.EventMessageAck;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
+import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import org.openzal.zal.Account;
@@ -54,7 +56,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Singleton
-public class UserHistoryInterceptorFactoryImpl extends StubEventInterceptorFactory implements UserHistoryInterceptorFactory
+public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory implements ArchiveInterceptorFactory
 {
   private final Provisioning   mProvisioning;
   private final ChatProperties mChatProperties;
@@ -63,7 +65,7 @@ public class UserHistoryInterceptorFactoryImpl extends StubEventInterceptorFacto
   private final Map<String,MessageHistory> mMessages;
 
   @Inject
-  public UserHistoryInterceptorFactoryImpl(
+  public ArchiveInterceptorFactoryImpl(
     Provisioning provisioning,
     ChatProperties chatProperties,
     ImMessageStatements imMessageStatements,
@@ -87,24 +89,59 @@ public class UserHistoryInterceptorFactoryImpl extends StubEventInterceptorFacto
       {
         if (mChatProperties.isChatHistoryEnabled(target.toString()))
         {
+            Account account = mProvisioning.assertAccountByName(target.toString());
+            if (mProvisioning.onLocalServer(account))
+            {
+              try
+              {
+                ImMessage message = new ImMessage(
+                  eventMessage.getId().toString(),
+                  eventMessage.getSender().withoutResource().toString(),
+                  target.withoutResource().toString(),
+                  eventMessage.getMessage(),
+                  EventType.Chat);
+
+                mImMessageStatements.insert(message);
+              }
+              catch (Exception e)
+              {
+                ChatLog.log.warn("Cannot save history for " + target.withoutSession().toString() + ": " + e.getMessage());
+              }
+            }
+          return true;
+        }
+        return false;
+      }
+    };
+  }
+
+  @Override
+  public EventInterceptor interpret(final EventMessageAck eventMessage)
+  {
+    return new EventInterceptor()
+    {
+      @Override
+      public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
+      {
+        if (mChatProperties.isChatHistoryEnabled(target.toString()))
+        {
           try
           {
             Account account = mProvisioning.assertAccountByName(target.toString());
 
-            ImMessage message = new ImMessage(
-              eventMessage.getId().toString(),
-              eventMessage.getSender().withoutResource().toString(),
-              target.withoutResource().toString(),
-              eventMessage.getMessage());
-
             if (mProvisioning.onLocalServer(account))
             {
-              mImMessageStatements.insert(message);
+              mImMessageStatements.upsertMessageRead(
+                eventMessage.getSender().resourceAddress().toString(),
+                eventMessage.getTarget().toSingleAddressIncludeResource(),
+                eventMessage.getTimestamp(),
+                eventMessage.getId().toString()
+              );
             }
           }
           catch (Exception e)
           {
-            ChatLog.log.warn("Cannot save history for " + target.withoutSession().toString() + ": " + e.getMessage());
+            ChatLog.log.warn("Cannot save message_read for " + target.withoutSession().toString() + ": " + e.getMessage());
           }
           return true;
         }
@@ -139,7 +176,7 @@ public class UserHistoryInterceptorFactoryImpl extends StubEventInterceptorFacto
         {
           histories.query();
         }
-        List<Event> events = query(event.getSender().withoutResource().toString(), event.getWith(), queryId);
+        List<Event> events = query(event.getSender().withoutResource().toString(), event.getWith(), queryId,event.getMax());
         mEventManager.dispatchUnfilteredEvents(events);
 
         return true;
@@ -216,55 +253,78 @@ public class UserHistoryInterceptorFactoryImpl extends StubEventInterceptorFacto
     }
   }
 
-  private List<Event> query(String user1,String user2,String queryId) throws ChatException
+  private List<Event> query(String user1,String user2,String queryId,long max) throws ChatException
   {
     List<Event> events = new ArrayList<Event>();
 
     try
     {
-      DbPrefetchIterator<ImMessage> it;
-      if (user2.isEmpty())
-      {
-        it = mImMessageStatements.query(user1);
-      }
-      else
-      {
-        it = mImMessageStatements.query(user1, user2);
-      }
-
-      String lastMessageId = "";
-      String firstMessageId = "";
       String sender = mProvisioning.getLocalServer().getName();
-      while (it.hasNext())
+
+
+      // TODO:
+      //
+      // e' da aggiungere il timestamp sul messaggio EventMessageHistoryLast? c'e' in tutti gli event, magari lo riciclo
+      //
+      if (max == 0)
       {
-        ImMessage message = it.next();
-        lastMessageId = message.getId();
-        if (firstMessageId.isEmpty())
-        {
-          firstMessageId = lastMessageId;
-        }
-        events.add(new EventMessageHistory(
+        long timestamp = mImMessageStatements.getLastMessageRead(user1,user2);
+        long count = mImMessageStatements.getCountMessageToRead(user1,user2,timestamp);
+        events.add(new EventMessageHistoryLast(
           EventId.randomUUID(),
           new SpecificAddress(sender),
           queryId,
           new SpecificAddress(user1),
-          new EventMessage(
-            EventId.fromString(message.getId()),
-            new SpecificAddress(message.getSender()),
-            new Target(new SpecificAddress(message.getDestination())),
-            message.getText(),
-            new FakeClock(message.getSentTimestamp())
-          )
+          "",
+          "",
+          max,
+          count
         ));
       }
-      events.add(new EventMessageHistoryLast(
-        EventId.randomUUID(),
-        new SpecificAddress(sender),
-        queryId,
-        new SpecificAddress(user1),
-        firstMessageId,
-        lastMessageId
-      ));
+      else
+      {
+        DbPrefetchIterator<ImMessage> it;
+        if (user2.isEmpty())
+        {
+          it = mImMessageStatements.query(user1);
+        } else
+        {
+          it = mImMessageStatements.query(user1, user2);
+        }
+
+        String lastMessageId = "";
+        String firstMessageId = "";
+        while (it.hasNext())
+        {
+          ImMessage message = it.next();
+          lastMessageId = message.getId();
+          if (firstMessageId.isEmpty())
+          {
+            firstMessageId = lastMessageId;
+          }
+          events.add(new EventMessageHistory(
+            EventId.randomUUID(),
+            new SpecificAddress(sender),
+            queryId,
+            new SpecificAddress(user1),
+            new EventMessage(
+              EventId.fromString(message.getId()),
+              new SpecificAddress(message.getSender()),
+              new Target(new SpecificAddress(message.getDestination())),
+              message.getText(),
+              new FakeClock(message.getSentTimestamp())
+            )
+          ));
+        }
+        events.add(new EventMessageHistoryLast(
+          EventId.randomUUID(),
+          new SpecificAddress(sender),
+          queryId,
+          new SpecificAddress(user1),
+          firstMessageId,
+          lastMessageId
+        ));
+      }
     } catch (SQLException e)
     {
       throw new ChatException(e.getMessage());

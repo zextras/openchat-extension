@@ -37,18 +37,21 @@ public class SendMessageAck implements ChatOperation
   private final SpecificAddress mSender;
   private final SpecificAddress mTarget;
   private final EventId         mMessageId;
-  private final SessionUUID mSessionUUID;
+  private final long mTimestamp;
+  private final SessionUUID     mSessionUUID;
 
   public SendMessageAck(
     SpecificAddress sender,
     SpecificAddress target,
     EventId messageId,
+    long timestamp,
     SessionUUID sessionUUID
   )
   {
     mSender = sender;
     mTarget = target;
     mMessageId = messageId;
+    mTimestamp = timestamp;
     mSessionUUID = sessionUUID;
   }
 
@@ -64,7 +67,8 @@ public class SendMessageAck implements ChatOperation
       new EventMessageAck(
         mSender,
         mTarget.withoutSession(),
-        mMessageId
+        mMessageId,
+        mTimestamp
       )
     );
   }

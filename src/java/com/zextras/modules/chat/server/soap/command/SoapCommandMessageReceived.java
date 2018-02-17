@@ -17,26 +17,20 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
-import com.zextras.lib.json.JSONArray;
-import com.zextras.lib.json.JSONException;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.SendMessageAck;
+import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
 
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public class SoapCommandMessageReceived extends SoapCommand
 {
-  private static final Pattern COMPILE = Pattern.compile(",");
-  private JSONArray mMessageIds;
-
   public SoapCommandMessageReceived(
     SpecificAddress senderAddress,
     Map<String, String> parameters
@@ -45,53 +39,30 @@ public class SoapCommandMessageReceived extends SoapCommand
     super(senderAddress,
           parameters
     );
-    mMessageIds = null;
   }
 
-  public JSONArray getMessageIds()
-  {
-    if (mMessageIds == null)
-    {
-      try
-      {
-        mMessageIds = JSONArray.fromString(mParameterMap.get("message_ids"));
-      }
-      catch (JSONException e)
-      {
-        mMessageIds = new JSONArray();
-      }
-
-      if (mMessageIds.isEmpty())
-      {
-        mMessageIds = new JSONArray(Arrays.asList(COMPILE.split(mParameterMap.get("message_ids"))));
-      }
-    }
-
-    return mMessageIds;
-  }
-
+  // TODO: not more compatible with openchat or older talk
   @Override
   public List<ChatOperation> createOperationList() throws MissingParameterException
   {
-    JSONArray message_ids = getMessageIds();
-
     SessionUUID sessionUUID = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
-    LinkedList<ChatOperation> operations = new LinkedList<ChatOperation>();
-
-    for (int i = 0; i < message_ids.length(); i++)
+    String id = mParameterMap.get("message_id");
+    EventId eventId;
+    if (id == null || id.isEmpty())
     {
-      String id = message_ids.getString(i);
-      EventId message_id = EventId.fromString( id );
-      operations.add(
-        new SendMessageAck(
-          mSenderAddress,
-          getTargetAddress(),
-          message_id,
-          sessionUUID
-        )
-      );
+      eventId = EventId.randomUUID();
+    }
+    else
+    {
+      eventId = EventId.fromString(id);
     }
 
-    return operations;
+    return Collections.<ChatOperation>singletonList(new SendMessageAck(
+          mSenderAddress,
+          new SpecificAddress(mParameterMap.get("target_address")),
+          eventId,
+          Long.valueOf(mParameterMap.get("message_date")),
+          sessionUUID)
+        );
   }
 }

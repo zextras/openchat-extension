@@ -17,16 +17,13 @@
 
 package com.zextras.modules.chat.server.xmpp.handlers;
 
-import com.zextras.modules.chat.server.events.EventManager;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.operations.ChatOperation;
-import com.zextras.modules.chat.server.operations.QueryArchive;
+import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;
 import com.zextras.modules.chat.server.xmpp.XmppSession;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import com.zextras.modules.chat.server.xmpp.parsers.IQQueryXmppParser;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
-import org.openzal.zal.Provisioning;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
@@ -35,23 +32,17 @@ import java.util.List;
 
 public class IQQueryHandler implements StanzaHandler
 {
-  private final Provisioning mProvisioning;
   private final StanzaProcessor.XmppConnectionHandler mXmppConnectionHandler;
-  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
-  private final EventManager mEventManager;
+  private final QueryArchiveFactory mQueryArchiveFactory;
   private IQQueryXmppParser mParser = null;
 
   public IQQueryHandler(
-    Provisioning provisioning,
     StanzaProcessor.XmppConnectionHandler xmppConnectionHandler,
-    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
-    EventManager eventManager
+    QueryArchiveFactory queryArchiveFactory
   )
   {
-    mProvisioning = provisioning;
     mXmppConnectionHandler = xmppConnectionHandler;
-    mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
-    mEventManager = eventManager;
+    mQueryArchiveFactory = queryArchiveFactory;
   }
 
   @Override
@@ -59,16 +50,14 @@ public class IQQueryHandler implements StanzaHandler
   {
     XmppSession session = mXmppConnectionHandler.getSession();
 
-    return Arrays.<ChatOperation>asList(new QueryArchive(
-      mProvisioning,
-      mUserHistoryInterceptorFactoryImpl2,
-      mEventManager,
+    return Arrays.<ChatOperation>asList(mQueryArchiveFactory.create(
       session.getMainAddress(),
       mParser.getQueryId(),
       mParser.getWith(),
       mParser.getStart(),
       mParser.getEnd(),
-      mParser.getNode()
+      mParser.getNode(),
+      mParser.getMax()
     ));
   }
 

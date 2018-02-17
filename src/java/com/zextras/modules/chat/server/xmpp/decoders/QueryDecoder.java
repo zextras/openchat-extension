@@ -41,7 +41,8 @@ public class QueryDecoder implements EventDecoder
       parser.getNode(),
       parser.getWith(),
       parser.getStart(),
-      parser.getEnd()
+      parser.getEnd(),
+      parser.getMax()
     ));
   }
 }

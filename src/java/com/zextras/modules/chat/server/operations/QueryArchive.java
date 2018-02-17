@@ -17,6 +17,8 @@
 
 package com.zextras.modules.chat.server.operations;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -29,7 +31,7 @@ import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
+import com.zextras.modules.chat.server.interceptors.ArchiveInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Server;
@@ -47,6 +49,7 @@ import java.util.List;
  */
 public class QueryArchive implements ChatOperation
 {
+  private final long mMax;
   private final Provisioning mProvisioning;
   private final EventManager mEventManager;
   private final SpecificAddress mSenderAddress;
@@ -55,20 +58,23 @@ public class QueryArchive implements ChatOperation
   private final String mStart;
   private final String mEnd;
   private final String mNode;
-  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
+  private final ArchiveInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
 
+  @Inject
   public QueryArchive(
+    @Assisted("senderAddress") SpecificAddress senderAddress,
+    @Assisted("queryid") String queryid,
+    @Assisted("with") String with,
+    @Assisted("start") String start,
+    @Assisted("end") String end,
+    @Assisted("node") String node,
+    @Assisted("max") long max,
     Provisioning provisioning,
-    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
-    EventManager eventManager,
-    SpecificAddress senderAddress,
-    String queryid,
-    String with,
-    String start,
-    String end,
-    String node
+    ArchiveInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
+    EventManager eventManager
   )
   {
+    mMax = max;
     mProvisioning = provisioning;
     mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
     mEventManager = eventManager;
@@ -105,7 +111,8 @@ public class QueryArchive implements ChatOperation
         "",
         mWith,
         "",
-        ""
+        "",
+        mMax
       ));
 
       mEventManager.dispatchUnfilteredEvents(historyEvents);

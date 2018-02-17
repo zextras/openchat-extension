@@ -51,6 +51,7 @@ public class MessageAckHandler implements StanzaHandler
         mSession.getExposedAddress(),
         target,
         messageId,
+        System.currentTimeMillis(),
         mSession.getId()
       )
     );

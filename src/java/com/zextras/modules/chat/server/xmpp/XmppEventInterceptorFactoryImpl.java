@@ -52,6 +52,7 @@ public class XmppEventInterceptorFactoryImpl extends StubEventInterceptorFactory
           target,
           eventMessage.getSender().withoutSession(),
           eventMessage.getId(),
+          eventMessage.getTimestamp(),
           mConnectionHandler.getSession().getId()
         );
         eventManager.execOperations(

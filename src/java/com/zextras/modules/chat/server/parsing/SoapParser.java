@@ -22,9 +22,8 @@ import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
+import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import com.zextras.modules.chat.server.soap.command.*;
@@ -63,9 +62,8 @@ public class SoapParser implements Parser
   final         SoapSessionFactory mSoapSessionFactory;
   final         ZimbraContext      mZimbraContext;
   final         SoapResponse       mSoapResponse;
-  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
-  private final EventManager mEventManager;
   private final Clock mClock;
+  private final QueryArchiveFactory mQueryArchiveFactory;
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
@@ -85,9 +83,8 @@ public class SoapParser implements Parser
     ChatProperties chatProperties,
     ActivityManager activityManager,
     EventQueueFactory eventQueueFactory,
-    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
-    EventManager eventManager,
-    Clock clock
+    Clock clock,
+    QueryArchiveFactory queryArchiveFactory
   )
   {
     mProvisioning = provisioning;
@@ -99,9 +96,8 @@ public class SoapParser implements Parser
     mSoapSessionFactory = soapSessionFactory;
     mZimbraContext = zimbraContext;
     mSoapResponse = soapResponse;
-    mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
-    mEventManager = eventManager;
     mClock = clock;
+    mQueryArchiveFactory = queryArchiveFactory;
     mCommandCreatorMap = new HashMap<String, CommandCreator>(32);
     setupCommands();
   }
@@ -227,9 +223,7 @@ public class SoapParser implements Parser
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
       { return new SoapCommandQueryArchive(
-        mProvisioning,
-        mUserHistoryInterceptorFactoryImpl2,
-        mEventManager,
+        mQueryArchiveFactory,
         mSoapResponse,
         mSenderAddress,
         commandParameters);

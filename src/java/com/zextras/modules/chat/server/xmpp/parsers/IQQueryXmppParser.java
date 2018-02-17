@@ -42,6 +42,7 @@ public class IQQueryXmppParser extends XmppParser
   private String mStart;
   private String mEnd;
   private String mSender;
+  private long mMax;
 
   public IQQueryXmppParser(
     InputStream xmlInput,
@@ -57,6 +58,7 @@ public class IQQueryXmppParser extends XmppParser
     mStart = "";
     mEnd = "";
     mSender = "";
+    mMax = Long.MAX_VALUE;
   }
 
 /*
@@ -136,6 +138,11 @@ public class IQQueryXmppParser extends XmppParser
               parseX(sr);
               continue;
             }
+            case "set":
+            {
+              parseSet(sr);
+              continue;
+            }
           }
           break;
         }
@@ -206,6 +213,33 @@ public class IQQueryXmppParser extends XmppParser
     }
   }
 
+  private void parseSet(XMLStreamReader2 sr) throws XMLStreamException
+  {
+    String var = "";
+    while (sr.hasNext())
+    {
+      switch (sr.getEventType())
+      {
+        case XMLStreamConstants.CHARACTERS:
+        {
+          switch(var)
+          {
+            case "max":
+              mMax = Long.valueOf(sr.getText());
+              break;
+          }
+          break;
+        }
+        case XMLStreamConstants.END_ELEMENT:
+        {
+          var = "";
+          break;
+        }
+      }
+      sr.next();
+    }
+  }
+
   @NotNull
   public String getId()
   {
@@ -252,5 +286,10 @@ public class IQQueryXmppParser extends XmppParser
   public SpecificAddress getSender()
   {
     return new SpecificAddress(mSender);
+  }
+
+  public long getMax()
+  {
+    return mMax;
   }
 }

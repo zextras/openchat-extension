@@ -20,16 +20,14 @@ package com.zextras.modules.chat.server.soap.command;
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventId;
-import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
-import com.zextras.modules.chat.server.interceptors.UserHistoryInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.operations.ChatOperation;
-import com.zextras.modules.chat.server.operations.QueryArchive;
+import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import org.apache.commons.lang3.StringUtils;
-import org.openzal.zal.Provisioning;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.openzal.zal.soap.SoapResponse;
 
 import java.util.Arrays;
@@ -38,24 +36,18 @@ import java.util.Map;
 
 public class SoapCommandQueryArchive extends SoapCommand
 {
-  private final Provisioning mProvisioning;
-  private final UserHistoryInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
-  private final EventManager mEventManager;
+  private final QueryArchiveFactory mQueryArchiveFactory;
   private final SoapResponse mSoapResponse;
 
   public SoapCommandQueryArchive(
-    Provisioning provisioning,
-    UserHistoryInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
-    EventManager eventManager,
+    QueryArchiveFactory queryArchiveFactory,
     SoapResponse soapResponse,
     SpecificAddress senderAddress,
     Map<String, String> parameters
   )
   {
     super(senderAddress, parameters);
-    mProvisioning = provisioning;
-    mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
-    mEventManager = eventManager;
+    mQueryArchiveFactory = queryArchiveFactory;
     mSoapResponse = soapResponse;
   }
 
@@ -67,19 +59,17 @@ public class SoapCommandQueryArchive extends SoapCommand
     final String start = StringUtils.defaultString(mParameterMap.get(START));
     final String end = StringUtils.defaultString(mParameterMap.get(END));
     final String with = StringUtils.defaultString(mParameterMap.get(WITH));
-    final String max = StringUtils.defaultString(mParameterMap.get(MAX));
+    final long max = NumberUtils.toLong(mParameterMap.get(MAX),Long.MAX_VALUE);
     final EventId queryId = EventId.randomUUID();
 
-    ChatOperation sendMessage = new QueryArchive(
-      mProvisioning,
-      mUserHistoryInterceptorFactoryImpl2,
-      mEventManager,
+    ChatOperation sendMessage = mQueryArchiveFactory.create(
       mSenderAddress,
       queryId.toString(),
       with,
       start,
       end,
-      node
+      node,
+      max
     );
 
     ChatSoapResponse response = new ChatSoapResponse();

@@ -1,11 +1,15 @@
 package com.zextras.modules.chat.server.db.sql;
 
 import com.google.inject.Inject;
+import com.zextras.lib.ChatDbHelper;
 import com.zextras.lib.sql.DbPrefetchIterator;
 import com.zextras.lib.sql.QueryExecutor;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.dbutils.DbUtils;
+import org.openzal.zal.Pair;
 import org.openzal.zal.exceptions.NoSuchMessageException;
 
 import java.sql.Connection;
@@ -27,9 +31,8 @@ public class ImMessageStatements
       "    SENDER," +
       "    DESTINATION," +
       "    REACTIONS," +
-      "    TYPE_EXTRAINFO," +
-      "    DELIVERED)" +
-      "    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
+      "    TYPE_EXTRAINFO)" +
+      "    VALUES(?,?,?,?,?,?,?,?,?,?,?)";
   private final static String sql_update =
     "    UPDATE MESSAGE " +
       "    SET SENT_TIMESTAMP = ?," +
@@ -42,7 +45,6 @@ public class ImMessageStatements
       "    DESTINATION = ?," +
       "    REACTIONS = ?," +
       "    TYPE_EXTRAINFO = ?," +
-      "    DELIVERED = ?" +
       "    WHERE ID = ?";
   private final static String sql_select_message =
     "    SELECT ID," +
@@ -56,7 +58,6 @@ public class ImMessageStatements
       "    TEXT," +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO," +
-      "    DELIVERED" +
       "    FROM MESSAGE " +
       "    WHERE ID = ? ";
   private final static String sql_select =
@@ -71,7 +72,6 @@ public class ImMessageStatements
       "    TEXT," +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO," +
-      "    DELIVERED" +
       "    FROM MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
@@ -89,7 +89,6 @@ public class ImMessageStatements
       "    TEXT," +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO," +
-      "    DELIVERED" +
       "    FROM MESSAGE " +
       "    WHERE DESTINATION = ? " +
       "    ORDER BY SENT_TIMESTAMP ASC" +
@@ -106,7 +105,6 @@ public class ImMessageStatements
       "    TEXT," +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO," +
-      "    DELIVERED" +
       "    FROM MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
@@ -125,7 +123,6 @@ public class ImMessageStatements
       "    TEXT, " +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO," +
-      "    DELIVERED" +
       "    FROM MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
@@ -133,16 +130,29 @@ public class ImMessageStatements
       "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?";
 
+  private final static String sUPSERT_MESSAGE_READ =
+      "INSERT INTO MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) " +
+      "  ON DUPLICATE KEY UPDATE TIMESTAMP=?,MESSAGE_ID=?";
+
+  private final static String sSELECT_MESSAGE_READ =
+    "SELECT TIMESTAMP FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?)";
+
+  private final static String sCOUNT_MESSAGE_TO_READ =
+    "SELECT COUNT(*) FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ? AND TIMESTAMP > ?)";
+
   private final DbHandler mDbHandler;
+  private final ChatDbHelper mChatDbHelper;
   private final MessageFactory mMessageFactory;
 
   @Inject
   public ImMessageStatements(
     DbHandler dbHandler,
+    ChatDbHelper chatDbHelper,
     MessageFactory messageFactory
   )
   {
     mDbHandler = dbHandler;
+    mChatDbHelper = chatDbHelper;
     mMessageFactory = messageFactory;
   }
 
@@ -166,7 +176,6 @@ public class ImMessageStatements
       statement.setString(i++, imMessage.getDestination());
       statement.setString(i++, imMessage.getReactions());
       statement.setString(i++, imMessage.getTypeExtrainfo());
-      statement.setString(i++, imMessage.getDelivered());
       statement.execute();
     }
     finally
@@ -195,7 +204,6 @@ public class ImMessageStatements
       statement.setString(i++, imMessage.getDestination());
       statement.setString(i++, imMessage.getReactions());
       statement.setString(i++, imMessage.getTypeExtrainfo());
-      statement.setString(i++, imMessage.getDelivered());
       statement.setString(i++, imMessage.getId());
       statement.execute();
     }
@@ -345,6 +353,77 @@ public class ImMessageStatements
       DbUtils.closeQuietly(query);
       DbUtils.closeQuietly(connection);
     }
+  }
+
+  public void upsertMessageRead(final String sender,final String destination,final long timestamp,final String id) throws SQLException
+  {
+    mChatDbHelper.query(sUPSERT_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
+    {
+      @Override
+      public void create(PreparedStatement preparedStatement) throws SQLException
+      {
+        int i = 1;
+        preparedStatement.setString(i++,sender);
+        preparedStatement.setString(i++,destination);
+        preparedStatement.setLong(i++,timestamp);
+        preparedStatement.setString(i++,id);
+      }
+    });
+  }
+
+  public long getLastMessageRead(final String sender, final String destination) throws SQLException
+  {
+    final long[] timestamp = {0};
+
+    mChatDbHelper.query(sSELECT_MESSAGE_READ,
+      new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          int i = 1;
+          preparedStatement.setString(i++, sender);
+          preparedStatement.setString(i++, destination);
+        }
+      },
+      new ChatDbHelper.ResultSetFactory()
+      {
+        @Override
+        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        {
+          timestamp[0] = rs.getLong(1);
+        }
+      });
+
+    return timestamp[0];
+  }
+
+  public long getCountMessageToRead(final String sender, final String destination,final long timestamp) throws SQLException
+  {
+    final long[] count = {0};
+
+    mChatDbHelper.query(sCOUNT_MESSAGE_TO_READ,
+      new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          int i = 1;
+          preparedStatement.setString(i++, sender);
+          preparedStatement.setString(i++, destination);
+          preparedStatement.setLong(i++, timestamp);
+        }
+      },
+      new ChatDbHelper.ResultSetFactory()
+      {
+        @Override
+        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        {
+          count[0] = rs.getLong(1);
+        }
+      });
+
+    return count[0];
   }
 
   private void assertDBConnection(Connection connection) throws SQLException

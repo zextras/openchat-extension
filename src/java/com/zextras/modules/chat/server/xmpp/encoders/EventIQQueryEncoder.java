@@ -49,6 +49,9 @@ public class EventIQQueryEncoder extends XmppEncoder
         <value>juliet@capulet.lit</value>
       </field>
     </x>
+    <set xmlns='http://jabber.org/protocol/rsm'>
+      <max>10</max>
+    </set>
   </query>
 </iq>
 */
@@ -122,6 +125,14 @@ public class EventIQQueryEncoder extends XmppEncoder
             sw.writeEndElement();
           }
         sw.writeEndElement();
+        if (mEventIQQuery.getMax() != Long.MAX_VALUE)
+        {
+          sw.writeStartElement("","set","http://jabber.org/protocol/rsm" );
+          sw.writeStartElement("max");
+          sw.writeLong(mEventIQQuery.getMax());
+          sw.writeEndElement();
+          sw.writeEndElement();
+        }
       }
       sw.writeEndElement();
     sw.writeEndElement();

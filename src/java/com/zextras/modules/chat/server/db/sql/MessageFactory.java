@@ -23,7 +23,6 @@ public class MessageFactory implements ResultSetParser<ImMessage>
       rs.getString(i++),
       rs.getString(i++),
       rs.getString(i++),
-      rs.getString(i++),
       rs.getString(i++)
     );
   }

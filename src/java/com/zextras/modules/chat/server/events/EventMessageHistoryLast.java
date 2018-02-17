@@ -21,11 +21,13 @@ import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryLastEncoder;
+
+import javax.annotation.Nullable;
 
 /**
  * @see EventMessageHistoryLast
- * @see EventMessageHistoryLastEncoder
+ * @see com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryLastEncoder
+ * @see com.zextras.modules.chat.server.soap.encoders.EventMessageHistoryLastEncoder
  * @see com.zextras.modules.chat.server.xmpp.parsers.MessageHistoryLastParser
  */
 
@@ -35,6 +37,7 @@ public class EventMessageHistoryLast extends Event
   private final SpecificAddress mMessageTo;
   private final String mFirstId;
   private final String mLastId;
+  private final Long mCount;
 
   public EventMessageHistoryLast(
     EventId eventId,
@@ -45,11 +48,26 @@ public class EventMessageHistoryLast extends Event
     String lastId
   )
   {
-    super(eventId,sender,new Target(messageTo));
+    this(eventId,sender,queryId,messageTo,firstId,lastId,(Long)null,0);
+  }
+
+  public EventMessageHistoryLast(
+    EventId eventId,
+    ChatAddress sender,
+    String queryId,
+    SpecificAddress messageTo,
+    String firstId,
+    String lastId,
+    long count,
+    long timestamp
+  )
+  {
+    super(eventId,sender,new Target(messageTo),timestamp);
     mQueryId = queryId;
     mMessageTo = messageTo;
     mFirstId = firstId;
     mLastId = lastId;
+    mCount = count;
   }
 
   @Override
@@ -76,6 +94,12 @@ public class EventMessageHistoryLast extends Event
   public String getLastId()
   {
     return mLastId;
+  }
+
+  @Nullable
+  public Long getCount()
+  {
+    return mCount;
   }
 }
 

@@ -50,7 +50,8 @@ public class MessageAckDecoder implements EventDecoder
     Event event = new EventMessageAck(
       sender,
       target,
-      messageId
+      messageId,
+      parser.getTimestamp()
     );
 
     return Arrays.asList(event);

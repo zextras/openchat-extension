@@ -19,6 +19,6 @@ package com.zextras.modules.chat.server.interceptors;
 
 import com.zextras.modules.chat.server.events.EventInterceptorFactory;
 
-public interface UserHistoryInterceptorFactory extends EventInterceptorFactory
+public interface ArchiveInterceptorFactory extends EventInterceptorFactory
 {
 }

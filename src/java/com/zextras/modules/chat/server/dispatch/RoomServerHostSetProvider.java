@@ -3,9 +3,12 @@ package com.zextras.modules.chat.server.dispatch;
 import com.google.inject.Singleton;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.Server;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,16 +32,24 @@ public class RoomServerHostSetProvider
 
   public Set<String> get()
   {
-    return Collections.singleton(
-      mProvisioning.getLocalServer().getServerHostname()
-    );
+    List<Server> servers = mProvisioning.getAllServers();
+    Set<String> hosts = new HashSet<String>(servers.size());
+    for (Server server : servers)
+    {
+      hosts.add(server.getServerHostname());
+    }
+    return hosts;
   }
 
   public Set<SpecificAddress> getAddresses()
   {
-    return Collections.singleton(
-      new SpecificAddress(mProvisioning.getLocalServer().getServerHostname())
-    );
+    Set<String> servers = get();
+    Set<SpecificAddress> addresses = new HashSet<SpecificAddress>(servers.size());
+    for (String s : servers)
+    {
+      addresses.add(new SpecificAddress(s));
+    }
+    return addresses;
   }
 
   public boolean isValidChatServer(SpecificAddress address)

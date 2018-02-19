@@ -170,7 +170,7 @@ public class ChatDbHelper
       DbUtils.closeQuietly(statement);
     }
   }
-  public boolean executeQuery(String query, ParametersFactory parametersFactory) throws SQLException
+  public int executeQuery(String query, ParametersFactory parametersFactory) throws SQLException
   {
     DbConnection connection = new DbConnection(mDbHandler.getConnection());
     try
@@ -183,7 +183,7 @@ public class ChatDbHelper
     }
   }
 
-  public boolean executeQuery(DbConnection connection, String query, ParametersFactory parametersFactory) throws SQLException
+  public int executeQuery(DbConnection connection, String query, ParametersFactory parametersFactory) throws SQLException
   {
     PreparedStatement statement = null;
     ResultSet rs = null;
@@ -191,7 +191,7 @@ public class ChatDbHelper
     {
       statement = connection.prepareStatement(query);
       parametersFactory.create(statement);
-      return statement.execute();
+      return statement.executeUpdate();
     }
     finally
     {

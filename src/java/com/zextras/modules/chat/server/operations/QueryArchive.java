@@ -58,7 +58,7 @@ public class QueryArchive implements ChatOperation
   private final String mStart;
   private final String mEnd;
   private final String mNode;
-  private final ArchiveInterceptorFactoryImpl mUserHistoryInterceptorFactoryImpl2;
+  private final ArchiveInterceptorFactoryImpl mArchiveInterceptorFactory;
 
   @Inject
   public QueryArchive(
@@ -70,13 +70,13 @@ public class QueryArchive implements ChatOperation
     @Assisted("node") String node,
     @Assisted("max") long max,
     Provisioning provisioning,
-    ArchiveInterceptorFactoryImpl userHistoryInterceptorFactoryImpl2,
+    ArchiveInterceptorFactoryImpl archiveInterceptorFactory,
     EventManager eventManager
   )
   {
     mMax = max;
     mProvisioning = provisioning;
-    mUserHistoryInterceptorFactoryImpl2 = userHistoryInterceptorFactoryImpl2;
+    mArchiveInterceptorFactory = archiveInterceptorFactory;
     mEventManager = eventManager;
     mSenderAddress = senderAddress;
     mWith = with;
@@ -98,7 +98,7 @@ public class QueryArchive implements ChatOperation
       addresses.add(new SpecificAddress(server.getName()));
     }
     String queryId = EventId.randomUUID().toString();
-    mUserHistoryInterceptorFactoryImpl2.prepareQuery(queryId);
+    mArchiveInterceptorFactory.prepareQuery(queryId);
     List<Event> returnsEvents = new ArrayList<Event>();
     List<Event> historyEvents = new ArrayList<Event>();
     try
@@ -117,7 +117,7 @@ public class QueryArchive implements ChatOperation
 
       mEventManager.dispatchUnfilteredEvents(historyEvents);
 
-      List<EventMessageHistory> histories = mUserHistoryInterceptorFactoryImpl2.waitAndGetMessages(queryId);
+      List<EventMessageHistory> histories = mArchiveInterceptorFactory.waitAndGetMessages(queryId);
 
       Collections.sort(histories, new Comparator<EventMessageHistory>()
       {
@@ -157,7 +157,7 @@ public class QueryArchive implements ChatOperation
     }
     finally
     {
-      mUserHistoryInterceptorFactoryImpl2.purgeQuery(queryId);
+      mArchiveInterceptorFactory.purgeQuery(queryId);
     }
     return returnsEvents;
   }

@@ -53,11 +53,11 @@ public abstract class SoapCommand
   public static final String DOMAIN = "domain";
   public static final String NAME   = "name";
 
-  protected final static String NODE                             = "node";
-  protected final static String START                            = "start";
-  protected final static String END                              = "end";
-  protected final static String WITH                             = "with";
-  protected final static String MAX                              = "max";
+  public final static String NODE                             = "node";
+  public final static String START                            = "start";
+  public final static String END                              = "end";
+  public final static String WITH                             = "with";
+  public final static String MAX                              = "max";
 
   protected final SpecificAddress     mSenderAddress;
   protected final Map<String, String> mParameterMap;

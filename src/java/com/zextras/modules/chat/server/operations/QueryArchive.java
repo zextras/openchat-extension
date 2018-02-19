@@ -27,6 +27,7 @@ import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventManager;
+import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
@@ -139,11 +140,17 @@ public class QueryArchive implements ChatOperation
         {
           firstMessageId = lastMessageId;
         }
-        returnsEvents.add(message);
+        returnsEvents.add(new EventMessageHistory(
+          message.getId(),
+          new SpecificAddress(mWith),
+          queryId,
+          mSenderAddress,
+          message.getOriginalMessage()
+        ));
       }
       returnsEvents.add(new EventMessageHistoryLast(
         EventId.randomUUID(),
-        mSenderAddress,
+        new SpecificAddress(mWith),
         queryId,
         new SpecificAddress(user1),
         firstMessageId,

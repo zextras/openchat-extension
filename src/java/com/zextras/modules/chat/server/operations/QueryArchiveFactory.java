@@ -7,7 +7,6 @@ public interface QueryArchiveFactory
 {
   QueryArchive create(
     @Assisted("senderAddress") SpecificAddress senderAddress,
-    @Assisted("queryid") String queryid,
     @Assisted("with") String with,
     @Assisted("start") String start,
     @Assisted("end") String end,

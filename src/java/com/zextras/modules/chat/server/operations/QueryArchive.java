@@ -48,23 +48,23 @@ import java.util.List;
  * zmsoap -t account -m user1@example.com -p assext  ZxChatRequest/action=query_archive ../with=user2@example.com ../session_id=687c6492-9027-416c-8172-2d668154d2d1 | recode html..text
  *
  */
-public class QueryArchive implements ChatOperation
+public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImpl.MessageHistoryFactory
 {
   private final long mMax;
   private final Provisioning mProvisioning;
   private final EventManager mEventManager;
   private final SpecificAddress mSenderAddress;
   private final String mWith;
-  private final String mQueryid;
+  private String mQueryid;
   private final String mStart;
   private final String mEnd;
   private final String mNode;
   private final ArchiveInterceptorFactoryImpl mArchiveInterceptorFactory;
+  private List<EventMessageHistory> mMessages;
 
   @Inject
   public QueryArchive(
     @Assisted("senderAddress") SpecificAddress senderAddress,
-    @Assisted("queryid") String queryid,
     @Assisted("with") String with,
     @Assisted("start") String start,
     @Assisted("end") String end,
@@ -81,25 +81,27 @@ public class QueryArchive implements ChatOperation
     mEventManager = eventManager;
     mSenderAddress = senderAddress;
     mWith = with;
-    mQueryid = queryid;
     mStart = start;
     mEnd = end;
     mNode = node;
+    mMessages = new ArrayList<EventMessageHistory>();
   }
 
   @Override
   public List<Event> exec(SessionManager sessionManager, UserProvider userProvider)
     throws ChatException, ChatDbException
   {
-    String user1 = mSenderAddress.withoutResource().toString();
     List<Server> allServers = mProvisioning.getAllServers();
     List<ChatAddress> addresses = new ArrayList<ChatAddress>(allServers.size());
     for (Server server : allServers)
     {
-      addresses.add(new SpecificAddress(server.getName()));
+      addresses.add(new SpecificAddress(server.getServerHostname()));
     }
-    String queryId = EventId.randomUUID().toString();
-    mArchiveInterceptorFactory.prepareQuery(queryId);
+    SpecificAddress localServer = new SpecificAddress(mProvisioning.getLocalServer().getServerHostname());
+
+    mQueryid = EventId.randomUUID().toString();
+    mArchiveInterceptorFactory.register(this);
+
     List<Event> returnsEvents = new ArrayList<Event>();
     List<Event> historyEvents = new ArrayList<Event>();
     try
@@ -107,10 +109,21 @@ public class QueryArchive implements ChatOperation
       historyEvents.add(new EventIQQuery(
         EventId.randomUUID(),
         mSenderAddress,
-        queryId,
-        new Target(addresses),
+        mQueryid,
+        new Target(localServer),
         "",
         mWith,
+        "",
+        "",
+        mMax
+      ));
+      historyEvents.add(new EventIQQuery(
+        EventId.randomUUID(),
+        new SpecificAddress(mWith),
+        mQueryid,
+        new Target(addresses),
+        "",
+        mSenderAddress.withoutResource().toString(),
         "",
         "",
         mMax
@@ -118,54 +131,70 @@ public class QueryArchive implements ChatOperation
 
       mEventManager.dispatchUnfilteredEvents(historyEvents);
 
-      List<EventMessageHistory> histories = mArchiveInterceptorFactory.waitAndGetMessages(queryId);
+      //List<EventMessageHistory> histories = mArchiveInterceptorFactory.waitAndGetMessages(queryId);
 
-      Collections.sort(histories, new Comparator<EventMessageHistory>()
-      {
-        @Override
-        public int compare(EventMessageHistory m1, EventMessageHistory m2)
-        {
-          return (int) (m1.getOriginalMessage().getTimestamp() - m2.getOriginalMessage().getTimestamp());
-        }
-      });
-
-      String lastMessageId = "";
-      String firstMessageId = "";
-      Iterator<EventMessageHistory> it = histories.iterator();
-      while (it.hasNext())
-      {
-        EventMessageHistory message = it.next();
-        lastMessageId = message.getId().toString();
-        if (firstMessageId.isEmpty())
-        {
-          firstMessageId = lastMessageId;
-        }
-        returnsEvents.add(new EventMessageHistory(
-          message.getId(),
-          new SpecificAddress(mWith),
-          queryId,
-          mSenderAddress,
-          message.getOriginalMessage()
-        ));
-      }
-      returnsEvents.add(new EventMessageHistoryLast(
-        EventId.randomUUID(),
-        new SpecificAddress(mWith),
-        queryId,
-        new SpecificAddress(user1),
-        firstMessageId,
-        lastMessageId
-      ));
+//      Collections.sort(histories, new Comparator<EventMessageHistory>()
+//      {
+//        @Override
+//        public int compare(EventMessageHistory m1, EventMessageHistory m2)
+//        {
+//          return (int) (m1.getOriginalMessage().getTimestamp() - m2.getOriginalMessage().getTimestamp());
+//        }
+//      });
+//
+//      String lastMessageId = "";
+//      String firstMessageId = "";
+//      Iterator<EventMessageHistory> it = histories.iterator();
+//      while (it.hasNext())
+//      {
+//        EventMessageHistory message = it.next();
+//        lastMessageId = message.getId().toString();
+//        if (firstMessageId.isEmpty())
+//        {
+//          firstMessageId = lastMessageId;
+//        }
+//        returnsEvents.add(new EventMessageHistory(
+//          message.getId(),
+//          new SpecificAddress(mWith),
+//          mQueryid,
+//          mSenderAddress,
+//          message.getOriginalMessage()
+//        ));
+//      }
+//      returnsEvents.add(new EventMessageHistoryLast(
+//        EventId.randomUUID(),
+//        new SpecificAddress(mWith),
+//        mQueryid,
+//        mSenderAddress,
+//        firstMessageId,
+//        lastMessageId
+//      ));
 
     }
-    catch (InterruptedException e)
-    {
-      throw new ChatException(e.getMessage());
-    }
+//    catch (InterruptedException e)
+//    {
+//      throw new ChatException(e.getMessage());
+//    }
     finally
     {
-      mArchiveInterceptorFactory.purgeQuery(queryId);
+      mArchiveInterceptorFactory.unRegister(this);
+      //mArchiveInterceptorFactory.purgeQuery(queryId);
     }
     return returnsEvents;
+  }
+
+  @Override
+  public void create(EventMessageHistory message)
+  {
+    if (mQueryid != null && !mQueryid.isEmpty() && mQueryid.equals(message.getQueryId()))
+    {
+      mMessages.add(message);
+    }
+  }
+
+  @Override
+  public void create(EventMessageHistoryLast message)
+  {
+
   }
 }

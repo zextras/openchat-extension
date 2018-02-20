@@ -59,11 +59,17 @@ import java.util.concurrent.locks.ReentrantLock;
 @Singleton
 public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory implements ArchiveInterceptorFactory
 {
+  public interface MessageHistoryFactory
+  {
+    void create(EventMessageHistory message);
+    void create(EventMessageHistoryLast message);
+  }
+
   private final Provisioning   mProvisioning;
   private final ChatProperties mChatProperties;
   private final ImMessageStatements mImMessageStatements;
   private final EventManager mEventManager;
-  private final Map<String,MessageHistory> mMessages;
+  private final Map<MessageHistoryFactory,Void> mListeners;
 
   @Inject
   public ArchiveInterceptorFactoryImpl(
@@ -77,7 +83,17 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
     mChatProperties = chatProperties;
     mImMessageStatements = imMessageStatements;
     mEventManager = eventManager;
-    mMessages = new ConcurrentHashMap<String,MessageHistory>();
+    mListeners = new ConcurrentHashMap<MessageHistoryFactory,Void>();
+  }
+
+  public void register(MessageHistoryFactory callback)
+  {
+    mListeners.put(callback,null);
+  }
+
+  public void unRegister(MessageHistoryFactory callback)
+  {
+    mListeners.remove(callback);
   }
 
   @Override
@@ -163,17 +179,6 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
         }
 
         String sender = event.getSender().withoutResource().toString();
-        Account account = mProvisioning.getAccountByName(sender);
-        if (account != null && account.isLocalAccount())
-        {
-          prepareQuery(queryId);
-        }
-
-        MessageHistory histories = mMessages.get(queryId);
-        if (histories != null)
-        {
-          histories.query();
-        }
         List<Event> events = query(event.getWith(), sender, queryId,event.getMax());
         mEventManager.dispatchUnfilteredEvents(events);
 
@@ -190,10 +195,9 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        MessageHistory histories = mMessages.get(eventMessage.getQueryId());
-        if (histories != null)
+        for (MessageHistoryFactory listener : mListeners.keySet())
         {
-          histories.add(eventMessage);
+          listener.create(eventMessage);
         }
         return true;
       }
@@ -208,48 +212,15 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        MessageHistory histories = mMessages.get(eventMessage.getQueryId());
-        if (histories != null)
+        for (MessageHistoryFactory listener : mListeners.keySet())
         {
-          histories.add(eventMessage);
+          listener.create(eventMessage);
         }
         return true;
       }
     };
   }
 
-
-  public MessageHistory prepareQuery(String queryId)
-  {
-    mMessages.remove(queryId);
-    MessageHistory histories = new MessageHistory();
-    histories.query();
-    mMessages.put(queryId,histories);
-    return histories;
-  }
-
-  public void purgeQuery(String queryId)
-  {
-    mMessages.remove(queryId);
-  }
-
-  public List<EventMessageHistory> waitAndGetMessages(String queryId) throws InterruptedException
-  {
-    try
-    {
-      MessageHistory histories = mMessages.get(queryId);
-      if (histories != null)
-      {
-        List<EventMessageHistory> historyList = histories.waitAndGetUntilReady(5000L);
-        return historyList;
-      }
-      return Collections.EMPTY_LIST;
-    }
-    finally
-    {
-      mMessages.remove(queryId);
-    }
-  }
 
   private List<Event> query(String user1,String user2,String queryId,long max) throws ChatException
   {

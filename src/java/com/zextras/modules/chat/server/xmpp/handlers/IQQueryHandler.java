@@ -52,7 +52,6 @@ public class IQQueryHandler implements StanzaHandler
 
     return Arrays.<ChatOperation>asList(mQueryArchiveFactory.create(
       session.getMainAddress(),
-      mParser.getQueryId(),
       mParser.getWith(),
       mParser.getStart(),
       mParser.getEnd(),

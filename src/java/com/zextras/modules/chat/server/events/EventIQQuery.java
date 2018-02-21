@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.google.common.base.Optional;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
@@ -29,36 +30,23 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
  */
 public class EventIQQuery extends Event
 {
-  private String mQueryId;
-  private String mNode;
-  private String mWith;
-  private String mStart;
-  private String mEnd;
-  private final long mMax;
+  private final String mQueryId;
+  private final Optional<String> mNode;
+  private final Optional<String> mWith;
+  private final Optional<Long> mStart;
+  private final Optional<Long> mEnd;
+  private final Optional<Integer> mMax;
 
   public EventIQQuery(
     EventId eventId,
     SpecificAddress sender,
     String queryId,
     Target messageTo,
-    String node,
-    String with,
-    String start,
-    String end)
-  {
-    this(eventId,sender,queryId,messageTo,node,with,start,end,Long.MAX_VALUE);
-  }
-
-  public EventIQQuery(
-    EventId eventId,
-    SpecificAddress sender,
-    String queryId,
-    Target messageTo,
-    String node,
-    String with,
-    String start,
-    String end,
-    long max
+    Optional<String> node,
+    Optional<String> with,
+    Optional<Long> start,
+    Optional<Long> end,
+    Optional<Integer> max
   )
   {
     super(eventId,sender,messageTo);
@@ -81,27 +69,27 @@ public class EventIQQuery extends Event
     return mQueryId;
   }
 
-  public String getNode()
+  public Optional<String> getNode()
   {
     return mNode;
   }
 
-  public String getWith()
+  public Optional<String> getWith()
   {
     return mWith;
   }
 
-  public String getStart()
+  public Optional<Long> getStart()
   {
     return mStart;
   }
 
-  public String getEnd()
+  public Optional<Long> getEnd()
   {
     return mEnd;
   }
 
-  public long getMax()
+  public Optional<Integer> getMax()
   {
     return mMax;
   }

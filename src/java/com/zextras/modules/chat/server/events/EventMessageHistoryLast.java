@@ -17,12 +17,11 @@
 
 package com.zextras.modules.chat.server.events;
 
+import com.google.common.base.Optional;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-
-import javax.annotation.Nullable;
 
 /**
  * @see EventMessageHistoryLast
@@ -37,19 +36,7 @@ public class EventMessageHistoryLast extends Event
   private final SpecificAddress mMessageTo;
   private final String mFirstId;
   private final String mLastId;
-  private final Long mCount;
-
-  public EventMessageHistoryLast(
-    EventId eventId,
-    ChatAddress sender,
-    String queryId,
-    SpecificAddress messageTo,
-    String firstId,
-    String lastId
-  )
-  {
-    this(eventId,sender,queryId,messageTo,firstId,lastId,null,0);
-  }
+  private final Optional<Integer> mMax;
 
   public EventMessageHistoryLast(
     EventId eventId,
@@ -58,7 +45,7 @@ public class EventMessageHistoryLast extends Event
     SpecificAddress messageTo,
     String firstId,
     String lastId,
-    Long count,
+    Optional<Integer> max,
     long timestamp
   )
   {
@@ -67,7 +54,7 @@ public class EventMessageHistoryLast extends Event
     mMessageTo = messageTo;
     mFirstId = firstId;
     mLastId = lastId;
-    mCount = count;
+    mMax = max;
   }
 
   @Override
@@ -96,15 +83,9 @@ public class EventMessageHistoryLast extends Event
     return mLastId;
   }
 
-  public boolean hasCount()
+  public Optional<Integer> getMax()
   {
-    return mCount != null;
-  }
-
-  @Nullable
-  public Long getCount()
-  {
-    return mCount;
+    return mMax;
   }
 }
 

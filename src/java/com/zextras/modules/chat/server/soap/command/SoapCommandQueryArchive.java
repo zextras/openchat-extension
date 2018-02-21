@@ -17,7 +17,9 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
+import com.google.common.base.Optional;
 import com.zextras.lib.json.JSONObject;
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
@@ -27,7 +29,7 @@ import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.openzal.zal.Utils;
 import org.openzal.zal.soap.SoapResponse;
 
 import java.util.Arrays;
@@ -55,19 +57,56 @@ public class SoapCommandQueryArchive extends SoapCommand
   public List<ChatOperation> createOperationList()
     throws MissingParameterException, InvalidParameterException
   {
-    final String node = StringUtils.defaultString(mParameterMap.get(NODE));
-    final String start = StringUtils.defaultString(mParameterMap.get(START));
-    final String end = StringUtils.defaultString(mParameterMap.get(END));
-    final String with = StringUtils.defaultString(mParameterMap.get(WITH));
-    final long max = NumberUtils.toLong(mParameterMap.get(MAX),Long.MAX_VALUE);
+    String node = StringUtils.defaultString(mParameterMap.get(NODE));
+    String with = StringUtils.defaultString(mParameterMap.get(WITH));
+    Optional<Integer> max = Optional.<Integer>absent();
+    Optional<Long> start = Optional.<Long>absent();
+    Optional<Long> end = Optional.<Long>absent();
     final EventId queryId = EventId.randomUUID();
+
+    try
+    {
+      String s = StringUtils.defaultString(mParameterMap.get(MAX));
+      if (!s.isEmpty())
+      {
+        max = Optional.<Integer>of(Integer.valueOf(s));
+      }
+    }
+    catch (RuntimeException e)
+    {
+      ChatLog.log.warn(Utils.exceptionToString(e));
+    }
+    try
+    {
+      String s = StringUtils.defaultString(mParameterMap.get(START));
+      if (!s.isEmpty())
+      {
+        start = Optional.<Long>of(Long.valueOf(s));
+      }
+    }
+    catch (RuntimeException e)
+    {
+      ChatLog.log.warn(Utils.exceptionToString(e));
+    }
+    try
+    {
+      String s = StringUtils.defaultString(mParameterMap.get(END));
+      if (!s.isEmpty())
+      {
+        end = Optional.<Long>of(Long.valueOf(s));
+      }
+    }
+    catch (RuntimeException e)
+    {
+      ChatLog.log.warn(Utils.exceptionToString(e));
+    }
 
     ChatOperation sendMessage = mQueryArchiveFactory.create(
       mSenderAddress,
-      with,
+      Optional.<String>of(with),
       start,
       end,
-      node,
+      Optional.<String>of(node),
       max
     );
 

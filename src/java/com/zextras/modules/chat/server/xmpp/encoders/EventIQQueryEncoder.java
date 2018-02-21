@@ -84,9 +84,9 @@ public class EventIQQueryEncoder extends XmppEncoder
       {
         sw.writeAttribute("queryid", mEventIQQuery.getQueryId());
       }
-      if (!StringUtils.isEmpty(mEventIQQuery.getWith()) ||
-          !StringUtils.isEmpty(mEventIQQuery.getStart()) ||
-          !StringUtils.isEmpty(mEventIQQuery.getEnd()))
+      if (mEventIQQuery.getWith().isPresent() ||
+          mEventIQQuery.getStart().isPresent() ||
+          mEventIQQuery.getEnd().isPresent())
       {
         sw.writeStartElement("","x","jabber:x:data" );
           sw.writeAttribute("type","submit");
@@ -97,39 +97,39 @@ public class EventIQQueryEncoder extends XmppEncoder
               sw.writeCharacters("urn:xmpp:mam:2");
             sw.writeEndElement();
           sw.writeEndElement();
-          if (!StringUtils.isEmpty(mEventIQQuery.getWith()))
+          if (mEventIQQuery.getWith().isPresent())
           {
             sw.writeStartElement("jabber:x:data", "field");
               sw.writeAttribute("var", "with");
               sw.writeStartElement("value");
-                sw.writeCharacters(mEventIQQuery.getWith());
+                sw.writeCharacters(mEventIQQuery.getWith().get());
               sw.writeEndElement();
             sw.writeEndElement();
           }
-          if (!StringUtils.isEmpty(mEventIQQuery.getStart()))
+          if (mEventIQQuery.getStart().isPresent())
           {
             sw.writeStartElement("jabber:x:data", "field");
               sw.writeAttribute("var", "start");
               sw.writeStartElement("value");
-                sw.writeCharacters(mEventIQQuery.getStart());
+                sw.writeLong(mEventIQQuery.getStart().get());
               sw.writeEndElement();
             sw.writeEndElement();
           }
-          if (!StringUtils.isEmpty(mEventIQQuery.getEnd()))
+          if (mEventIQQuery.getEnd().isPresent())
           {
             sw.writeStartElement("jabber:x:data", "field");
               sw.writeAttribute("var", "end");
               sw.writeStartElement("value");
-                sw.writeCharacters(mEventIQQuery.getEnd());
+                sw.writeLong(mEventIQQuery.getEnd().get());
               sw.writeEndElement();
             sw.writeEndElement();
           }
         sw.writeEndElement();
-        if (mEventIQQuery.getMax() != Long.MAX_VALUE)
+        if (mEventIQQuery.getMax().isPresent())
         {
           sw.writeStartElement("","set","http://jabber.org/protocol/rsm" );
           sw.writeStartElement("max");
-          sw.writeLong(mEventIQQuery.getMax());
+          sw.writeLong(mEventIQQuery.getMax().get());
           sw.writeEndElement();
           sw.writeEndElement();
         }

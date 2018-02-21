@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.handlers;
 
+import com.google.common.base.Optional;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;

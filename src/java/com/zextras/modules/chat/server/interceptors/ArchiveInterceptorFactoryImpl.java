@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.interceptors;
 
 
+import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +71,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
   private final ChatProperties mChatProperties;
   private final ImMessageStatements mImMessageStatements;
   private final EventManager mEventManager;
-  private final Map<MessageHistoryFactory,Void> mListeners;
+  private final Set<MessageHistoryFactory> mListeners;
 
   @Inject
   public ArchiveInterceptorFactoryImpl(
@@ -83,12 +85,12 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
     mChatProperties = chatProperties;
     mImMessageStatements = imMessageStatements;
     mEventManager = eventManager;
-    mListeners = new ConcurrentHashMap<MessageHistoryFactory,Void>();
+    mListeners = Collections.newSetFromMap(new ConcurrentHashMap<MessageHistoryFactory,Boolean>());
   }
 
   public void register(MessageHistoryFactory callback)
   {
-    mListeners.put(callback,null);
+    mListeners.add(callback);
   }
 
   public void unRegister(MessageHistoryFactory callback)
@@ -173,15 +175,9 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
         String queryId = event.getQueryId();
-        if (queryId.isEmpty())
-        {
-          queryId = UUID.randomUUID().toString();
-        }
-
         String sender = event.getSender().withoutResource().toString();
-        List<Event> events = query(event.getWith(), sender, queryId,event.getMax());
+        List<Event> events = query(sender, event.getWith().or(""), queryId,event.getStart(),event.getEnd(), event.getMax());
         mEventManager.dispatchUnfilteredEvents(events);
-
         return true;
       }
     };
@@ -195,7 +191,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        for (MessageHistoryFactory listener : mListeners.keySet())
+        for (MessageHistoryFactory listener : mListeners)
         {
           listener.create(eventMessage);
         }
@@ -212,7 +208,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        for (MessageHistoryFactory listener : mListeners.keySet())
+        for (MessageHistoryFactory listener : mListeners)
         {
           listener.create(eventMessage);
         }
@@ -221,8 +217,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
     };
   }
 
-
-  private List<Event> query(String user1,String user2,String queryId,long max) throws ChatException
+  private List<Event> query(String user1, String user2, String queryId,Optional<Long> start,Optional<Long> end, Optional<Integer> max) throws ChatException
   {
     List<Event> events = new ArrayList<Event>();
 
@@ -230,13 +225,16 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
     {
       String sender = mProvisioning.getLocalServer().getName();
 
-
       // TODO:
       //
       // e' da aggiungere il timestamp sul messaggio EventMessageHistoryLast? c'e' in tutti gli event, magari lo riciclo
       //
-      if (max == 0)
+      if (max.isPresent() && max.get() == 0)
       {
+        if (user2.isEmpty())
+        {
+          throw new RuntimeException("User2 is empty");
+        }
         long timestamp = mImMessageStatements.getLastMessageRead(user1,user2);
         long count = mImMessageStatements.getCountMessageToRead(user1,user2,timestamp);
         events.add(new EventMessageHistoryLast(
@@ -252,15 +250,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       }
       else
       {
-        DbPrefetchIterator<ImMessage> it;
-        if (user2.isEmpty())
-        {
-          it = mImMessageStatements.query(user1);
-        } else
-        {
-          it = mImMessageStatements.query(user1, user2);
-        }
-
+        DbPrefetchIterator<ImMessage> it = mImMessageStatements.query(user1, user2, start, end, max);
         String lastMessageId = "";
         String firstMessageId = "";
         while (it.hasNext())
@@ -291,7 +281,9 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
           queryId,
           new SpecificAddress(user1),
           firstMessageId,
-          lastMessageId
+          lastMessageId,
+          max,
+          System.currentTimeMillis()
         ));
       }
     } catch (SQLException e)
@@ -301,69 +293,4 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
 
     return events;
   }
-
-  private class MessageHistory
-  {
-    private List<EventMessageHistory> mList = new ArrayList<EventMessageHistory>();
-    private Lock mLock = new ReentrantLock();
-    private Condition mReady = mLock.newCondition();
-    private int queries = 0;
-
-    public void query()
-    {
-      mLock.lock();
-      try
-      {
-        queries++;
-      }
-      finally
-      {
-        mLock.unlock();
-      }
-    }
-    public void add(EventMessageHistory eventMessage)
-    {
-      mLock.lock();
-      try
-      {
-        mList.add(eventMessage);
-      }
-      finally
-      {
-        mLock.unlock();
-      }
-    }
-
-    public void add(EventMessageHistoryLast eventMessage)
-    {
-      mLock.lock();
-      try
-      {
-        queries--;
-        mReady.signal();
-      }
-      finally
-      {
-        mLock.unlock();
-      }
-    }
-
-    public List<EventMessageHistory> waitAndGetUntilReady(long msTimeOut) throws InterruptedException
-    {
-      mLock.lock();
-      try
-      {
-        if (queries > 0)
-        {
-          mReady.await(msTimeOut, TimeUnit.MILLISECONDS);
-        }
-        return new ArrayList<EventMessageHistory>(mList);
-      }
-      finally
-      {
-        mLock.unlock();
-      }
-    }
-  }
-
 }

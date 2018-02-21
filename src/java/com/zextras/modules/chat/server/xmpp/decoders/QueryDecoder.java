@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.server.xmpp.decoders;
 
+import com.google.common.base.Optional;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
@@ -33,6 +34,7 @@ public class QueryDecoder implements EventDecoder
     {
       eventId = EventId.randomUUID().toString();
     }
+
     return Collections.<Event>singletonList(new EventIQQuery(
       EventId.fromString(eventId),
       parser.getSender(),

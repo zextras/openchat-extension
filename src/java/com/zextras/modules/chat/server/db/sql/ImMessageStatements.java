@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.server.db.sql;
 
+import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.zextras.lib.ChatDbHelper;
 import com.zextras.lib.sql.DbPrefetchIterator;
@@ -47,7 +48,7 @@ public class ImMessageStatements
       "    REACTIONS = ?," +
       "    TYPE_EXTRAINFO = ?," +
       "    WHERE ID = ?";
-  private final static String sql_select_message =
+  private final static String sSELECT_MESSAGE =
     "    SELECT ID," +
       "    SENT_TIMESTAMP," +
       "    EDIT_TIMESTAMP," +
@@ -60,40 +61,12 @@ public class ImMessageStatements
       "    REACTIONS," +
       "    TYPE_EXTRAINFO" +
       "    FROM MESSAGE " +
-      "    WHERE ID = ? ";
-  private final static String sql_select =
-    "    SELECT ID," +
-      "    SENT_TIMESTAMP," +
-      "    EDIT_TIMESTAMP," +
-      "    MESSAGE_TYPE," +
-      "    IS_MULTICHAT," +
-      "    INDEX_STATUS," +
-      "    SENDER," +
-      "    DESTINATION," +
-      "    TEXT," +
-      "    REACTIONS," +
-      "    TYPE_EXTRAINFO" +
-      "    FROM MESSAGE " +
-      "    WHERE SENDER = ? " +
-      "    AND DESTINATION = ? " +
+      "    WHERE SENDER = ? ";
+
+  private final static String sSELECT_MESSAGE_ORDER =
       "    ORDER BY SENT_TIMESTAMP ASC" +
-      "    LIMIT ? OFFSET ?" ;
-  private final static String sql_select_only_destination =
-    "    SELECT ID," +
-      "    SENT_TIMESTAMP," +
-      "    EDIT_TIMESTAMP," +
-      "    MESSAGE_TYPE," +
-      "    IS_MULTICHAT," +
-      "    INDEX_STATUS," +
-      "    SENDER," +
-      "    DESTINATION," +
-      "    TEXT," +
-      "    REACTIONS," +
-      "    TYPE_EXTRAINFO" +
-      "    FROM MESSAGE " +
-      "    WHERE DESTINATION = ? " +
-      "    ORDER BY SENT_TIMESTAMP ASC" +
-      "    LIMIT ? OFFSET ?" ;
+        "    LIMIT ? OFFSET ?";
+
   private final static String sql_text =
     "    SELECT ID," +
       "    SENT_TIMESTAMP," +
@@ -221,7 +194,12 @@ public class ImMessageStatements
     }
   }
 
-  public DbPrefetchIterator<ImMessage> query(final String sender, final String destination) throws SQLException
+  public DbPrefetchIterator<ImMessage> query(
+    final String sender,
+    final String destination,
+    final Optional<Long> fromTime,
+    final Optional<Long> toTime,
+    final Optional<Integer> max) throws SQLException
   {
     return new DbPrefetchIterator<ImMessage>(new QueryExecutor()
     {
@@ -232,11 +210,40 @@ public class ImMessageStatements
       {
         mConnection = mDbHandler.getConnection();
         assertDBConnection(mConnection);
-        PreparedStatement query = mConnection.prepareStatement(sql_select);
-        query.setString(1, sender);
-        query.setString(2, destination);
-        query.setInt(3, size);
-        query.setInt(4, start);
+        StringBuilder sb = new StringBuilder(sSELECT_MESSAGE);
+        if (!destination.isEmpty())
+        {
+          sb.append(" AND DESTINATION=?");
+        }
+        if (fromTime.isPresent())
+        {
+          sb.append(" AND (SENT_TIMESTAMP >= ? OR EDIT_TIMESTAMP >= ?)");
+        }
+        if (toTime.isPresent())
+        {
+          sb.append(" AND (SENT_TIMESTAMP <= ? OR EDIT_TIMESTAMP <= ?)");
+        }
+        sb.append(sSELECT_MESSAGE_ORDER);
+
+        PreparedStatement query = mConnection.prepareStatement(sb.toString());
+        int i = 1;
+        query.setString(i++, sender);
+        if (!destination.isEmpty())
+        {
+          query.setString(i++, destination);
+        }
+        if (fromTime.isPresent())
+        {
+          query.setLong(i++, fromTime.get());
+          query.setLong(i++, fromTime.get());
+        }
+        if (toTime.isPresent())
+        {
+          query.setLong(i++, toTime.get());
+          query.setLong(i++, toTime.get());
+        }
+        query.setInt(i++, size);
+        query.setInt(i++, start);
         return query.executeQuery();
       }
 
@@ -246,34 +253,7 @@ public class ImMessageStatements
         DbUtils.closeQuietly(mConnection);
       }
 
-    }, mMessageFactory,100);
-  }
-
-  public DbPrefetchIterator<ImMessage> query(final String destination) throws SQLException
-  {
-    return new DbPrefetchIterator<ImMessage>(new QueryExecutor()
-    {
-      Connection mConnection;
-
-      @Override
-      public ResultSet executeQuery(int start, int size) throws SQLException
-      {
-        mConnection = mDbHandler.getConnection();
-        assertDBConnection(mConnection);
-        PreparedStatement query = mConnection.prepareStatement(sql_select_only_destination);
-        query.setString(1, destination);
-        query.setInt(2, size);
-        query.setInt(3, start);
-        return query.executeQuery();
-      }
-
-      @Override
-      public void close()
-      {
-        DbUtils.closeQuietly(mConnection);
-      }
-
-    }, mMessageFactory,100);
+    }, mMessageFactory,max.or(5000));
   }
 
   public DbPrefetchIterator<ImMessage> query(final String sender, final String destination, final String text) throws SQLException
@@ -332,34 +312,6 @@ public class ImMessageStatements
       }
 
     }, mMessageFactory,100);
-  }
-
-  public ImMessage getMessage(String id) throws SQLException
-  {
-    Connection connection = mDbHandler.getConnection();
-    PreparedStatement query = null;
-    ResultSet rs = null;
-    try
-    {
-      assertDBConnection(connection);
-      query = connection.prepareStatement(sql_select_message);
-      query.setString(1, id);
-      rs = query.executeQuery();
-      if (rs.next())
-      {
-        return mMessageFactory.readFromResultSet(rs);
-      }
-      else
-      {
-        throw new RuntimeException("No InstantMessage found for id : " + id);
-      }
-    }
-    finally
-    {
-      DbUtils.closeQuietly(rs);
-      DbUtils.closeQuietly(query);
-      DbUtils.closeQuietly(connection);
-    }
   }
 
   public void upsertMessageRead(final String sender,final String destination,final long timestamp,final String id) throws SQLException

@@ -38,6 +38,7 @@ public class ChatDbHelper
       try
       {
         mOldAutoCommitState = connection.getAutoCommit();
+        connection.setAutoCommit(false);
       }
       catch (SQLException e)
       {

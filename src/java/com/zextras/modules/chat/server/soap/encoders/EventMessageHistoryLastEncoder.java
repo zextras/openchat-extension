@@ -46,10 +46,7 @@ public class EventMessageHistoryLastEncoder implements SoapEncoder
 //    message.put("first_index",  mEventHistoryLast.getFirstIndex());
     message.put("first", mEventHistoryLast.getFirstId());
     message.put("last",  mEventHistoryLast.getLastId());
-    if (mEventHistoryLast.hasCount())
-    {
-      message.put("count", mEventHistoryLast.getCount());
-    }
+    message.put("count", mEventHistoryLast.getMax());
 
     response.addResponse(message);
   }

@@ -17,10 +17,13 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
+import com.google.common.base.Optional;
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.jetbrains.annotations.NotNull;
+import org.openzal.zal.Utils;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -37,12 +40,12 @@ public class IQQueryXmppParser extends XmppParser
   private String mId;
   private String mTo;
   private String mQueryId;
-  private String mNode;
-  private String mWith;
-  private String mStart;
-  private String mEnd;
+  private Optional<String> mNode;
+  private Optional<String> mWith;
+  private Optional<Long> mStart;
+  private Optional<Long> mEnd;
   private String mSender;
-  private long mMax;
+  private Optional<Integer> mMax;
 
   public IQQueryXmppParser(
     InputStream xmlInput,
@@ -53,12 +56,12 @@ public class IQQueryXmppParser extends XmppParser
     mId = "";
     mTo = "";
     mQueryId = "";
-    mNode = "";
-    mWith = "";
-    mStart = "";
-    mEnd = "";
+    mNode = Optional.<String>absent();
+    mWith = Optional.<String>absent();
+    mStart = Optional.<Long>absent();
+    mEnd = Optional.<Long>absent();
     mSender = "";
-    mMax = Long.MAX_VALUE;
+    mMax = Optional.<Integer>absent();
   }
 
 /*
@@ -187,17 +190,24 @@ public class IQQueryXmppParser extends XmppParser
         }
         case XMLStreamConstants.CHARACTERS:
         {
-          switch(var)
+          try
           {
-            case "with":
-              mWith = emptyStringWhenNull(sr.getText());
-              break;
-            case "start":
-              mStart = emptyStringWhenNull(sr.getText());
-              break;
-            case "end":
-              mEnd = emptyStringWhenNull(sr.getText());
-              break;
+            switch (var)
+            {
+              case "with":
+                mWith = Optional.<String>of(emptyStringWhenNull(sr.getText()));
+                break;
+              case "start":
+                mStart = Optional.<Long>of(Long.valueOf(emptyStringWhenNull(sr.getText())));
+                break;
+              case "end":
+                mEnd = Optional.<Long>of(Long.valueOf(emptyStringWhenNull(sr.getText())));
+                break;
+            }
+          }
+          catch (RuntimeException e)
+          {
+            ChatLog.log.err(Utils.exceptionToString(e));
           }
           break;
         }
@@ -225,7 +235,7 @@ public class IQQueryXmppParser extends XmppParser
           switch(var)
           {
             case "max":
-              mMax = Long.valueOf(sr.getText());
+              mMax = Optional.<Integer>of(Integer.valueOf(sr.getText()));
               break;
           }
           break;
@@ -253,7 +263,7 @@ public class IQQueryXmppParser extends XmppParser
   }
 
   @NotNull
-  public String getWith()
+  public Optional<String> getWith()
   {
     return mWith;
   }
@@ -265,19 +275,19 @@ public class IQQueryXmppParser extends XmppParser
   }
 
   @NotNull
-  public String getNode()
+  public Optional<String> getNode()
   {
     return mNode;
   }
 
   @NotNull
-  public String getStart()
+  public Optional<Long> getStart()
   {
     return mStart;
   }
 
   @NotNull
-  public String getEnd()
+  public Optional<Long> getEnd()
   {
     return mEnd;
   }
@@ -288,7 +298,7 @@ public class IQQueryXmppParser extends XmppParser
     return new SpecificAddress(mSender);
   }
 
-  public long getMax()
+  public Optional<Integer> getMax()
   {
     return mMax;
   }

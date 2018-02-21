@@ -222,15 +222,16 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       {
         if (target.isEmpty())
         {
-          Map<String, Long> lastMessageRead = mImMessageStatements.getLastMessageRead(requester);
+          Map<String, Integer> lastMessageRead = mImMessageStatements.getCountMessageToRead(requester);
           for (String user : lastMessageRead.keySet())
           {
-            Long timestamp = lastMessageRead.get(user);
-            int count = mImMessageStatements.getCountMessageToRead(requester, user, timestamp);
+            Integer count = lastMessageRead.get(user);
+            long timestamp = mImMessageStatements.getLastMessageRead(user,requester);
+
             events.add(new EventMessageHistoryLast(
               EventId.randomUUID(),
               new SpecificAddress(user),
-              "", // TODO: add a new event?
+              "",
               new SpecificAddress(requester),
               "",
               "",
@@ -239,21 +240,21 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
             ));
           }
         }
-        else
-        {
-          Long timestamp = mImMessageStatements.getLastMessageRead(requester,target);
-          int count = mImMessageStatements.getCountMessageToRead(requester, target, timestamp);
-          events.add(new EventMessageHistoryLast(
-            EventId.randomUUID(),
-            new SpecificAddress(target),
-            "",
-            new SpecificAddress(requester),
-            "",
-            "",
-            Optional.<Integer>of(count),
-            timestamp
-          ));
-        }
+//        else
+//        {
+//          Long timestamp = mImMessageStatements.getLastMessageRead(requester,target);
+//          int count = mImMessageStatements.getCountMessageToRead(requester,timestamp);
+//          events.add(new EventMessageHistoryLast(
+//            EventId.randomUUID(),
+//            new SpecificAddress(target),
+//            "",
+//            new SpecificAddress(requester),
+//            "",
+//            "",
+//            Optional.<Integer>of(count),
+//            timestamp
+//          ));
+//        }
       }
       else
       {

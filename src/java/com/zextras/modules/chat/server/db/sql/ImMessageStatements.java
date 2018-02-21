@@ -107,10 +107,6 @@ public class ImMessageStatements
       "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?";
 
-//  private final static String sUPSERT_MESSAGE_READ =
-//      "INSERT INTO MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) " +
-//      "  ON DUPLICATE KEY UPDATE TIMESTAMP=?,MESSAGE_ID=?";
-
   private final static String sINSERT_MESSAGE_READ =
     "INSERT INTO MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) ";
 
@@ -125,6 +121,14 @@ public class ImMessageStatements
 
   private final static String sCOUNT_MESSAGE_TO_READ =
     "SELECT COUNT(*) FROM MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
+
+  private final static String sCOUNT_ALL_MESSAGE_TO_READ =
+    "SELECT MESSAGE.SENDER,COUNT(MESSAGE.ID) " +
+      " FROM MESSAGE " +
+      " LEFT JOIN MESSAGE_READ " +
+      " ON (MESSAGE.SENT_TIMESTAMP > MESSAGE_READ.TIMESTAMP OR MESSAGE.EDIT_TIMESTAMP > MESSAGE_READ.TIMESTAMP)" +
+      " WHERE MESSAGE.DESTINATION = ? " +
+      " GROUP BY MESSAGE.SENDER";
 
   private final DbHandler mDbHandler;
   private final ChatDbHelper mChatDbHelper;
@@ -409,21 +413,17 @@ public class ImMessageStatements
     return map;
   }
 
-  public int getCountMessageToRead(final String sender, final String destination,final long timestamp) throws SQLException
+  public Map<String,Integer> getCountMessageToRead(final String destination) throws SQLException
   {
-    final int[] count = {0};
+    final Map<String,Integer> map = new HashMap<String,Integer>();
 
-    mChatDbHelper.query(sCOUNT_MESSAGE_TO_READ,
+    mChatDbHelper.query(sCOUNT_ALL_MESSAGE_TO_READ,
       new ChatDbHelper.ParametersFactory()
       {
         @Override
         public void create(PreparedStatement preparedStatement) throws SQLException
         {
-          int i = 1;
-          preparedStatement.setString(i++, sender);
-          preparedStatement.setString(i++, destination);
-          preparedStatement.setLong(i++, timestamp);
-          preparedStatement.setLong(i++, timestamp);
+          preparedStatement.setString(1, destination);
         }
       },
       new ChatDbHelper.ResultSetFactory()
@@ -431,11 +431,11 @@ public class ImMessageStatements
         @Override
         public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
         {
-          count[0] = rs.getInt(1);
+          map.put(rs.getString(1),rs.getInt(2));
         }
       });
 
-    return count[0];
+    return map;
   }
 
   private void assertDBConnection(Connection connection) throws SQLException

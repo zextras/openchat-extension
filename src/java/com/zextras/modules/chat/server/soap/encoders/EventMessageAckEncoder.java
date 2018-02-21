@@ -39,8 +39,8 @@ public class EventMessageAckEncoder implements SoapEncoder
     final JSONObject message = new JSONObject();
 
     //from and to inverted
-    message.put("from",  mEventMessageAck.getSender().toString());
-    message.put("to", target.toString());
+    message.put("from",  mEventMessageAck.getSender().resourceAddress().toString());
+    message.put("to", target.resourceAddress().toString());
     message.put("type", ClientEventType.MESSAGE_ACK);
     message.put("message_id", mEventMessageAck.getMessageId().toString());
     message.put("message_date", mEventMessageAck.getTimestamp());

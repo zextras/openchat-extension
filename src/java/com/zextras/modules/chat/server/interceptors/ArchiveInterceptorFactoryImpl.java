@@ -241,8 +241,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
         }
         else
         {
-          Map<String, Long> lastMessageRead = mImMessageStatements.getLastMessageRead(requester);
-          Long timestamp = lastMessageRead.get(target);
+          Long timestamp = mImMessageStatements.getLastMessageRead(requester,target);
           int count = mImMessageStatements.getCountMessageToRead(requester, target, timestamp);
           events.add(new EventMessageHistoryLast(
             EventId.randomUUID(),

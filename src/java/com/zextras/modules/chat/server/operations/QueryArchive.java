@@ -196,7 +196,7 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       historyEvents.addAll(mMessages);
       historyEvents.add(new EventMessageHistoryLast(
         EventId.randomUUID(),
-        mSenderAddress.withoutSession(),
+        new SpecificAddress(mWith.or(mProvisioning.getZimbraUser().getMail())),
         mQueryid,
         mSenderAddress,
         mFirstMessageId,
@@ -222,7 +222,7 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       {
         mMessages.add(new EventMessageHistory(
           message.getId(),
-          mSenderAddress.withoutSession(),
+          message.getOriginalMessage().getSender(),
           mQueryid,
           mSenderAddress,
           message.getOriginalMessage()

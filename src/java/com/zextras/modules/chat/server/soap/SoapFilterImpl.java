@@ -27,9 +27,7 @@ import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.events.EventXmppPing;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.filters.EventFilter;
 import com.zextras.modules.chat.server.session.Session;
-import org.junit.Test;
 
 public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements SoapFilter
 {

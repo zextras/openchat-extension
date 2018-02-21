@@ -91,6 +91,7 @@ public class EventMessageHistoryLastEncoder extends XmppEncoder
           if (!StringUtils.isEmpty(mEvent.getLastId()))
           {
             sw.writeStartElement("last");
+            sw.writeAttribute("stamp",convertLongToUTCDateString(mEvent.getTimestamp(), CURRENT_XMPP_FORMAT)); // not really standard
             sw.writeCharacters(mEvent.getLastId());
             sw.writeEndElement();
           }

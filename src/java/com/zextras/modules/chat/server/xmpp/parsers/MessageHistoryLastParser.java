@@ -41,6 +41,7 @@ public class MessageHistoryLastParser extends XmppParser
   private String mQueryId;
   private String mFirst;
   private String mLast;
+  private String mTimestamp;
 
   public MessageHistoryLastParser(
     InputStream xmlInput,
@@ -54,6 +55,7 @@ public class MessageHistoryLastParser extends XmppParser
     mFirst = "";
     mLast = "";
     mSender = "";
+    mTimestamp = "";
   }
 
 /*
@@ -167,6 +169,7 @@ public class MessageHistoryLastParser extends XmppParser
               break;
             case "last":
               mLast = emptyStringWhenNull(sr.getText());
+              mTimestamp = emptyStringWhenNull(sr.getAttributeValue("", "stamp"));
               break;
           }
 
@@ -218,4 +221,9 @@ public class MessageHistoryLastParser extends XmppParser
     return mLast;
   }
 
+  @NotNull
+  public String getTimestamp()
+  {
+    return mTimestamp;
+  }
 }

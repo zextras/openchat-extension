@@ -1,12 +1,14 @@
 package com.zextras.modules.chat.server.xmpp.decoders;
 
 import com.google.common.base.Optional;
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.xmpp.parsers.MessageHistoryLastParser;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
+import org.openzal.zal.Utils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
@@ -33,6 +35,21 @@ public class MessageHistoryLastDecoder implements EventDecoder
     {
       eventId = EventId.randomUUID().toString();
     }
+    long timestamp = System.currentTimeMillis();
+
+    try
+    {
+      String s = parser.getTimestamp();
+      if (!s.isEmpty())
+      {
+        timestamp = Long.valueOf(s);
+      }
+    }
+    catch (RuntimeException e)
+    {
+      ChatLog.log.warn(Utils.exceptionToString(e));
+    }
+
     return Collections.<Event>singletonList(new EventMessageHistoryLast(
       EventId.fromString(eventId),
       new SpecificAddress(parser.getSender()),
@@ -41,7 +58,7 @@ public class MessageHistoryLastDecoder implements EventDecoder
       parser.getFirst(),
       parser.getLast(),
       Optional.<Integer>absent(),
-      System.currentTimeMillis()
+      timestamp
     ));
   }
 }

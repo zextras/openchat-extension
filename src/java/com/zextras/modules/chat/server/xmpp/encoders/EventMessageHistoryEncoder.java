@@ -39,7 +39,6 @@ import java.util.TimeZone;
  */
 public class EventMessageHistoryEncoder extends XmppEncoder
 {
-  private static final String CURRENT_XMPP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
   private final EventMessageHistory mEvent;
 
 /*
@@ -100,13 +99,5 @@ public class EventMessageHistoryEncoder extends XmppEncoder
       sw.writeEndElement();
     sw.writeEndElement();
     sw.close();
-  }
-
-  private String convertLongToUTCDateString(long timestamp, String format)
-  {
-    Date messageDate = new Date(timestamp);
-    SimpleDateFormat sdf = new SimpleDateFormat(format);
-    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-    return sdf.format(messageDate);
   }
 }

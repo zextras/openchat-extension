@@ -28,7 +28,7 @@ public class ImMessage
     this(
       id,
       sentTimestamp,
-      (long) 0,
+      0,
       EventType.Chat,
       false,
       (short) 0,
@@ -50,7 +50,7 @@ public class ImMessage
     this(
       id,
       System.currentTimeMillis(),
-      (long) 0,
+      0,
       type,
       false,
       (short) 0,

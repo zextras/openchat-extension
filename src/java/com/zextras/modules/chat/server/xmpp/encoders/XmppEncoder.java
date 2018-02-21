@@ -29,9 +29,13 @@ import org.codehaus.stax2.validation.XMLValidationSchema;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public abstract class XmppEncoder implements Encoder
 {
+  public static final String CURRENT_XMPP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
   private final String            mSchemaName;
   private final SchemaProvider    mSchemaProvider;
   private final XMLOutputFactory2 mFactory;
@@ -69,4 +73,12 @@ public abstract class XmppEncoder implements Encoder
   }
 
   public abstract void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException;
+
+  public String convertLongToUTCDateString(long timestamp, String format)
+  {
+    Date messageDate = new Date(timestamp);
+    SimpleDateFormat sdf = new SimpleDateFormat(format);
+    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    return sdf.format(messageDate);
+  }
 }

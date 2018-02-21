@@ -49,6 +49,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -211,40 +212,54 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
     };
   }
 
-  private List<Event> query(String user1, String user2, String queryId,Optional<Long> start,Optional<Long> end, Optional<Integer> max) throws ChatException
+  private List<Event> query(String requester, String target, String queryId,Optional<Long> start,Optional<Long> end, Optional<Integer> max) throws ChatException
   {
     List<Event> events = new ArrayList<Event>();
 
     try
     {
-      String sender = mProvisioning.getLocalServer().getName();
-
-      // TODO:
-      //
-      // e' da aggiungere il timestamp sul messaggio EventMessageHistoryLast? c'e' in tutti gli event, magari lo riciclo
-      //
       if (max.isPresent() && max.get() == 0)
       {
-        if (user2.isEmpty())
+        if (target.isEmpty())
         {
-          throw new RuntimeException("User2 is empty");
+          Map<String, Long> lastMessageRead = mImMessageStatements.getLastMessageRead(requester);
+          for (String user : lastMessageRead.keySet())
+          {
+            Long timestamp = lastMessageRead.get(user);
+            int count = mImMessageStatements.getCountMessageToRead(requester, user, timestamp);
+            events.add(new EventMessageHistoryLast(
+              EventId.randomUUID(),
+              new SpecificAddress(user),
+              "", // TODO: add a new event?
+              new SpecificAddress(requester),
+              "",
+              "",
+              Optional.<Integer>of(count),
+              timestamp
+            ));
+          }
         }
-        long timestamp = mImMessageStatements.getLastMessageRead(user1,user2);
-        long count = mImMessageStatements.getCountMessageToRead(user1,user2,timestamp);
-        events.add(new EventMessageHistoryLast(
-          EventId.randomUUID(),
-          new SpecificAddress(sender),
-          queryId,
-          new SpecificAddress(user1),
-          "",
-          "",
-          max,
-          count
-        ));
+        else
+        {
+          Map<String, Long> lastMessageRead = mImMessageStatements.getLastMessageRead(requester);
+          Long timestamp = lastMessageRead.get(target);
+          int count = mImMessageStatements.getCountMessageToRead(requester, target, timestamp);
+          events.add(new EventMessageHistoryLast(
+            EventId.randomUUID(),
+            new SpecificAddress(target),
+            "",
+            new SpecificAddress(requester),
+            "",
+            "",
+            Optional.<Integer>of(count),
+            timestamp
+          ));
+        }
       }
       else
       {
-        DbPrefetchIterator<ImMessage> it = mImMessageStatements.query(user1, user2, start, end, max);
+        String sender = mProvisioning.getLocalServer().getName();
+        DbPrefetchIterator<ImMessage> it = mImMessageStatements.query(requester, target, start, end, max);
         String lastMessageId = "";
         String firstMessageId = "";
         while (it.hasNext())
@@ -259,7 +274,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
             EventId.randomUUID(),
             new SpecificAddress(sender),
             queryId,
-            new SpecificAddress(user1),
+            new SpecificAddress(requester),
             new EventMessage(
               EventId.fromString(message.getId()),
               new SpecificAddress(message.getSender()),
@@ -273,7 +288,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
           EventId.randomUUID(),
           new SpecificAddress(sender),
           queryId,
-          new SpecificAddress(user1),
+          new SpecificAddress(requester),
           firstMessageId,
           lastMessageId,
           max,

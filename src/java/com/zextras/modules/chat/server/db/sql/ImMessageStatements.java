@@ -18,6 +18,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ImMessageStatements
 {
@@ -117,8 +120,11 @@ public class ImMessageStatements
   private final static String sSELECT_MESSAGE_READ =
     "SELECT TIMESTAMP FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
 
+  private final static String sSELECT_ALL_MESSAGE_READ =
+    "SELECT SENDER,TIMESTAMP FROM MESSAGE_READ WHERE DESTINATION = ?";
+
   private final static String sCOUNT_MESSAGE_TO_READ =
-    "SELECT COUNT(*) FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ? AND TIMESTAMP > ?";
+    "SELECT COUNT(*) FROM MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final DbHandler mDbHandler;
   private final ChatDbHelper mChatDbHelper;
@@ -213,7 +219,7 @@ public class ImMessageStatements
         StringBuilder sb = new StringBuilder(sSELECT_MESSAGE);
         if (!destination.isEmpty())
         {
-          sb.append(" AND DESTINATION=?");
+          sb.append(" AND DESTINATION = ?");
         }
         if (fromTime.isPresent())
         {
@@ -377,9 +383,35 @@ public class ImMessageStatements
     return timestamp[0];
   }
 
-  public long getCountMessageToRead(final String sender, final String destination,final long timestamp) throws SQLException
+  public Map<String,Long> getLastMessageRead(final String destination) throws SQLException
   {
-    final long[] count = {0};
+    final Map<String,Long> map = new HashMap<String,Long>();
+
+    mChatDbHelper.query(sSELECT_ALL_MESSAGE_READ,
+      new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          int i = 1;
+          preparedStatement.setString(i++, destination);
+        }
+      },
+      new ChatDbHelper.ResultSetFactory()
+      {
+        @Override
+        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        {
+          map.put(rs.getString(1),rs.getLong(2));
+        }
+      });
+
+    return map;
+  }
+
+  public int getCountMessageToRead(final String sender, final String destination,final long timestamp) throws SQLException
+  {
+    final int[] count = {0};
 
     mChatDbHelper.query(sCOUNT_MESSAGE_TO_READ,
       new ChatDbHelper.ParametersFactory()
@@ -391,6 +423,7 @@ public class ImMessageStatements
           preparedStatement.setString(i++, sender);
           preparedStatement.setString(i++, destination);
           preparedStatement.setLong(i++, timestamp);
+          preparedStatement.setLong(i++, timestamp);
         }
       },
       new ChatDbHelper.ResultSetFactory()
@@ -398,7 +431,7 @@ public class ImMessageStatements
         @Override
         public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
         {
-          count[0] = rs.getLong(1);
+          count[0] = rs.getInt(1);
         }
       });
 

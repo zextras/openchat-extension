@@ -20,7 +20,6 @@ package com.zextras.modules.chat.server.soap.encoders;
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;
-import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
@@ -46,7 +45,10 @@ public class EventMessageHistoryLastEncoder implements SoapEncoder
 //    message.put("first_index",  mEventHistoryLast.getFirstIndex());
     message.put("first", mEventHistoryLast.getFirstId());
     message.put("last",  mEventHistoryLast.getLastId());
-    message.put("count", mEventHistoryLast.getMax());
+    if (!mEventHistoryLast.getMax().isPresent())
+    {
+      message.put("count", mEventHistoryLast.getMax());
+    }
 
     response.addResponse(message);
   }

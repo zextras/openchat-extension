@@ -39,6 +39,7 @@ import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
@@ -147,7 +148,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
             mImMessageStatements.upsertMessageRead(
               sender,
               eventMessage.getTarget().toSingleAddress(),
-              eventMessage.getTimestamp(),
+              System.currentTimeMillis(),
               eventMessage.getId().toString()
             );
           }
@@ -222,11 +223,12 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       {
         if (target.isEmpty())
         {
-          Map<String, Integer> lastMessageRead = mImMessageStatements.getCountMessageToRead(requester);
+          Map<String,Pair<Integer,Long>> lastMessageRead = mImMessageStatements.getCountMessageToRead(requester);
           for (String user : lastMessageRead.keySet())
           {
-            Integer count = lastMessageRead.get(user);
-            long timestamp = mImMessageStatements.getLastMessageRead(user,requester);
+            Pair<Integer,Long> pair = lastMessageRead.get(user);
+            int count = pair.getLeft();
+            long timestamp = pair.getRight();
 
             events.add(new EventMessageHistoryLast(
               EventId.randomUUID(),

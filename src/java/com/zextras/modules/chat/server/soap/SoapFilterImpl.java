@@ -49,7 +49,7 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
 
   public Boolean interpret(EventMessageHistory event)
   {
-    if (!isUser(event.getMessageTo()))
+    if (!isUser(event.getSender()) || !isUser(event.getMessageTo()))
     {
       return true;
     }
@@ -58,7 +58,7 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
 
   public Boolean interpret(EventMessageHistoryLast event)
   {
-    if (!isUser(event.getMessageTo()))
+    if (!isUser(event.getSender()) || !isUser(event.getMessageTo()))
     {
       return true;
     }

@@ -147,7 +147,7 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       {
         queryEvents.add(new EventIQQuery(
           EventId.randomUUID(),
-          localServer,
+          new SpecificAddress(mWith.get()),
           mQueryid,
           new Target(addresses),
           mNode,
@@ -193,10 +193,18 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
         mFirstMessageId = mMessages.get(0).getId().toString();
         mLastMessageId = mMessages.get(mMessages.size() - 1).getId().toString();
       }
-      historyEvents.addAll(mMessages);
+
+      for (EventMessageHistory message : mMessages)
+      {
+        if (mMax.isPresent() && historyEvents.size()>= mMax.get())
+        {
+          break;
+        }
+        historyEvents.add(message);
+      }
       historyEvents.add(new EventMessageHistoryLast(
         EventId.randomUUID(),
-        new SpecificAddress(mWith.or(localServer.toString())),
+        new SpecificAddress(mWith.get()), // TODO: what if with is empty?
         mQueryid,
         mSenderAddress,
         mFirstMessageId,
@@ -222,7 +230,8 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       {
         mMessages.add(new EventMessageHistory(
           message.getId(),
-          message.getOriginalMessage().getSender(),
+          new SpecificAddress(mWith.get()), // TODO: what if with is empty?
+          //new SpecificAddress("chat@"+mProvisioning.getLocalServer().getServerHostname()),
           mQueryid,
           mSenderAddress,
           message.getOriginalMessage()

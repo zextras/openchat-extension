@@ -11,16 +11,16 @@ import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.dbutils.DbUtils;
-import org.openzal.zal.Pair;
-import org.openzal.zal.exceptions.NoSuchMessageException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ImMessageStatements
 {
@@ -126,7 +126,14 @@ public class ImMessageStatements
     "SELECT MESSAGE.SENDER,COUNT(MESSAGE.ID) " +
       " FROM MESSAGE " +
       " LEFT JOIN MESSAGE_READ " +
-      " ON (MESSAGE.SENT_TIMESTAMP > MESSAGE_READ.TIMESTAMP OR MESSAGE.EDIT_TIMESTAMP > MESSAGE_READ.TIMESTAMP)" +
+      " ON MESSAGE.SENDER = MESSAGE_READ.SENDER AND " +
+      "    MESSAGE.DESTINATION = MESSAGE_READ.DESTINATION " +
+      " WHERE MESSAGE.DESTINATION = ? " +
+      " GROUP BY MESSAGE.SENDER";
+
+  private final static String sALL_RECIPENTS =
+    "SELECT MESSAGE.SENDER " +
+      " FROM MESSAGE " +
       " WHERE MESSAGE.DESTINATION = ? " +
       " GROUP BY MESSAGE.SENDER";
 
@@ -413,11 +420,49 @@ public class ImMessageStatements
     return map;
   }
 
-  public Map<String,Integer> getCountMessageToRead(final String destination) throws SQLException
+  public Set<String> getAllRecipents(final String destination) throws SQLException
+  {
+    final Set<String> set = new HashSet<String>();
+
+    mChatDbHelper.query(sALL_RECIPENTS,
+      new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          preparedStatement.setString(1, destination);
+        }
+      },
+      new ChatDbHelper.ResultSetFactory()
+      {
+        @Override
+        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        {
+          set.add(rs.getString(1));
+        }
+      });
+
+    return set;
+  }
+
+  public Map<String,Pair<Integer,Long>> getCountMessageToRead(final String destination) throws SQLException
+  {
+    Map<String,Pair<Integer,Long>> map = new HashMap<String,Pair<Integer,Long>>();
+    Set<String> recipients = getAllRecipents(destination);
+    for (String sender : recipients)
+    {
+      long timestamp = getLastMessageRead(destination,sender);
+      int count = getCountMessageToRead(sender,destination,timestamp);
+      map.put(sender,Pair.<Integer,Long>of(count,timestamp));
+    }
+    return map;
+  }
+
+  public Map<String,Integer> getCountMessageToReadFast(final String destination) throws SQLException
   {
     final Map<String,Integer> map = new HashMap<String,Integer>();
 
-    mChatDbHelper.query(sCOUNT_ALL_MESSAGE_TO_READ,
+    mChatDbHelper.query(sCOUNT_ALL_MESSAGE_TO_READ, // TODO: fix it
       new ChatDbHelper.ParametersFactory()
       {
         @Override
@@ -436,6 +481,33 @@ public class ImMessageStatements
       });
 
     return map;
+  }
+
+  public int getCountMessageToRead(final String sender,final String destination,final long timestamp) throws SQLException
+  {
+    final int[] count = new int[1];
+    mChatDbHelper.query(sCOUNT_MESSAGE_TO_READ,
+      new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          preparedStatement.setString(1, sender);
+          preparedStatement.setString(2, destination);
+          preparedStatement.setLong(3, timestamp);
+          preparedStatement.setLong(4, timestamp);
+        }
+      },
+      new ChatDbHelper.ResultSetFactory()
+      {
+        @Override
+        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        {
+          count[0] = rs.getInt(1);
+        }
+      });
+
+    return count[0];
   }
 
   private void assertDBConnection(Connection connection) throws SQLException

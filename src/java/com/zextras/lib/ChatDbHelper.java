@@ -26,7 +26,7 @@ public class ChatDbHelper
   public static class DbConnection
   {
     private java.sql.Connection mConnection;
-    private boolean mOldAutoCommitState;
+    private Boolean mOldAutoCommitState;
 
     private DbConnection(Connection connection) throws SQLException
     {
@@ -35,16 +35,7 @@ public class ChatDbHelper
         throw new SQLException("Error getting DB connection");
       }
       mConnection = connection;
-      try
-      {
-        mOldAutoCommitState = connection.getAutoCommit();
-        connection.setAutoCommit(false);
-      }
-      catch (SQLException e)
-      {
-        DbUtils.closeQuietly(connection);
-        throw e;
-      }
+      mOldAutoCommitState = null;
     }
 
     public void close()
@@ -52,8 +43,26 @@ public class ChatDbHelper
       DbUtils.closeQuietly(mConnection);
     }
 
+    public void beginTransaction() throws SQLException
+    {
+      try
+      {
+        mOldAutoCommitState = mConnection.getAutoCommit();
+        mConnection.setAutoCommit(false);
+      }
+      catch (SQLException e)
+      {
+        DbUtils.closeQuietly(mConnection);
+        throw e;
+      }
+    }
+
     public void commitAndClose() throws SQLException
     {
+      if (mOldAutoCommitState == null)
+      {
+        throw new SQLException("BeginTransaction not called");
+      }
       try
       {
         mConnection.commit();
@@ -67,6 +76,10 @@ public class ChatDbHelper
 
     public void rollbackAndClose() throws SQLException
     {
+      if (mOldAutoCommitState == null)
+      {
+        throw new SQLException("BeginTransaction not called");
+      }
       try
       {
         mConnection.rollback();
@@ -104,8 +117,9 @@ public class ChatDbHelper
 
   public DbConnection beginTransaction() throws SQLException
   {
-    Connection connection = mDbHandler.getConnection();
-    return new DbConnection(connection);
+    DbConnection dbConnection = new DbConnection(mDbHandler.getConnection());
+    dbConnection.beginTransaction();
+    return dbConnection;
   }
 
   public void query(String sql, ResultSetFactory rsFactory) throws SQLException

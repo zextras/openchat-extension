@@ -49,10 +49,7 @@ public class EventMessageHistoryLastEncoder implements SoapEncoder
     {
       message.put("count", mEventHistoryLast.getCount().get());
     }
-    if (mEventHistoryLast.getTimestamp() > 0)
-    {
-      message.put("last_date", mEventHistoryLast.getTimestamp());
-    }
+    message.put("last_date", mEventHistoryLast.getTimestamp());
 
     response.addResponse(message);
   }

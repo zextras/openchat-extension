@@ -95,6 +95,12 @@ public class EventMessageHistoryLastEncoder extends XmppEncoder
             sw.writeCharacters(mEvent.getLastId());
             sw.writeEndElement();
           }
+          if (mEvent.getCount().isPresent())
+          {
+            sw.writeStartElement("count");
+            sw.writeInt(mEvent.getCount().get());
+            sw.writeEndElement();
+          }
         sw.writeEndElement();
       sw.writeEndElement();
     sw.writeEndElement();

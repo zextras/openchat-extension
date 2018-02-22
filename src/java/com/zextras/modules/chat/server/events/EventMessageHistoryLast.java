@@ -36,7 +36,7 @@ public class EventMessageHistoryLast extends Event
   private final SpecificAddress mMessageTo;
   private final String mFirstId;
   private final String mLastId;
-  private final Optional<Integer> mMax;
+  private final Optional<Integer> mCount;
 
   public EventMessageHistoryLast(
     EventId eventId,
@@ -45,7 +45,7 @@ public class EventMessageHistoryLast extends Event
     SpecificAddress messageTo,
     String firstId,
     String lastId,
-    Optional<Integer> max,
+    Optional<Integer> count,
     long timestamp
   )
   {
@@ -54,7 +54,7 @@ public class EventMessageHistoryLast extends Event
     mMessageTo = messageTo;
     mFirstId = firstId;
     mLastId = lastId;
-    mMax = max;
+    mCount = count;
   }
 
   @Override
@@ -83,9 +83,9 @@ public class EventMessageHistoryLast extends Event
     return mLastId;
   }
 
-  public Optional<Integer> getMax()
+  public Optional<Integer> getCount()
   {
-    return mMax;
+    return mCount;
   }
 }
 

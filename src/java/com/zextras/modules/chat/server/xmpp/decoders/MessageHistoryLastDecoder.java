@@ -50,6 +50,19 @@ public class MessageHistoryLastDecoder implements EventDecoder
       ChatLog.log.warn(Utils.exceptionToString(e));
     }
 
+    Optional<Integer> optinalCount = Optional.<Integer>absent();
+    try
+    {
+      String s = parser.getCount();
+      if (!s.isEmpty())
+      {
+        optinalCount = Optional.<Integer>of(Integer.valueOf(s));
+      }
+    }
+    catch (RuntimeException e)
+    {
+      ChatLog.log.warn(Utils.exceptionToString(e));
+    }
     return Collections.<Event>singletonList(new EventMessageHistoryLast(
       EventId.fromString(eventId),
       new SpecificAddress(parser.getSender()),
@@ -57,7 +70,7 @@ public class MessageHistoryLastDecoder implements EventDecoder
       new SpecificAddress(parser.getTo()),
       parser.getFirst(),
       parser.getLast(),
-      Optional.<Integer>absent(),
+      optinalCount,
       timestamp
     ));
   }

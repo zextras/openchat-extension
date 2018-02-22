@@ -196,7 +196,7 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       historyEvents.addAll(mMessages);
       historyEvents.add(new EventMessageHistoryLast(
         EventId.randomUUID(),
-        new SpecificAddress(mWith.or(mProvisioning.getZimbraUser().getMail())),
+        new SpecificAddress(mWith.or(localServer.toString())),
         mQueryid,
         mSenderAddress,
         mFirstMessageId,

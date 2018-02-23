@@ -35,7 +35,7 @@ public class FixedStatus extends StatusAdapter implements Status
   public static final FixedStatus NeedResponse = new FixedStatus(StatusType.NEED_RESPONSE);
   public static final FixedStatus Invited      = new FixedStatus(StatusType.INVITED);
   public static final FixedStatus Unreachable  = new FixedStatus(StatusType.UNREACHABLE);
-  public static final FixedStatus Unsuscribed  = new FixedStatus(StatusType.UNSUBSCRIBED);
+  public static final FixedStatus Unsubscribed = new FixedStatus(StatusType.UNSUBSCRIBED);
 
   public FixedStatus(StatusType type)
   {

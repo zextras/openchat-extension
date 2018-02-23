@@ -81,7 +81,12 @@ public class SoapCommandQueryArchive extends SoapCommand
       String s = StringUtils.defaultString(mParameterMap.get(START));
       if (!s.isEmpty())
       {
-        start = Optional.<Long>of(Long.valueOf(s));
+        long timestamp = Long.valueOf(s);
+        if (timestamp < 0)
+        {
+          timestamp = System.currentTimeMillis();
+        }
+        start = Optional.<Long>of(timestamp);
       }
     }
     catch (RuntimeException e)
@@ -93,7 +98,12 @@ public class SoapCommandQueryArchive extends SoapCommand
       String s = StringUtils.defaultString(mParameterMap.get(END));
       if (!s.isEmpty())
       {
-        end = Optional.<Long>of(Long.valueOf(s));
+        long timestamp = Long.valueOf(s);
+        if (timestamp < 0)
+        {
+          timestamp = System.currentTimeMillis();
+        }
+        end = Optional.<Long>of(timestamp);
       }
     }
     catch (RuntimeException e)

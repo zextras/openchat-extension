@@ -116,13 +116,16 @@ public class ImMessageStatements
     "DELETE FROM MESSAGE_READ WHERE SENDER=? AND DESTINATION=?";
 
   private final static String sSELECT_MESSAGE_READ =
-    "SELECT TIMESTAMP FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
+    "SELECT TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
 
   private final static String sSELECT_ALL_MESSAGE_READ =
     "SELECT SENDER,TIMESTAMP FROM MESSAGE_READ WHERE DESTINATION = ?";
 
   private final static String sCOUNT_MESSAGE_TO_READ =
     "SELECT COUNT(*) FROM MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
+
+  private final static String sCOUNT_MESSAGE_TO_READ_FROM_EVERYONE =
+    "SELECT COUNT(*) FROM MESSAGE WHERE DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final static String sCOUNT_ALL_MESSAGE_TO_READ =
     "SELECT MESSAGE.SENDER,COUNT(MESSAGE.ID) " +
@@ -228,11 +231,11 @@ public class ImMessageStatements
     }
     if (fromTime.isPresent())
     {
-      sb.append(" AND (SENT_TIMESTAMP >= ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP >= ?))");
+      sb.append(" AND (SENT_TIMESTAMP > ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP > ?))");
     }
     if (toTime.isPresent())
     {
-      sb.append(" AND (SENT_TIMESTAMP <= ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP <= ?))");
+      sb.append(" AND (SENT_TIMESTAMP < ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP < ?))");
     }
     sb.append(sSELECT_MESSAGE_ORDER);
 
@@ -365,9 +368,9 @@ public class ImMessageStatements
     }
   }
 
-  public long getLastMessageRead(final String sender, final String destination) throws SQLException
+  public Pair<Long,String> getLastMessageRead(final String sender, final String destination) throws SQLException
   {
-    final long[] timestamp = {0};
+    final Pair<Long,String> pair[] = new Pair[1];
 
     mChatDbHelper.query(sSELECT_MESSAGE_READ,
       new ChatDbHelper.ParametersFactory()
@@ -385,11 +388,13 @@ public class ImMessageStatements
         @Override
         public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
         {
-          timestamp[0] = rs.getLong(1);
+          long timestamp = rs.getLong(1);
+          String id = rs.getString(2);
+          pair[0] = Pair.of(timestamp,id);
         }
       });
 
-    return timestamp[0];
+    return pair[0];
   }
 
   public Map<String,Long> getLastMessageRead(final String destination) throws SQLException
@@ -449,7 +454,7 @@ public class ImMessageStatements
     Set<String> recipients = getAllRecipents(destination);
     for (String sender : recipients)
     {
-      long timestamp = getLastMessageRead(destination,sender);
+      long timestamp = getLastMessageRead(destination,sender).getLeft();
       int count = getCountMessageToRead(sender,destination,timestamp);
       map.put(sender,Pair.<Integer,Long>of(count,timestamp));
     }
@@ -494,6 +499,32 @@ public class ImMessageStatements
           preparedStatement.setString(2, destination);
           preparedStatement.setLong(3, timestamp);
           preparedStatement.setLong(4, timestamp);
+        }
+      },
+      new ChatDbHelper.ResultSetFactory()
+      {
+        @Override
+        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        {
+          count[0] = rs.getInt(1);
+        }
+      });
+
+    return count[0];
+  }
+
+  public int getCountMessageToReadFromEveryone(final String destination,final long timestamp) throws SQLException
+  {
+    final int[] count = new int[1];
+    mChatDbHelper.query(sCOUNT_MESSAGE_TO_READ_FROM_EVERYONE,
+      new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          preparedStatement.setString(1, destination);
+          preparedStatement.setLong(2, timestamp);
+          preparedStatement.setLong(3, timestamp);
         }
       },
       new ChatDbHelper.ResultSetFactory()

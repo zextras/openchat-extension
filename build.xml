@@ -306,6 +306,20 @@
              dest="${lib}/commons-lang3-3.1.jar" usetimestamp="true"/>
      </else>
    </if>
+  <if>
+      <available file="${lib}/commons-dbutils-1.6.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/commons-dbutils/commons-dbutils/1.6/commons-dbutils-1.6.jar"
+             dest="${lib}/commons-dbutils-1.6.jar" usetimestamp="true"/>
+     </else>
+   </if>
+      <if>
+      <available file="${lib}/joda-time-2.9.9.jar" />
+      <else>
+        <get src="http://central.maven.org/maven2/joda-time/joda-time/2.9.9/joda-time-2.9.9.jar"
+             dest="${lib}/joda-time-2.9.9.jar" usetimestamp="true"/>
+     </else>
+   </if>
     <if>
       <available file="${lib}/log4j-1.2.15.jar" />
       <else>

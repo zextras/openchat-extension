@@ -222,26 +222,30 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
     {
       if (max.isPresent() && max.get() == 0)
       {
-        if (target.isEmpty())
+        Set<String> recipients = mImMessageStatements.getAllRecipents(requester);
+        for (String recipient : recipients)
         {
-          Map<String,Pair<Integer,Long>> lastMessageRead = mImMessageStatements.getCountMessageToRead(requester);
-          for (String user : lastMessageRead.keySet())
-          {
-            Pair<Integer,Long> pair = lastMessageRead.get(user);
-            int count = pair.getLeft();
-            long timestamp = pair.getRight();
+          Pair<Long,String> pair = mImMessageStatements.getLastMessageRead(requester,recipient);
+          long timestamp = pair.getLeft();
+          String messageId = pair.getRight();
+          int count = mImMessageStatements.getCountMessageToRead(recipient,requester,timestamp);
 
-            events.add(new EventMessageHistoryLast(
-              EventId.randomUUID(),
-              new SpecificAddress(user),
-              "",
-              new SpecificAddress(requester),
-              "",
-              "",
-              Optional.<Integer>of(count),
-              timestamp
-            ));
-          }
+          events.add(new EventMessageHistoryLast(
+            EventId.randomUUID(),
+            new SpecificAddress(recipient),
+            "",
+            new SpecificAddress(requester),
+            "",
+            "",
+            Optional.<Integer>of(count),
+            timestamp
+          ));
+          events.add(new EventMessageAck(
+            new SpecificAddress(recipient),
+            new SpecificAddress(requester),
+            EventId.fromString(messageId),
+            timestamp
+          ));
         }
 //        else
 //        {

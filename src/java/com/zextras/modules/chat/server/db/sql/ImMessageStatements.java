@@ -17,8 +17,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,8 +69,8 @@ public class ImMessageStatements
       "    WHERE SENDER = ? ";
 
   private final static String sSELECT_MESSAGE_ORDER =
-      "    ORDER BY SENT_TIMESTAMP ASC" +
-        "    LIMIT ? OFFSET ?";
+      "    ORDER BY SENT_TIMESTAMP DESC" +
+        "    LIMIT ?";
 
   private final static String sql_text =
     "    SELECT ID," +
@@ -211,66 +213,62 @@ public class ImMessageStatements
     }
   }
 
-  public DbPrefetchIterator<ImMessage> query(
+  public List<ImMessage> query(
     final String sender,
     final String destination,
     final Optional<Long> fromTime,
     final Optional<Long> toTime,
     final Optional<Integer> max) throws SQLException
   {
-    return new DbPrefetchIterator<ImMessage>(new QueryExecutor()
+    final List<ImMessage> messages = new ArrayList<ImMessage>();
+    StringBuilder sb = new StringBuilder(sSELECT_MESSAGE);
+    if (!destination.isEmpty())
     {
-      Connection mConnection;
+      sb.append(" AND DESTINATION = ?");
+    }
+    if (fromTime.isPresent())
+    {
+      sb.append(" AND (SENT_TIMESTAMP >= ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP >= ?))");
+    }
+    if (toTime.isPresent())
+    {
+      sb.append(" AND (SENT_TIMESTAMP <= ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP <= ?))");
+    }
+    sb.append(sSELECT_MESSAGE_ORDER);
 
+    mChatDbHelper.query(sb.toString(), new ChatDbHelper.ParametersFactory()
+    {
       @Override
-      public ResultSet executeQuery(int start, int size) throws SQLException
+      public void create(PreparedStatement preparedStatement) throws SQLException
       {
-        mConnection = mDbHandler.getConnection();
-        assertDBConnection(mConnection);
-        StringBuilder sb = new StringBuilder(sSELECT_MESSAGE);
-        if (!destination.isEmpty())
-        {
-          sb.append(" AND DESTINATION = ?");
-        }
-        if (fromTime.isPresent())
-        {
-          sb.append(" AND (SENT_TIMESTAMP >= ? OR EDIT_TIMESTAMP >= ?)");
-        }
-        if (toTime.isPresent())
-        {
-          sb.append(" AND (SENT_TIMESTAMP <= ? OR EDIT_TIMESTAMP <= ?)");
-        }
-        sb.append(sSELECT_MESSAGE_ORDER);
-
-        PreparedStatement query = mConnection.prepareStatement(sb.toString());
         int i = 1;
-        query.setString(i++, sender);
+        preparedStatement.setString(i++, sender);
         if (!destination.isEmpty())
         {
-          query.setString(i++, destination);
+          preparedStatement.setString(i++, destination);
         }
         if (fromTime.isPresent())
         {
-          query.setLong(i++, fromTime.get());
-          query.setLong(i++, fromTime.get());
+          preparedStatement.setLong(i++, fromTime.get());
+          preparedStatement.setLong(i++, fromTime.get());
         }
         if (toTime.isPresent())
         {
-          query.setLong(i++, toTime.get());
-          query.setLong(i++, toTime.get());
+          preparedStatement.setLong(i++, toTime.get());
+          preparedStatement.setLong(i++, toTime.get());
         }
-        query.setInt(i++, size);
-        query.setInt(i++, start);
-        return query.executeQuery();
+        preparedStatement.setInt(i++, max.or(1000));
       }
-
+    }, new ChatDbHelper.ResultSetFactory()
+    {
       @Override
-      public void close()
+      public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
       {
-        DbUtils.closeQuietly(mConnection);
+        messages.add(mMessageFactory.readFromResultSet(rs));
       }
+    });
 
-    }, mMessageFactory,max.or(5000));
+    return messages;
   }
 
   public DbPrefetchIterator<ImMessage> query(final String sender, final String destination, final String text) throws SQLException

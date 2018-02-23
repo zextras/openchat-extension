@@ -49,6 +49,7 @@ import org.openzal.zal.lib.FakeClock;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -261,7 +262,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       else
       {
         String sender = mProvisioning.getLocalServer().getName();
-        DbPrefetchIterator<ImMessage> it = mImMessageStatements.query(requester, target, start, end, max);
+        Iterator<ImMessage> it = mImMessageStatements.query(requester, target, start, end, max).iterator();
         String lastMessageId = "";
         String firstMessageId = "";
         while (it.hasNext())

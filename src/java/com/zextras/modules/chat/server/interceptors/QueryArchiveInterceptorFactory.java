@@ -18,7 +18,17 @@
 package com.zextras.modules.chat.server.interceptors;
 
 import com.zextras.modules.chat.server.events.EventInterceptorFactory;
+import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 
-public interface ArchiveInterceptorFactory extends EventInterceptorFactory
+public interface QueryArchiveInterceptorFactory extends EventInterceptorFactory
 {
+  interface MessageHistoryFactory
+  {
+    void create(EventMessageHistory message);
+    void create(EventMessageHistoryLast message);
+  }
+
+  void register(MessageHistoryFactory callback);
+  void unRegister(MessageHistoryFactory callback);
 }

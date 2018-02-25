@@ -20,7 +20,6 @@ package com.zextras.modules.chat.server.operations;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -30,21 +29,16 @@ import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventManager;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
-import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.interceptors.ArchiveInterceptorFactoryImpl;
+import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Server;
-import org.openzal.zal.Utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -52,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  *
  * @see QueryArchive
- * @see ArchiveInterceptorFactoryImpl
+ * @see QueryArchiveInterceptorFactoryImpl
  */
 public class QueryLastReadArchive implements ChatOperation
 {
@@ -65,7 +59,6 @@ public class QueryLastReadArchive implements ChatOperation
   private final Optional<Long> mStart;
   private final Optional<Long> mEnd;
   private final Optional<String> mNode;
-  private final ArchiveInterceptorFactoryImpl mArchiveInterceptorFactory;
   private List<EventMessageHistory> mMessages;
   private Lock mLock;
   private Condition mReady;
@@ -81,13 +74,11 @@ public class QueryLastReadArchive implements ChatOperation
     @Assisted("node") Optional<String> node,
     @Assisted("max") Optional<Integer> max,
     Provisioning provisioning,
-    ArchiveInterceptorFactoryImpl archiveInterceptorFactory,
     EventManager eventManager
   )
   {
     mMax = max;
     mProvisioning = provisioning;
-    mArchiveInterceptorFactory = archiveInterceptorFactory;
     mEventManager = eventManager;
     mSenderAddress = senderAddress;
     mWith = with;
@@ -109,21 +100,10 @@ public class QueryLastReadArchive implements ChatOperation
     mQueryid = EventId.randomUUID().toString();
 
     List<ChatAddress> addresses = new ArrayList<ChatAddress>();
-    if (!mWith.isPresent())
+    List<Server> allServers = mProvisioning.getAllServers();
+    for (Server server : allServers)
     {
-      List<Server> allServers = mProvisioning.getAllServers();
-      for (Server server : allServers)
-      {
-        addresses.add(new SpecificAddress(server.getServerHostname()));
-      }
-    }
-    else
-    {
-      Account account = mProvisioning.getAccountByName(mWith.get());
-      if (account != null)
-      {
-        addresses.add(new SpecificAddress(account.getServerHostname()));
-      }
+      addresses.add(new SpecificAddress(server.getServerHostname())); // TODO: stop spam
     }
     if (!addresses.isEmpty())
     {

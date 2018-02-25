@@ -24,11 +24,6 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 // TODO: it's not compatible wit older code
 public class EventMessageAck extends Event
 {
-  public EventId getMessageId()
-  {
-    return mMessageId;
-  }
-
   @Override
   public SpecificAddress getSender()
   {
@@ -37,13 +32,7 @@ public class EventMessageAck extends Event
 
   private final SpecificAddress mSender;
   private final EventId         mMessageId;
-
-  public long getTimestamp()
-  {
-    return mTimestamp;
-  }
-
-  private final long mTimestamp;
+  private final long            mTimestamp;
 
   public EventMessageAck(SpecificAddress sender, SpecificAddress target, EventId messageId, long timestamp)
   {
@@ -62,5 +51,15 @@ public class EventMessageAck extends Event
   public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
+  }
+
+  public long getTimestamp()
+  {
+    return mTimestamp;
+  }
+
+  public EventId getMessageId()
+  {
+    return mMessageId;
   }
 }

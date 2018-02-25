@@ -23,7 +23,6 @@ import com.zextras.modules.chat.server.exceptions.MissingParameterException;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.SendMessageAck;
 import com.zextras.modules.chat.server.session.SessionUUID;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,22 +45,12 @@ public class SoapCommandMessageReceived extends SoapCommand
   public List<ChatOperation> createOperationList() throws MissingParameterException
   {
     SessionUUID sessionUUID = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
-    String id = mParameterMap.get("message_id");
-    EventId eventId;
-    if (id == null || id.isEmpty())
-    {
-      eventId = EventId.randomUUID();
-    }
-    else
-    {
-      eventId = EventId.fromString(id);
-    }
 
     return Collections.<ChatOperation>singletonList(new SendMessageAck(
           mSenderAddress,
           new SpecificAddress(mParameterMap.get("target_address")),
-          eventId,
-          NumberUtils.toLong(mParameterMap.get("message_date"),System.currentTimeMillis()),
+          EventId.fromString(mParameterMap.get("message_id")),
+          System.currentTimeMillis(),
           sessionUUID)
         );
   }

@@ -27,7 +27,7 @@ import com.zextras.modules.chat.server.Priority;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
-import com.zextras.modules.chat.server.interceptors.ArchiveInterceptorFactory;
+import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactory;
 import org.openzal.zal.Utils;
 
 import java.util.*;
@@ -38,7 +38,7 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
 {
   private final EventRouter                   mEventRouter;
   private final EventManager                  mEventManager;
-  private final ArchiveInterceptorFactory mUserHistoryInterceptorFactory;
+  private final QueryArchiveInterceptorFactory mUserHistoryInterceptorFactory;
   private final ImHistoryQueue                mImHistoryQueue;
   private final Priority mPriority = new Priority(4);
 
@@ -46,7 +46,7 @@ public class HistoryEventDestination implements EventDestination, EventDestinati
   public HistoryEventDestination(
     EventRouter eventRouter,
     EventManager eventManager,
-    ArchiveInterceptorFactory userHistoryInterceptorFactory,
+    QueryArchiveInterceptorFactory userHistoryInterceptorFactory,
     ImHistoryQueue imHistoryQueue
   )
   {

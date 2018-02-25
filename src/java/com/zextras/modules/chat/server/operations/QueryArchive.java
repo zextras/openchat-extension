@@ -33,7 +33,8 @@ import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.interceptors.ArchiveInterceptorFactoryImpl;
+import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactory;
+import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
@@ -53,9 +54,9 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * zmsoap -t account -m user1@example.com -p assext  ZxChatRequest/action=query_archive ../with=user2@example.com ../session_id=687c6492-9027-416c-8172-2d668154d2d1 | recode html..text
  *
- * @see ArchiveInterceptorFactoryImpl
+ * @see QueryArchiveInterceptorFactoryImpl
  */
-public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImpl.MessageHistoryFactory
+public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFactoryImpl.MessageHistoryFactory
 {
   private final Optional<Integer> mMax;
   private final Provisioning mProvisioning;
@@ -66,7 +67,7 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
   private final Optional<Long> mStart;
   private final Optional<Long> mEnd;
   private final Optional<String> mNode;
-  private final ArchiveInterceptorFactoryImpl mArchiveInterceptorFactory;
+  private final QueryArchiveInterceptorFactory mArchiveInterceptorFactory;
   private List<EventMessageHistory> mMessages;
   private Lock mLock;
   private Condition mReady;
@@ -83,7 +84,7 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
     @Assisted("node") Optional<String> node,
     @Assisted("max") Optional<Integer> max,
     Provisioning provisioning,
-    ArchiveInterceptorFactoryImpl archiveInterceptorFactory,
+    QueryArchiveInterceptorFactory archiveInterceptorFactory,
     EventManager eventManager
   )
   {
@@ -112,6 +113,11 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
     SpecificAddress localServer = new SpecificAddress(mProvisioning.getLocalServer().getServerHostname());
     mQueryid = EventId.randomUUID().toString();
 
+    if (!mWith.isPresent())
+    {
+      throw new UnsupportedOperationException();
+    }
+
     try
     {
       queryEvents.add(new EventIQQuery(
@@ -127,21 +133,10 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       ));
 
       List<ChatAddress> addresses = new ArrayList<ChatAddress>();
-      if (!mWith.isPresent())
+      List<Server> allServers = mProvisioning.getAllServers(); // TODO: do not spam everyone
+      for (Server server : allServers)
       {
-        List<Server> allServers = mProvisioning.getAllServers();
-        for (Server server : allServers)
-        {
-          addresses.add(new SpecificAddress(server.getServerHostname()));
-        }
-      }
-      else
-      {
-        Account account = mProvisioning.getAccountByName(mWith.get());
-        if (account != null)
-        {
-          addresses.add(new SpecificAddress(account.getServerHostname()));
-        }
+        addresses.add(new SpecificAddress(server.getServerHostname()));
       }
       if (!addresses.isEmpty())
       {
@@ -204,12 +199,12 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       }
       historyEvents.add(new EventMessageHistoryLast(
         EventId.randomUUID(),
-        new SpecificAddress(mWith.get()), // TODO: what if with is empty?
+        new SpecificAddress(mWith.get()),
         mQueryid,
         mSenderAddress,
         mFirstMessageId,
         mLastMessageId,
-        mMax,
+        Optional.<Integer>of(historyEvents.size()),
         System.currentTimeMillis()
       ));
     }
@@ -230,8 +225,7 @@ public class QueryArchive implements ChatOperation, ArchiveInterceptorFactoryImp
       {
         mMessages.add(new EventMessageHistory(
           message.getId(),
-          new SpecificAddress(mWith.get()), // TODO: what if with is empty?
-          //new SpecificAddress("chat@"+mProvisioning.getLocalServer().getServerHostname()),
+          new SpecificAddress(mWith.get()),
           mQueryid,
           mSenderAddress,
           message.getOriginalMessage()

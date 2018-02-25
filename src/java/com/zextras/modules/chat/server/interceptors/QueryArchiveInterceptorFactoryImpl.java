@@ -22,7 +22,6 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
-import com.zextras.lib.sql.DbPrefetchIterator;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.Target;
@@ -51,19 +50,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
-public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory implements ArchiveInterceptorFactory
+public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory implements QueryArchiveInterceptorFactory
 {
-  public interface MessageHistoryFactory
-  {
-    void create(EventMessageHistory message);
-    void create(EventMessageHistoryLast message);
-  }
-
   private final Provisioning   mProvisioning;
   private final ChatProperties mChatProperties;
   private final ImMessageStatements mImMessageStatements;
@@ -71,7 +63,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
   private final Set<MessageHistoryFactory> mListeners;
 
   @Inject
-  public ArchiveInterceptorFactoryImpl(
+  public QueryArchiveInterceptorFactoryImpl(
     Provisioning provisioning,
     ChatProperties chatProperties,
     ImMessageStatements imMessageStatements,
@@ -103,28 +95,32 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        String sender = eventMessage.getSender().withoutResource().toString();
-        if (mChatProperties.isChatHistoryEnabled(sender))
+        final EventType eventType = eventMessage.getType();
+        if (eventType == EventType.Chat)
         {
-            Account account = mProvisioning.assertAccountByName(target.toString());
+          String sender = eventMessage.getSender().withoutResource().toString();
+          if (mChatProperties.isChatHistoryEnabled(sender))
+          {
+            Account account = mProvisioning.assertAccountByName(sender);
             if (mProvisioning.onLocalServer(account))
             {
               try
               {
                 ImMessage message = new ImMessage(
                   eventMessage.getId().toString(),
-                  eventMessage.getSender().withoutResource().toString(),
+                  sender,
                   target.withoutResource().toString(),
                   eventMessage.getMessage(),
                   EventType.Chat);
 
-              mImMessageStatements.insert(message);
+                mImMessageStatements.insert(message);
+              }
+              catch (Exception e)
+              {
+                ChatLog.log.warn("Cannot save history for " + sender + ": " + Utils.exceptionToString(e));
+              }
+              return true;
             }
-            catch (Exception e)
-            {
-              ChatLog.log.warn("Cannot save history for " + sender + ": " + Utils.exceptionToString(e));
-            }
-            return true;
           }
         }
         return false;
@@ -144,19 +140,19 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
         try
         {
           Account account = mProvisioning.assertAccountByName(sender);
-          if (mProvisioning.onLocalServer(account))
+          if (account != null && mProvisioning.onLocalServer(account))
           {
             mImMessageStatements.upsertMessageRead(
               sender,
               eventMessage.getTarget().toSingleAddress(),
               System.currentTimeMillis(),
-              eventMessage.getId().toString()
+              eventMessage.getMessageId().toString()
             );
           }
         }
         catch (Exception e)
         {
-          ChatLog.log.warn("Cannot save message_read for " + target.withoutSession().toString() + ": " + Utils.exceptionToString(e));
+          ChatLog.log.warn("Cannot save message_read for " + sender + ": " + Utils.exceptionToString(e));
         }
         return true;
       }
@@ -217,19 +213,24 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
   private List<Event> query(String requester, String target, String queryId,Optional<Long> start,Optional<Long> end, Optional<Integer> max) throws ChatException
   {
     List<Event> events = new ArrayList<Event>();
+    String localHost = mProvisioning.getLocalServer().getName();
 
     try
     {
-      if (max.isPresent() && max.get() == 0)
+      if (max.isPresent() && max.get() == 0) // Count only
       {
         Set<String> recipients = mImMessageStatements.getAllRecipents(requester);
         for (String recipient : recipients)
         {
-          Pair<Long,String> pair = mImMessageStatements.getLastMessageRead(requester,recipient);
-          long timestamp = pair.getLeft();
-          String messageId = pair.getRight();
-          int count = mImMessageStatements.getCountMessageToRead(recipient,requester,timestamp);
-
+          Pair<Long, String> pair = mImMessageStatements.getLastMessageRead(requester, recipient);
+          long timestamp = 0;
+          String messageId = "";
+          if (pair != null)
+          {
+            timestamp = pair.getLeft();
+            messageId = pair.getRight();
+          }
+          int count = mImMessageStatements.getCountMessageToRead(recipient, requester, timestamp);
           events.add(new EventMessageHistoryLast(
             EventId.randomUUID(),
             new SpecificAddress(recipient),
@@ -238,34 +239,21 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
             "",
             "",
             Optional.<Integer>of(count),
-            timestamp
+            0
           ));
-          events.add(new EventMessageAck(
-            new SpecificAddress(recipient),
-            new SpecificAddress(requester),
-            EventId.fromString(messageId),
-            timestamp
-          ));
+          if (timestamp > 0)
+          {
+            events.add(new EventMessageAck(
+              new SpecificAddress(recipient),
+              new SpecificAddress(requester),
+              EventId.fromString(messageId),
+              timestamp
+            ));
+          }
         }
-//        else
-//        {
-//          Long timestamp = mImMessageStatements.getLastMessageRead(requester,target);
-//          int count = mImMessageStatements.getCountMessageToRead(requester,timestamp);
-//          events.add(new EventMessageHistoryLast(
-//            EventId.randomUUID(),
-//            new SpecificAddress(target),
-//            "",
-//            new SpecificAddress(requester),
-//            "",
-//            "",
-//            Optional.<Integer>of(count),
-//            timestamp
-//          ));
-//        }
       }
       else
       {
-        String sender = mProvisioning.getLocalServer().getName();
         Iterator<ImMessage> it = mImMessageStatements.query(requester, target, start, end, max).iterator();
         String lastMessageId = "";
         String firstMessageId = "";
@@ -279,7 +267,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
           }
           events.add(new EventMessageHistory(
             EventId.randomUUID(),
-            new SpecificAddress(sender),
+            new SpecificAddress(localHost),
             queryId,
             new SpecificAddress(requester),
             new EventMessage(
@@ -293,7 +281,7 @@ public class ArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory i
         }
         events.add(new EventMessageHistoryLast(
           EventId.randomUUID(),
-          new SpecificAddress(sender),
+          new SpecificAddress(localHost),
           queryId,
           new SpecificAddress(requester),
           firstMessageId,

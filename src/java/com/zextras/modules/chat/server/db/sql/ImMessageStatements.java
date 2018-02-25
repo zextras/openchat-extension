@@ -13,6 +13,7 @@ import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,7 +67,7 @@ public class ImMessageStatements
       "    REACTIONS," +
       "    TYPE_EXTRAINFO" +
       "    FROM MESSAGE " +
-      "    WHERE SENDER = ? ";
+      "    WHERE ";
 
   private final static String sSELECT_MESSAGE_ORDER =
       "    ORDER BY SENT_TIMESTAMP DESC" +
@@ -224,18 +225,42 @@ public class ImMessageStatements
     final Optional<Integer> max) throws SQLException
   {
     final List<ImMessage> messages = new ArrayList<ImMessage>();
+    boolean firstAnd = true;
     StringBuilder sb = new StringBuilder(sSELECT_MESSAGE);
+    if (!sender.isEmpty())
+    {
+      if (!firstAnd)
+      {
+        sb.append(" AND");
+      }
+      firstAnd = false;
+      sb.append(" SENDER = ?");
+    }
     if (!destination.isEmpty())
     {
-      sb.append(" AND DESTINATION = ?");
+      if (!firstAnd)
+      {
+        sb.append(" AND");
+      }
+      firstAnd = false;
+      sb.append(" DESTINATION = ?");
     }
     if (fromTime.isPresent())
     {
-      sb.append(" AND (SENT_TIMESTAMP > ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP > ?))");
+      if (!firstAnd)
+      {
+        sb.append(" AND");
+      }
+      firstAnd = false;
+      sb.append(" (SENT_TIMESTAMP > ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP > ?))");
     }
     if (toTime.isPresent())
     {
-      sb.append(" AND (SENT_TIMESTAMP < ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP < ?))");
+      if (!firstAnd)
+      {
+        sb.append(" AND");
+      }
+      sb.append(" (SENT_TIMESTAMP < ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP < ?))");
     }
     sb.append(sSELECT_MESSAGE_ORDER);
 
@@ -245,7 +270,10 @@ public class ImMessageStatements
       public void create(PreparedStatement preparedStatement) throws SQLException
       {
         int i = 1;
-        preparedStatement.setString(i++, sender);
+        if (!sender.isEmpty())
+        {
+          preparedStatement.setString(i++, sender);
+        }
         if (!destination.isEmpty())
         {
           preparedStatement.setString(i++, destination);
@@ -368,6 +396,7 @@ public class ImMessageStatements
     }
   }
 
+  @Nullable
   public Pair<Long,String> getLastMessageRead(final String sender, final String destination) throws SQLException
   {
     final Pair<Long,String> pair[] = new Pair[1];

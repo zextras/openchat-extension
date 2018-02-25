@@ -41,7 +41,7 @@ public abstract class SoapCommand
   protected final static String TARGET_USERNAME                  = "target_username";
   protected final static String TARGET_GROUP                     = "target_group";
   protected final static String TARGET_NEW_GROUP                 = "new_group";
-  protected final static String MESSAGE                          = "message";
+  public    final static String MESSAGE                          = "message";
   protected final static String MESSAGE_ID                       = "message_id";
   protected final static String SESSION_ID                       = "session_id";
   public final static    String STATUS_ID                        = "status_id";

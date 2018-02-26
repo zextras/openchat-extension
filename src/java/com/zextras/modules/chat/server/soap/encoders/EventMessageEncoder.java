@@ -41,7 +41,7 @@ public class EventMessageEncoder implements SoapEncoder
     message.put("type", ClientEventType.MESSAGE);
     message.put("timestampSent", mEvent.getTimestamp());
     message.put("message", mEvent.getMessage());
-    message.put("from", mEvent.getSender().toString());
+    message.put("from", mEvent.getSender().resourceAddress());
     message.put("to", target.toString());
     message.put("ID", mEvent.getId());
     message.put("message_type", EventType.Chat);

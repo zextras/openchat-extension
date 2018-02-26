@@ -26,6 +26,7 @@ public class EventMessage extends Event
 {
   private final SpecificAddress mSender;
   private final String mMessage;
+  private final EventType mType;
 
   public EventMessage(
     EventId eventId,
@@ -37,6 +38,7 @@ public class EventMessage extends Event
     super(eventId, sender, target);
     mSender = sender;
     mMessage = message;
+    mType = EventType.Chat;
   }
 
   public EventMessage(
@@ -44,12 +46,14 @@ public class EventMessage extends Event
     SpecificAddress sender,
     Target target,
     String message,
-    long timestamp
+    long timestamp,
+    EventType type
   )
   {
     super(eventId, sender, target, timestamp);
     mSender = sender;
     mMessage = message;
+    mType = type;
   }
 
   public EventMessage(
@@ -63,6 +67,21 @@ public class EventMessage extends Event
     super(eventId, sender, target, clock);
     mSender = sender;
     mMessage = message;
+    mType = EventType.Chat;
+  }
+
+  public EventMessage(
+    EventId eventId,
+    SpecificAddress sender,
+    Target target,
+    String message,
+    long timestamp
+  )
+  {
+    super(eventId, sender, target, timestamp);
+    mSender = sender;
+    mMessage = message;
+    mType = EventType.Chat;
   }
 
   public String getMessage()
@@ -83,6 +102,6 @@ public class EventMessage extends Event
 
   public EventType getType()
   {
-    return EventType.Chat;
+    return mType;
   }
 }

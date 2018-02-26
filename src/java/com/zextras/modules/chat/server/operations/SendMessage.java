@@ -36,18 +36,20 @@ public class SendMessage implements ChatOperation
   private final SpecificAddress mSenderAddress;
   private final SpecificAddress mTarget;
   private       String          mMessage;
+  private final long            mTimestamp;
 
   public SendMessage(SpecificAddress senderAddress, SpecificAddress target, String message)
   {
-    this(EventId.randomUUID(), senderAddress, target, message);
+    this(EventId.randomUUID(), senderAddress, target, message, System.currentTimeMillis());
   }
 
-  public SendMessage(EventId eventId, SpecificAddress senderAddress, SpecificAddress target, String message)
+  public SendMessage(EventId eventId, SpecificAddress senderAddress, SpecificAddress target, String message,long timestamp)
   {
     mEventId = eventId;
     mSenderAddress = senderAddress;
     mTarget = target;
     mMessage = message;
+    mTimestamp = timestamp;
   }
 
   @Override
@@ -78,7 +80,8 @@ public class SendMessage implements ChatOperation
       mEventId,
       mSenderAddress,
       new Target(mTarget),
-      mMessage
+      mMessage,
+      mTimestamp
     );
 
     EventMessageBack messageBack = new EventMessageBack(

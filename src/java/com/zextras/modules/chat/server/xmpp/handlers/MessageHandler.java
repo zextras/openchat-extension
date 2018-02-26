@@ -28,6 +28,7 @@ import com.zextras.modules.chat.server.xmpp.StanzaHandler;
 import com.zextras.modules.chat.server.xmpp.XmppSession;
 import com.zextras.modules.chat.server.xmpp.parsers.MessageParser;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
+import org.openzal.zal.lib.Clock;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
@@ -37,11 +38,16 @@ import java.util.List;
 public class MessageHandler implements StanzaHandler
 {
   private final XmppSession   mSession;
+  private final Clock mClock;
   private       MessageParser mParser;
 
-  public MessageHandler(XmppSession session)
+  public MessageHandler(
+    XmppSession session,
+    Clock clock
+  )
   {
     mSession = session;
+    mClock = clock;
   }
 
   @Override
@@ -93,7 +99,8 @@ public class MessageHandler implements StanzaHandler
         EventId.fromString(eventId),
         mSession.getExposedAddress(),
         targetAddress,
-        mParser.getBody()
+        mParser.getBody(),
+        mClock.now()
       );
       eventList.add(message);
     }

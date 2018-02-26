@@ -26,6 +26,7 @@ import com.zextras.modules.chat.server.exceptions.MissingParameterException;
 import com.zextras.modules.chat.server.operations.SendMessage;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
+import org.openzal.zal.lib.Clock;
 import org.openzal.zal.soap.SoapResponse;
 
 import java.util.Arrays;
@@ -35,15 +36,18 @@ import java.util.Map;
 public class SoapCommandSendMessage extends SoapCommand
 {
   private final SoapResponse mSoapResponse;
+  private final Clock mClock;
 
   public SoapCommandSendMessage(
     SoapResponse soapResponse,
     SpecificAddress senderAddress,
-    Map<String, String> parameters
+    Map<String, String> parameters,
+    Clock clock
   )
   {
     super(senderAddress, parameters);
     mSoapResponse = soapResponse;
+    mClock = clock;
   }
 
   @Override
@@ -58,12 +62,14 @@ public class SoapCommandSendMessage extends SoapCommand
     }
 
     final EventId messageId = EventId.randomUUID();
+    final long timestamp = mClock.now();
 
     ChatOperation sendMessage = new SendMessage(
       messageId,
       mSenderAddress,
       getTargetAddress(),
-      message
+      message,
+      timestamp
     );
 
     ChatSoapResponse response = new ChatSoapResponse();
@@ -72,6 +78,7 @@ public class SoapCommandSendMessage extends SoapCommand
       public void encode(ChatSoapResponse response, SpecificAddress target) {
         JSONObject message = new JSONObject();
         message.put("message_id",messageId.toString());
+        message.put("message_date",timestamp);
         response.addResponse(message);
       }
     };

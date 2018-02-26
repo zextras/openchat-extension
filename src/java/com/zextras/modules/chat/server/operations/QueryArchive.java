@@ -36,7 +36,6 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.session.SessionManager;
-import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Server;
 import org.openzal.zal.Utils;
@@ -179,7 +178,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         @Override
         public int compare(EventMessageHistory m1, EventMessageHistory m2)
         {
-          return (int) (m1.getOriginalMessage().getTimestamp() - m2.getOriginalMessage().getTimestamp());
+          return (int) (m2.getOriginalMessage().getTimestamp() - m1.getOriginalMessage().getTimestamp());
         }
       });
 
@@ -189,7 +188,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         mLastMessageId = mMessages.get(mMessages.size() - 1).getId().toString();
       }
 
-      for (EventMessageHistory message : mMessages)
+      for (EventMessageHistory message:mMessages)
       {
         if (mMax.isPresent() && historyEvents.size()>= mMax.get())
         {
@@ -197,6 +196,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         }
         historyEvents.add(message);
       }
+      Collections.reverse(historyEvents);
       historyEvents.add(new EventMessageHistoryLast(
         EventId.randomUUID(),
         new SpecificAddress(mWith.get()),

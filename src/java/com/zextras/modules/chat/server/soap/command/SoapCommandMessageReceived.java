@@ -50,7 +50,7 @@ public class SoapCommandMessageReceived extends SoapCommand
           mSenderAddress,
           new SpecificAddress(mParameterMap.get("target_address")),
           EventId.fromString(mParameterMap.get("message_id")),
-          System.currentTimeMillis(),
+          Long.getLong(mParameterMap.get("message_date"),System.currentTimeMillis()),
           sessionUUID)
         );
   }

@@ -162,7 +162,7 @@ public class SoapParser implements Parser
     {
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandSendMessage(mSoapResponse,mSenderAddress,commandParameters); }
+      { return new SoapCommandSendMessage(mSoapResponse,mSenderAddress,commandParameters,mClock); }
     });
     setupCommand(ACTION_PING_WRITING, new CommandCreator()
     {

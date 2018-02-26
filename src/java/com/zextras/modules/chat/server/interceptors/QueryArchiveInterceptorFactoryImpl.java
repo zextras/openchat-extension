@@ -145,7 +145,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
             mImMessageStatements.upsertMessageRead(
               sender,
               eventMessage.getTarget().toSingleAddress(),
-              System.currentTimeMillis(),
+              eventMessage.getTimestamp(),
               eventMessage.getMessageId().toString()
             );
           }
@@ -275,7 +275,8 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
               new SpecificAddress(message.getSender()),
               new Target(new SpecificAddress(message.getDestination())),
               message.getText(),
-              new FakeClock(message.getSentTimestamp())
+              message.getSentTimestamp(),
+              message.getMessageType()
             )
           ));
         }

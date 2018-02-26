@@ -25,6 +25,7 @@ import com.zextras.modules.chat.server.xmpp.handlers.*;
 import com.zextras.modules.chat.server.xmpp.netty.StanzaProcessor;
 import org.openzal.zal.AuthProvider;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.lib.Clock;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -39,6 +40,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
   private final XmppFilterOut mXmppFilterOut;
   private final XmppEventFilter     mXmppEventFilter;
   private final QueryArchiveFactory mQueryArchiveFactory;
+  private final Clock               mClock;
 
   @Inject
   public XmppHandlerFactoryImpl(
@@ -49,7 +51,8 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     AuthProvider authProvider,
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter,
-    QueryArchiveFactory queryArchiveFactory
+    QueryArchiveFactory queryArchiveFactory,
+    Clock clock
     )
   {
     mStanzaRecognizer = stanzaRecognizer;
@@ -60,6 +63,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     mXmppFilterOut = xmppFilterOut;
     mXmppEventFilter = xmppEventFilter;
     mQueryArchiveFactory = queryArchiveFactory;
+    mClock = clock;
   }
 
   public StanzaHandler createHandler(
@@ -151,7 +155,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
 
       case Message:
       {
-        handler = new MessageHandler(connectionStatus.getSession());
+        handler = new MessageHandler(connectionStatus.getSession(),mClock);
         break;
       }
 

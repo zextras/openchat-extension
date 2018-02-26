@@ -72,8 +72,7 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
 
   public static boolean isUser(ChatAddress address)
   {
-    return  !(address instanceof NoneAddress) &&
-            address.withoutResource().toString().contains("@");
+    return  address.withoutResource().toString().contains("@");
   }
 
 }

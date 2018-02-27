@@ -36,6 +36,7 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.session.SessionManager;
+import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Server;
 import org.openzal.zal.Utils;
@@ -116,34 +117,27 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     {
       throw new UnsupportedOperationException();
     }
-
+    Account account = mProvisioning.getAccountByName(mWith.get());
     try
     {
-      queryEvents.add(new EventIQQuery(
-        EventId.randomUUID(),
-        mSenderAddress,
-        mQueryid,
-        new Target(localServer),
-        mNode,
-        mWith,
-        mStart,
-        mEnd,
-        mMax
-      ));
-
-      List<ChatAddress> addresses = new ArrayList<ChatAddress>();
-      List<Server> allServers = mProvisioning.getAllServers(); // TODO: do not spam everyone
-      for (Server server : allServers)
+      if (account != null)
       {
-        addresses.add(new SpecificAddress(server.getServerHostname()));
-      }
-      if (!addresses.isEmpty())
-      {
+        queryEvents.add(new EventIQQuery(
+          EventId.randomUUID(),
+          mSenderAddress,
+          mQueryid,
+          new Target(localServer),
+          mNode,
+          mWith,
+          mStart,
+          mEnd,
+          mMax
+        ));
         queryEvents.add(new EventIQQuery(
           EventId.randomUUID(),
           new SpecificAddress(mWith.get()),
           mQueryid,
-          new Target(addresses),
+          new Target(new SpecificAddress(account.getServerHostname())),
           mNode,
           Optional.<String>of(mSenderAddress.withoutResource().toString()),
           mStart,
@@ -151,8 +145,27 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
           mMax
         ));
       }
+      else
+      {
+        List<ChatAddress> addresses = new ArrayList<ChatAddress>();
+        for (Server server : mProvisioning.getAllServers())
+        {
+          addresses.add(new SpecificAddress(server.getServerHostname())); // TODO: stop spam all servers
+        }
+        queryEvents.add(new EventIQQuery(
+          EventId.randomUUID(),
+          mSenderAddress,
+          mQueryid,
+          new Target(addresses),
+          mNode,
+          mWith,
+          mStart,
+          mEnd,
+          mMax
+        ));
+      }
 
-      mQueries = addresses.size() + 1;
+      mQueries = queryEvents.size();
       mArchiveInterceptorFactory.register(this);
       mEventManager.dispatchUnfilteredEvents(queryEvents);
 
@@ -178,7 +191,8 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         @Override
         public int compare(EventMessageHistory m1, EventMessageHistory m2)
         {
-          return (int) (m2.getOriginalMessage().getTimestamp() - m1.getOriginalMessage().getTimestamp());
+          long delta = m2.getOriginalMessage().getTimestamp() - m1.getOriginalMessage().getTimestamp();
+          return (int)delta; // TODO: edit timestamp
         }
       });
 

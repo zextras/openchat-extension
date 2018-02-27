@@ -111,7 +111,8 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
                   sender,
                   target.withoutResource().toString(),
                   eventMessage.getMessage(),
-                  EventType.Chat);
+                  EventType.Chat,
+                  eventMessage.getTimestamp());
 
                 mImMessageStatements.insert(message);
               }

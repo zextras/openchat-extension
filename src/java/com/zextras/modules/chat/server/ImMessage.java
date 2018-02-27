@@ -22,34 +22,13 @@ public class ImMessage
     String sender,
     String destination,
     String text,
+    EventType type,
     long sentTimestamp
   )
   {
     this(
       id,
       sentTimestamp,
-      0,
-      EventType.Chat,
-      false,
-      (short) 0,
-      sender,
-      destination,
-      text,
-      "",
-      "");
-  }
-
-  public ImMessage(
-    String id,
-    String sender,
-    String destination,
-    String text,
-    EventType type
-  )
-  {
-    this(
-      id,
-      System.currentTimeMillis(),
       0,
       type,
       false,

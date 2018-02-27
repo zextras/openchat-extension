@@ -70,7 +70,7 @@ public class ImMessageStatements
       "    WHERE ";
 
   private final static String sSELECT_MESSAGE_ORDER =
-      "    ORDER BY SENT_TIMESTAMP DESC" +
+      "    ORDER BY SENT_TIMESTAMP DESC" + // TODO: EDIT_TIMESTAMP
         "    LIMIT ?";
 
   private final static String sql_text =

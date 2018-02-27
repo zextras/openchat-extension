@@ -42,7 +42,7 @@ public class MessageHistoryLastDecoder implements EventDecoder
       String s = parser.getTimestamp();
       if (!s.isEmpty())
       {
-        timestamp = Long.valueOf(s);
+        timestamp = Long.getLong(s);
       }
     }
     catch (RuntimeException e)
@@ -50,13 +50,13 @@ public class MessageHistoryLastDecoder implements EventDecoder
       ChatLog.log.warn(Utils.exceptionToString(e));
     }
 
-    Optional<Integer> optinalCount = Optional.<Integer>absent();
+    Optional<Integer> count = Optional.<Integer>absent();
     try
     {
       String s = parser.getCount();
       if (!s.isEmpty())
       {
-        optinalCount = Optional.<Integer>of(Integer.valueOf(s));
+        count = Optional.<Integer>of(Integer.valueOf(s));
       }
     }
     catch (RuntimeException e)
@@ -70,7 +70,7 @@ public class MessageHistoryLastDecoder implements EventDecoder
       new SpecificAddress(parser.getTo()),
       parser.getFirst(),
       parser.getLast(),
-      optinalCount,
+      count,
       timestamp
     ));
   }

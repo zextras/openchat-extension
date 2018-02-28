@@ -95,9 +95,12 @@ public class PingEventQueueListener implements EventQueueListener
 
   public void onEventQueued(EventQueue eventQueue)
   {
-    mAlreadyReplied = true;
     mEventQueue = eventQueue;
-    resumeContinuationAndRemoveListener();
+    if( mEventQueue.hasNewEvents(mSuccessfullySentEvents) )
+    {
+      mAlreadyReplied = true;
+      resumeContinuationAndRemoveListener();
+    }
   }
 
   public void suspendContinuation(

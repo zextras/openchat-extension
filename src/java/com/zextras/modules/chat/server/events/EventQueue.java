@@ -428,19 +428,31 @@ public class EventQueue
   }
 
 
-  public void popSuccessfullySentEvents(int mSuccessfullySentEvents)
+  public void popSuccessfullySentEvents(int successfullySentEvents)
   {
     // With (mSuccessfullySentEvents == -1) it means that current client with this session doesn't support synchronization
     // In this case mSynchronizedEventsAmount stores the previous queue size instead of the previous total synched events
-    if (mSuccessfullySentEvents == -1)
+    if (successfullySentEvents == -1)
     {
       popAllEvents(mTotalSynchronizedEventsAmount);
       mTotalSynchronizedEventsAmount = this.size();
     }
     else
     {
-      popAllEvents(mSuccessfullySentEvents - mTotalSynchronizedEventsAmount);
-      mTotalSynchronizedEventsAmount = mSuccessfullySentEvents;
+      popAllEvents(successfullySentEvents - mTotalSynchronizedEventsAmount);
+      mTotalSynchronizedEventsAmount = successfullySentEvents;
+    }
+  }
+
+  public boolean hasNewEvents(int successfullySentEvents)
+  {
+    if (successfullySentEvents == -1)
+    {
+      return !mEventQueue.isEmpty();
+    }
+    else
+    {
+      return mEventQueue.size() - (successfullySentEvents - mTotalSynchronizedEventsAmount) > 0;
     }
   }
 }

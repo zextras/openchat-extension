@@ -3,15 +3,12 @@ package com.zextras.modules.chat.server.db.sql;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.zextras.lib.ChatDbHelper;
-import com.zextras.lib.sql.DbPrefetchIterator;
-import com.zextras.lib.sql.QueryExecutor;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.address.SubdomainResolver;
 import com.zextras.modules.chat.server.db.DbHandler;
 import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -159,8 +156,8 @@ public class ImMessageStatements
           statement.setShort(i++, EventType.toShort(imMessage.getMessageType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getDestination()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getSender()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
         }
@@ -182,8 +179,8 @@ public class ImMessageStatements
           statement.setShort(i++, EventType.toShort(imMessage.getMessageType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getDestination()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getSender()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
         }
@@ -281,64 +278,6 @@ public class ImMessageStatements
     });
 
     return messages;
-  }
-
-  public DbPrefetchIterator<ImMessage> query(final String sender, final String destination, final String text) throws SQLException
-  {
-    return new DbPrefetchIterator<ImMessage>(new QueryExecutor()
-    {
-      Connection mConnection;
-
-      @Override
-      public ResultSet executeQuery(int start, int size) throws SQLException
-      {
-        mConnection = mDbHandler.getConnection();
-        assertDBConnection(mConnection);
-        PreparedStatement query = mConnection.prepareStatement(sql_text);
-        query.setString(1, mSubdomainResolver.removeSubdomainFrom(sender));
-        query.setString(2, mSubdomainResolver.removeSubdomainFrom(destination));
-        query.setString(3, "%" + likeSanitize(text) + "%");
-        query.setInt(4, size);
-        query.setInt(5, start);
-        return query.executeQuery();
-      }
-
-      @Override
-      public void close()
-      {
-        DbUtils.closeQuietly(mConnection);
-      }
-
-    }, mMessageFactory,100);
-  }
-
-  public DbPrefetchIterator<ImMessage> queryInsensitive(final String sender, final String destination, final String text) throws SQLException
-  {
-    return new DbPrefetchIterator<ImMessage>(new QueryExecutor()
-    {
-      Connection mConnection;
-
-      @Override
-      public ResultSet executeQuery(int start, int size) throws SQLException
-      {
-        mConnection = mDbHandler.getConnection();
-        assertDBConnection(mConnection);
-        PreparedStatement query = mConnection.prepareStatement(sql_text_insensitive);
-        query.setString(1, mSubdomainResolver.removeSubdomainFrom(sender));
-        query.setString(2, mSubdomainResolver.removeSubdomainFrom(destination));
-        query.setString(3, "%" + likeSanitize(text.toLowerCase()) + "%");
-        query.setInt(4, size);
-        query.setInt(5, start);
-        return query.executeQuery();
-      }
-
-      @Override
-      public void close()
-      {
-        DbUtils.closeQuietly(mConnection);
-      }
-
-    }, mMessageFactory,100);
   }
 
   public void upsertMessageRead(final String sender,final String destination,final long timestamp,final String id) throws SQLException

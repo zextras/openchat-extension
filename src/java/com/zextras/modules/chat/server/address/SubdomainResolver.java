@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.server.address;
 
+import com.zextras.modules.chat.server.events.EventType;
 import org.openzal.zal.Provisioning;
 
 import javax.inject.Inject;
@@ -21,6 +22,15 @@ public class SubdomainResolver
   public String getSubdomainFor(String domain)
   {
     return "chat."+domain;
+  }
+
+  public String removeSubdomainFrom(EventType eventType,String room)
+  {
+    if (eventType != EventType.Chat)
+    {
+      return room.replace("@chat.", "@");
+    }
+    return room;
   }
 
   public String removeSubdomainFrom(String room)

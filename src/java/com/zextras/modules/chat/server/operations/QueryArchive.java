@@ -165,6 +165,11 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         ));
       }
 
+      if (mMax.isPresent() && mMax.get() == 0)
+      {
+        return queryEvents; // No need to collect EventMessageHistory
+      }
+
       mQueries = queryEvents.size();
       mArchiveInterceptorFactory.register(this);
       mEventManager.dispatchUnfilteredEvents(queryEvents);
@@ -192,7 +197,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         public int compare(EventMessageHistory m1, EventMessageHistory m2)
         {
           long delta = m2.getOriginalMessage().getTimestamp() - m1.getOriginalMessage().getTimestamp();
-          return (int)delta; // TODO: edit timestamp
+          return (int) delta; // TODO: edit timestamp
         }
       });
 
@@ -202,9 +207,9 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         mLastMessageId = mMessages.get(mMessages.size() - 1).getId().toString();
       }
 
-      for (EventMessageHistory message:mMessages)
+      for (EventMessageHistory message : mMessages)
       {
-        if (mMax.isPresent() && historyEvents.size()>= mMax.get())
+        if (mMax.isPresent() && historyEvents.size() >= mMax.get())
         {
           break;
         }

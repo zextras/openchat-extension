@@ -18,7 +18,6 @@ public class MessageFactory implements ResultSetParser<ImMessage>
       rs.getLong(i++),
       rs.getLong(i++),
       EventType.fromShort(rs.getShort(i++)),
-      rs.getBoolean(i++),
       rs.getShort(i++),
       rs.getString(i++),
       rs.getString(i++),

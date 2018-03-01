@@ -43,7 +43,6 @@ import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 import org.openzal.zal.exceptions.ZimbraException;
-import org.openzal.zal.lib.FakeClock;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -220,17 +219,12 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     {
       if (max.isPresent() && max.get() == 0) // Count only
       {
-        Set<String> recipients = mImMessageStatements.getAllRecipents(requester);
+        Set<String> recipients = mImMessageStatements.getAllRecipients(requester);
         for (String recipient : recipients)
         {
           Pair<Long, String> pair = mImMessageStatements.getLastMessageRead(requester, recipient);
-          long timestamp = 0;
-          String messageId = "";
-          if (pair != null)
-          {
-            timestamp = pair.getLeft();
-            messageId = pair.getRight();
-          }
+          long timestamp = pair.getLeft();
+          String messageId = pair.getRight();
           int count = mImMessageStatements.getCountMessageToRead(recipient, requester, timestamp);
           events.add(new EventMessageHistoryLast(
             EventId.randomUUID(),

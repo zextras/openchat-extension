@@ -198,6 +198,11 @@ public class ChatDbHelper
     }
   }
 
+  public int executeQuery(DbConnection connection, String query) throws SQLException
+  {
+    return executeQuery(connection,query,new NoParameters());
+  }
+
   public int executeQuery(DbConnection connection, String query, ParametersFactory parametersFactory) throws SQLException
   {
     PreparedStatement statement = null;

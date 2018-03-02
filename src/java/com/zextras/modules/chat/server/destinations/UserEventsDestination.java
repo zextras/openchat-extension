@@ -59,10 +59,18 @@ public class UserEventsDestination implements EventDestination, EventDestination
 
   @Override
   public boolean deliverEvent(Event event, SpecificAddress address) {
-    try {
+    try
+    {
+      Account account = mProvisioning.getAccountByName(address.toString());
+      if (account == null || !mProvisioning.onLocalServer(account))
+      {
+        return false;
+      }
       EventInterceptor interceptor = event.interpret(mEventInterceptorFactory);
       return interceptor.intercept(mEventManager, address);
-    } catch (Exception ex) {
+    }
+    catch (Exception ex)
+    {
       ChatLog.log.err("Error: " + Utils.exceptionToString(ex));
       return true;
     }

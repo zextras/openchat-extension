@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.xmpp.handlers;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.ProbeStatus;
 import com.zextras.modules.chat.server.xmpp.StanzaHandler;

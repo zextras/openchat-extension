@@ -51,4 +51,27 @@ public class EventStatusProbe extends Event
   {
     return interpreter.interpret(this);
   }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+
+    EventStatusProbe that = (EventStatusProbe) o;
+
+    return mSender.equals(that.mSender);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = super.hashCode();
+    result = 31 * result + mSender.hashCode();
+    return result;
+  }
 }

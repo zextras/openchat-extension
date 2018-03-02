@@ -20,6 +20,7 @@ package com.zextras.modules.chat.server.xmpp.decoders;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.events.EventStatusProbe;
 import com.zextras.modules.chat.server.xmpp.parsers.EventStatusProbeParser;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
@@ -47,6 +48,7 @@ public class StatusProbeDecoder implements EventDecoder
     SpecificAddress senderAddress = new SpecificAddress(parser.getFrom());
 
     Event event = new EventStatusProbe(
+      EventId.fromString(parser.getId()),
       senderAddress,
       new Target(target)
     );

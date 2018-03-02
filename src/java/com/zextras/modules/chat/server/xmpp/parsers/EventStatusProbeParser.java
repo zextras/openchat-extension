@@ -28,6 +28,7 @@ public class EventStatusProbeParser extends XmppParser
 {
   private String mFrom = "";
   private String mTo = "";
+  private String mId = "";
 
   public EventStatusProbeParser(InputStream xmlInputStream, SchemaProvider schemaProvider)
   {
@@ -51,6 +52,7 @@ public class EventStatusProbeParser extends XmppParser
       {
         case XMLStreamReader.START_ELEMENT:
         {
+          mId = emptyStringWhenNull(sr.getAttributeValue(null,"id"));
           mTo = emptyStringWhenNull(sr.getAttributeValue(null,"to"));
           mFrom = emptyStringWhenNull(sr.getAttributeValue(null,"from"));
           return;
@@ -67,5 +69,10 @@ public class EventStatusProbeParser extends XmppParser
   public String getTo()
   {
     return mTo;
+  }
+
+  public String getId()
+  {
+    return mId;
   }
 }

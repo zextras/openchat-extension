@@ -22,6 +22,10 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
 // TODO: it's not compatible wit older code
+
+/**
+ * This event is cross server.
+ */
 public class EventMessageAck extends Event
 {
   @Override
@@ -32,19 +36,19 @@ public class EventMessageAck extends Event
 
   private final SpecificAddress mSender;
   private final EventId         mMessageId;
-  private final long            mTimestamp;
+  private final long            mMessageTimestamp;
 
   public EventMessageAck(SpecificAddress sender, SpecificAddress target, EventId messageId, long timestamp)
   {
     this(EventId.randomUUID(), sender, target, messageId, timestamp);
   }
 
-  public EventMessageAck(EventId id, SpecificAddress sender, SpecificAddress target, EventId messageId, long timestamp)
+  public EventMessageAck(EventId id, SpecificAddress sender, SpecificAddress target, EventId messageId, long messageTimestamp)
   {
     super(id, sender, new Target(target));
     mSender = sender;
     mMessageId = messageId;
-    mTimestamp = timestamp;
+    mMessageTimestamp = messageTimestamp;
   }
 
   @Override
@@ -53,13 +57,42 @@ public class EventMessageAck extends Event
     return interpreter.interpret(this);
   }
 
-  public long getTimestamp()
+  public long getMessageTimestamp()
   {
-    return mTimestamp;
+    return mMessageTimestamp;
   }
 
   public EventId getMessageId()
   {
     return mMessageId;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+
+    EventMessageAck that = (EventMessageAck) o;
+
+    if (mMessageTimestamp != that.mMessageTimestamp)
+      return false;
+    if (!mSender.equals(that.mSender))
+      return false;
+    return mMessageId.equals(that.mMessageId);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = super.hashCode();
+    result = 31 * result + mSender.hashCode();
+    result = 31 * result + mMessageId.hashCode();
+    result = 31 * result + (int) (mMessageTimestamp ^ (mMessageTimestamp >>> 32));
+    return result;
   }
 }

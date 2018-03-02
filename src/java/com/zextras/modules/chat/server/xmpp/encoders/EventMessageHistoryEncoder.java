@@ -28,9 +28,6 @@ import org.codehaus.stax2.XMLStreamWriter2;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * @see EventMessageHistory
@@ -84,7 +81,7 @@ public class EventMessageHistoryEncoder extends XmppEncoder
         sw.writeStartElement("urn:xmpp:forward:0", "forwarded");
 
           sw.writeStartElement("","delay","urn:xmpp:delay" );
-          sw.writeAttribute("stamp",convertLongToUTCDateString(message.getTimestamp(), CURRENT_XMPP_FORMAT));
+          sw.writeAttribute("stamp", convertUnixTimestampToUTCDateString(message.getTimestamp(), CURRENT_XMPP_FORMAT));
           sw.writeEndElement();
 
           sw.writeStartElement("","message","jabber:client");

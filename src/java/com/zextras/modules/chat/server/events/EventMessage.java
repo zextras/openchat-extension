@@ -104,4 +104,33 @@ public class EventMessage extends Event
   {
     return mType;
   }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+
+    EventMessage that = (EventMessage) o;
+
+    if (!mSender.equals(that.mSender))
+      return false;
+    if (!mMessage.equals(that.mMessage))
+      return false;
+    return mType == that.mType;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = super.hashCode();
+    result = 31 * result + mSender.hashCode();
+    result = 31 * result + mMessage.hashCode();
+    result = 31 * result + mType.hashCode();
+    return result;
+  }
 }

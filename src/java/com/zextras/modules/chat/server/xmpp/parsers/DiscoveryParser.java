@@ -75,10 +75,6 @@ public class DiscoveryParser extends XmppParser
             mQuery = sr.getNamespaceURI();
             parseItems(sr);
           }
-          else if (sr.getLocalName().equalsIgnoreCase("feature"))
-          {
-            mFeatures = addString(mFeatures, sr.getAttributeValue("", "var"));
-          }
         }
       }
     }
@@ -105,6 +101,11 @@ public class DiscoveryParser extends XmppParser
                 sr.getAttributeValue(null, "name")
               )
             );
+          }
+
+          if (sr.getLocalName().equalsIgnoreCase("feature"))
+          {
+            mFeatures = addString(mFeatures, sr.getAttributeValue("", "var"));
           }
           break;
         }

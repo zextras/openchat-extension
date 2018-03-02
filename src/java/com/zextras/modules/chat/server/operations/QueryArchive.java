@@ -17,9 +17,9 @@
 
 package com.zextras.modules.chat.server.operations;
 
-import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
@@ -113,11 +113,11 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     SpecificAddress localServer = new SpecificAddress(mProvisioning.getLocalServer().getServerHostname());
     mQueryid = EventId.randomUUID().toString();
 
-    if (!mWith.isPresent())
+    if (!mWith.hasValue())
     {
       throw new UnsupportedOperationException();
     }
-    Account account = mProvisioning.getAccountByName(mWith.get());
+    Account account = mProvisioning.getAccountByName(mWith.getValue());
     try
     {
       if (account != null)
@@ -135,7 +135,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         ));
         queryEvents.add(new EventIQQuery(
           EventId.randomUUID(),
-          new SpecificAddress(mWith.get()),
+          new SpecificAddress(mWith.getValue()),
           mQueryid,
           new Target(new SpecificAddress(account.getServerHostname())),
           mNode,
@@ -165,7 +165,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         ));
       }
 
-      if (mMax.isPresent() && mMax.get() == 0)
+      if (mMax.hasValue() && mMax.getValue() == 0)
       {
         return queryEvents; // No need to collect EventMessageHistory
       }
@@ -209,7 +209,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
 
       for (EventMessageHistory message : mMessages)
       {
-        if (mMax.isPresent() && historyEvents.size() >= mMax.get())
+        if (mMax.hasValue() && historyEvents.size() >= mMax.getValue())
         {
           break;
         }
@@ -218,12 +218,12 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
       Collections.reverse(historyEvents);
       historyEvents.add(new EventMessageHistoryLast(
         EventId.randomUUID(),
-        new SpecificAddress(mWith.get()),
+        new SpecificAddress(mWith.getValue()),
         mQueryid,
         mSenderAddress,
         mFirstMessageId,
         mLastMessageId,
-        Optional.<Integer>of(historyEvents.size()),
+        new com.zextras.lib.Optional<Integer>(historyEvents.size()),
         System.currentTimeMillis()
       ));
     }
@@ -244,7 +244,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
       {
         mMessages.add(new EventMessageHistory(
           message.getId(),
-          new SpecificAddress(mWith.get()),
+          new SpecificAddress(mWith.getValue()),
           mQueryid,
           mSenderAddress,
           message.getOriginalMessage()

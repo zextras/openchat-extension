@@ -1,6 +1,6 @@
 package com.zextras.modules.chat.server.operations;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 

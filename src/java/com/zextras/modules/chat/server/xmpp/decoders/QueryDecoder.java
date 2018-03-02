@@ -1,6 +1,5 @@
 package com.zextras.modules.chat.server.xmpp.decoders;
 
-import com.google.common.base.Optional;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;

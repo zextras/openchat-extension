@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.operations;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.server.Target;
@@ -113,7 +113,7 @@ public class QueryLastReadArchive implements ChatOperation
         mQueryid,
         new Target(addresses),
         mNode,
-        Optional.<String>absent(),
+        Optional.sEmptyInstance,
         mStart,
         mEnd,
         mMax

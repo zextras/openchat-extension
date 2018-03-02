@@ -74,7 +74,7 @@ public abstract class XmppEncoder implements Encoder
 
   public abstract void encode(OutputStream outputStream, SpecificAddress target, boolean extensions) throws XMLStreamException;
 
-  public String convertLongToUTCDateString(long timestamp, String format)
+  public String convertUnixTimestampToUTCDateString(long timestamp, String format)
   {
     Date messageDate = new Date(timestamp);
     SimpleDateFormat sdf = new SimpleDateFormat(format);

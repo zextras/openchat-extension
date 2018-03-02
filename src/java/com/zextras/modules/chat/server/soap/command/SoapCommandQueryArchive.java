@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.zextras.lib.json.JSONObject;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -59,9 +59,9 @@ public class SoapCommandQueryArchive extends SoapCommand
   {
     String node = StringUtils.defaultString(mParameterMap.get(NODE));
     String with = StringUtils.defaultString(mParameterMap.get(WITH));
-    Optional<Integer> max = Optional.<Integer>absent();
-    Optional<Long> start = Optional.<Long>absent();
-    Optional<Long> end = Optional.<Long>absent();
+    Optional<Integer> max = Optional.sEmptyInstance;
+    Optional<Long> start = Optional.sEmptyInstance;
+    Optional<Long> end = Optional.sEmptyInstance;
     final EventId queryId = EventId.randomUUID();
 
     try

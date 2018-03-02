@@ -1,6 +1,6 @@
 package com.zextras.modules.chat.server.db.sql;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.google.inject.Inject;
 import com.zextras.lib.ChatDbHelper;
 import com.zextras.modules.chat.server.ImMessage;
@@ -207,11 +207,11 @@ public class ImMessageStatements
     {
       where.add(" DESTINATION = ?");
     }
-    if (fromTime.isPresent())
+    if (fromTime.hasValue())
     {
       where.add(" (SENT_TIMESTAMP > ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP > ?))");
     }
-    if (toTime.isPresent())
+    if (toTime.hasValue())
     {
       where.add(" (SENT_TIMESTAMP < ? OR (EDIT_TIMESTAMP <> 0 AND EDIT_TIMESTAMP < ?))");
     }
@@ -244,17 +244,17 @@ public class ImMessageStatements
         {
           preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
         }
-        if (fromTime.isPresent())
+        if (fromTime.hasValue())
         {
-          preparedStatement.setLong(i++, fromTime.get());
-          preparedStatement.setLong(i++, fromTime.get());
+          preparedStatement.setLong(i++, fromTime.getValue());
+          preparedStatement.setLong(i++, fromTime.getValue());
         }
-        if (toTime.isPresent())
+        if (toTime.hasValue())
         {
-          preparedStatement.setLong(i++, toTime.get());
-          preparedStatement.setLong(i++, toTime.get());
+          preparedStatement.setLong(i++, toTime.getValue());
+          preparedStatement.setLong(i++, toTime.getValue());
         }
-        preparedStatement.setInt(i++, max.or(1000));
+        preparedStatement.setInt(i++, max.optValue(1000));
       }
     }, new ChatDbHelper.ResultSetFactory()
     {

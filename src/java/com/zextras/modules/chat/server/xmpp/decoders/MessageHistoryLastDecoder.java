@@ -1,6 +1,6 @@
 package com.zextras.modules.chat.server.xmpp.decoders;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
@@ -50,13 +50,13 @@ public class MessageHistoryLastDecoder implements EventDecoder
       ChatLog.log.warn(Utils.exceptionToString(e));
     }
 
-    Optional<Integer> count = Optional.<Integer>absent();
+    Optional<Integer> count = Optional.sEmptyInstance;
     try
     {
       String s = parser.getCount();
       if (!s.isEmpty())
       {
-        count = Optional.<Integer>of(Integer.valueOf(s));
+        count = new Optional<Integer>(Integer.valueOf(s));
       }
     }
     catch (RuntimeException e)

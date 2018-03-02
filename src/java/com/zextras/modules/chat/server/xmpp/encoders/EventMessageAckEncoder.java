@@ -24,9 +24,6 @@ import org.codehaus.stax2.XMLStreamWriter2;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class EventMessageAckEncoder extends XmppEncoder
 {
@@ -59,7 +56,10 @@ public class EventMessageAckEncoder extends XmppEncoder
     sw.writeAttribute("from", mEventMessageAck.getSender().resourceAddress());
     sw.writeAttribute("to", target.resourceAddress());
     sw.writeAttribute("id",mEventMessageAck.getId().toString());
-    sw.writeAttribute("timestamp",convertLongToUTCDateString(mEventMessageAck.getTimestamp(), CURRENT_XMPP_FORMAT));
+    if( extensions )
+    {
+      sw.writeAttribute("timestamp", convertUnixTimestampToUTCDateString(mEventMessageAck.getMessageTimestamp(), CURRENT_XMPP_FORMAT));
+    }
 
     if( validate() ) {
       sw.validateAgainst(getSchema("receipts.xsd"));

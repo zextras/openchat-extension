@@ -119,6 +119,15 @@ public class DiscoveryEncoder extends XmppEncoder
     }
     */
 
+    for( EventDiscovery.Result result : mEvent.getResults() )
+    {
+      sw.writeStartElement("", "item", "jabber:client");
+      sw.writeAttribute("jid", result.getRoomAddress().resourceAddress());
+      sw.writeAttribute("name", result.getName());
+      sw.writeAttribute("node", "");
+      sw.writeEndElement();
+    }
+
     sw.writeEndElement();
     sw.close();
   }

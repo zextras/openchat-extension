@@ -21,8 +21,6 @@
 package com.zextras.modules.chat.server.xmpp.encoders;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventMessage;
-import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.apache.commons.lang3.StringUtils;
@@ -30,9 +28,6 @@ import org.codehaus.stax2.XMLStreamWriter2;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * @see EventMessageHistoryLast
@@ -91,14 +86,14 @@ public class EventMessageHistoryLastEncoder extends XmppEncoder
           if (!StringUtils.isEmpty(mEvent.getLastId()))
           {
             sw.writeStartElement("last");
-            sw.writeAttribute("stamp",convertLongToUTCDateString(mEvent.getTimestamp(), CURRENT_XMPP_FORMAT)); // not really standard
+            sw.writeAttribute("stamp", convertUnixTimestampToUTCDateString(mEvent.getTimestamp(), CURRENT_XMPP_FORMAT)); // not really standard
             sw.writeCharacters(mEvent.getLastId());
             sw.writeEndElement();
           }
-          if (mEvent.getCount().isPresent())
+          if (mEvent.getCount().hasValue())
           {
             sw.writeStartElement("count");
-            sw.writeInt(mEvent.getCount().get());
+            sw.writeInt(mEvent.getCount().getValue());
             sw.writeEndElement();
           }
         sw.writeEndElement();

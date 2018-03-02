@@ -31,7 +31,7 @@ public class EventDiscovery extends Event
   private final List<Result>       mResults;
   private final DiscoveryQuery     mDiscoveryQuery;
   private final String             mType;
-  private final SpecificAddress mSender;
+  private final SpecificAddress    mSender;
 
   public EventDiscovery(
     EventId eventId,
@@ -143,7 +143,30 @@ public class EventDiscovery extends Event
     @Override
     public String toString()
     {
-      return "{" +mAddress+ ',' +mName+'}';
+      return "{" + mAddress + ',' + mName + '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if (this == o)
+        return true;
+      if (o == null || getClass() != o.getClass())
+        return false;
+
+      Result result = (Result) o;
+
+      if (!mAddress.equals(result.mAddress))
+        return false;
+      return mName.equals(result.mName);
+    }
+
+    @Override
+    public int hashCode()
+    {
+      int result = mAddress.hashCode();
+      result = 31 * result + mName.hashCode();
+      return result;
     }
   }
 
@@ -189,5 +212,40 @@ public class EventDiscovery extends Event
 
       return false;
     }
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+
+    EventDiscovery that = (EventDiscovery) o;
+
+    if (!mFeatures.equals(that.mFeatures))
+      return false;
+    if (!mResults.equals(that.mResults))
+      return false;
+    if (mDiscoveryQuery != that.mDiscoveryQuery)
+      return false;
+    if (!mType.equals(that.mType))
+      return false;
+    return mSender.equals(that.mSender);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = super.hashCode();
+    result = 31 * result + mFeatures.hashCode();
+    result = 31 * result + mResults.hashCode();
+    result = 31 * result + mDiscoveryQuery.hashCode();
+    result = 31 * result + mType.hashCode();
+    result = 31 * result + mSender.hashCode();
+    return result;
   }
 }

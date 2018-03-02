@@ -69,7 +69,6 @@ public class StanzaRecognizerImpl implements StanzaRecognizer
           break;
         }
 
-
         if(sr.getLocalName().equals("iq"))
         {
           stanzaType = getTypeIQ(sr);

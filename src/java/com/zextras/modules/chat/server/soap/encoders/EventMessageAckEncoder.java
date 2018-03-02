@@ -43,7 +43,7 @@ public class EventMessageAckEncoder implements SoapEncoder
     message.put("to", target.resourceAddress().toString());
     message.put("type", ClientEventType.MESSAGE_ACK);
     message.put("message_id", mEventMessageAck.getMessageId().toString());
-    message.put("message_date", mEventMessageAck.getTimestamp());
+    message.put("message_date", mEventMessageAck.getMessageTimestamp());
 
     response.addResponse(message);
   }

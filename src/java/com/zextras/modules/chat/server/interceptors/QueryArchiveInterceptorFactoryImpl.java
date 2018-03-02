@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.interceptors;
 
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
@@ -145,7 +145,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
             mImMessageStatements.upsertMessageRead(
               sender,
               eventMessage.getTarget().toSingleAddress(),
-              eventMessage.getTimestamp(),
+              eventMessage.getMessageTimestamp(),
               eventMessage.getMessageId().toString()
             );
           }
@@ -169,7 +169,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
       {
         String queryId = event.getQueryId();
         String sender = event.getSender().withoutResource().toString();
-        List<Event> events = query(sender, event.getWith().or(""), queryId,event.getStart(),event.getEnd(), event.getMax());
+        List<Event> events = query(sender, event.getWith().optValue(""), queryId,event.getStart(),event.getEnd(), event.getMax());
         mEventManager.dispatchUnfilteredEvents(events);
         return true;
       }
@@ -217,7 +217,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
 
     try
     {
-      if (max.isPresent() && max.get() == 0) // Count only
+      if (max.hasValue() && max.getValue() == 0) // Count only
       {
         Set<String> recipients = mImMessageStatements.getAllRecipients(requester);
         for (String recipient : recipients)

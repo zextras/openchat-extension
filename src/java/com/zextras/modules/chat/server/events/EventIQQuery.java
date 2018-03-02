@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.events;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;

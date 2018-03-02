@@ -31,12 +31,13 @@ public class MessageAckParser extends XmppParser
   private String mTo;
   private String mFrom;
   private String mMessageId;
-  private String mTimestamp;
+  private String mMessageTimestamp;
+  private String mId;
 
   public MessageAckParser(InputStream xmlInput, SchemaProvider schemaProvider)
   {
     super("jabber-client.xsd", xmlInput, schemaProvider);
-    mTimestamp = "";
+    mMessageTimestamp = "";
   }
 
 /*
@@ -54,7 +55,6 @@ public class MessageAckParser extends XmppParser
       sr.validateAgainst(getDefaultSchema());
     }
 
-
     while( sr.hasNext() )
     {
       sr.next();
@@ -63,31 +63,26 @@ public class MessageAckParser extends XmppParser
       {
         case XMLStreamReader.START_ELEMENT:
         {
-          mTo = emptyStringWhenNull(sr.getAttributeValue(null,"to"));
-          mFrom = emptyStringWhenNull(sr.getAttributeValue(null,"from"));
-          mTimestamp = emptyStringWhenNull(sr.getAttributeValue(null,"timestamp"));
-          parseReceived(sr);
-          return;
+          if( sr.getName().getLocalPart().equals("received") )
+          {
+            mMessageId = emptyStringWhenNull(sr.getAttributeValue(null,"id"));
+          }
+
+          if( sr.getName().getLocalPart().equals("message") )
+          {
+            mId = emptyStringWhenNull(sr.getAttributeValue(null, "id"));
+            mTo = emptyStringWhenNull(sr.getAttributeValue(null, "to"));
+            mFrom = emptyStringWhenNull(sr.getAttributeValue(null, "from"));
+            mMessageTimestamp = emptyStringWhenNull(sr.getAttributeValue(null, "timestamp"));
+          }
         }
       }
     }
   }
 
-  private void parseReceived(XMLStreamReader2 sr) throws XMLStreamException
+  public String getId()
   {
-    while( sr.hasNext() )
-    {
-      sr.next();
-
-      switch ( sr.getEventType() )
-      {
-        case XMLStreamReader.START_ELEMENT:
-        {
-          mMessageId = emptyStringWhenNull(sr.getAttributeValue(null,"id"));
-          return;
-        }
-      }
-    }
+    return mId;
   }
 
   public String getTo()
@@ -105,11 +100,11 @@ public class MessageAckParser extends XmppParser
     return mMessageId;
   }
 
-  public long getTimestamp() // not really xmmp standard
+  public long getMessageTimestamp() // not really xmmp standard
   {
     try
     {
-      return DateUtils.parseUTCDate(mTimestamp);
+      return DateUtils.parseUTCDate(mMessageTimestamp);
     }
     catch (ParseException e)
     {

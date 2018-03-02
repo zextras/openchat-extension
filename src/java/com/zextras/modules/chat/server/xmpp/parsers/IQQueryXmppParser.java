@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
@@ -56,12 +56,12 @@ public class IQQueryXmppParser extends XmppParser
     mId = "";
     mTo = "";
     mQueryId = "";
-    mNode = Optional.<String>absent();
-    mWith = Optional.<String>absent();
-    mStart = Optional.<Long>absent();
-    mEnd = Optional.<Long>absent();
+    mNode = Optional.sEmptyInstance;
+    mWith = Optional.sEmptyInstance;
+    mStart = Optional.sEmptyInstance;
+    mEnd = Optional.sEmptyInstance;
     mSender = "";
-    mMax = Optional.<Integer>absent();
+    mMax = Optional.sEmptyInstance;
   }
 
 /*

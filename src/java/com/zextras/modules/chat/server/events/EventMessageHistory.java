@@ -69,5 +69,33 @@ public class EventMessageHistory extends Event
     return mQueryId;
   }
 
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+
+    EventMessageHistory that = (EventMessageHistory) o;
+
+    if (!mQueryId.equals(that.mQueryId))
+      return false;
+    if (!mMessageTo.equals(that.mMessageTo))
+      return false;
+    return mOriginalMessage.equals(that.mOriginalMessage);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = super.hashCode();
+    result = 31 * result + mQueryId.hashCode();
+    result = 31 * result + mMessageTo.hashCode();
+    result = 31 * result + mOriginalMessage.hashCode();
+    return result;
+  }
 }
 

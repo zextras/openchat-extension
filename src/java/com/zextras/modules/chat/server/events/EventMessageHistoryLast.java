@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.events;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -32,10 +32,10 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 
 public class EventMessageHistoryLast extends Event
 {
-  private final String mQueryId;
-  private final SpecificAddress mMessageTo;
-  private final String mFirstId;
-  private final String mLastId;
+  private final String            mQueryId;
+  private final SpecificAddress   mMessageTo;
+  private final String            mFirstId;
+  private final String            mLastId;
   private final Optional<Integer> mCount;
 
   public EventMessageHistoryLast(
@@ -86,6 +86,41 @@ public class EventMessageHistoryLast extends Event
   public Optional<Integer> getCount()
   {
     return mCount;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    if (!super.equals(o))
+      return false;
+
+    EventMessageHistoryLast that = (EventMessageHistoryLast) o;
+
+    if (!mQueryId.equals(that.mQueryId))
+      return false;
+    if (!mMessageTo.equals(that.mMessageTo))
+      return false;
+    if (!mFirstId.equals(that.mFirstId))
+      return false;
+    if (!mLastId.equals(that.mLastId))
+      return false;
+    return mCount.equals(that.mCount);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = super.hashCode();
+    result = 31 * result + mQueryId.hashCode();
+    result = 31 * result + mMessageTo.hashCode();
+    result = 31 * result + mFirstId.hashCode();
+    result = 31 * result + mLastId.hashCode();
+    result = 31 * result + mCount.hashCode();
+    return result;
   }
 }
 

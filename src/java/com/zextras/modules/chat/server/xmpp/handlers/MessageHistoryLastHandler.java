@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.handlers;
 
-import com.google.common.base.Optional;
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.Event;
@@ -55,7 +55,7 @@ public class MessageHistoryLastHandler implements StanzaHandler
           new SpecificAddress(mParser.getTo()),
           mParser.getFirst(),
           mParser.getLast(),
-          Optional.<Integer>absent(),
+          Optional.sEmptyInstance,
           System.currentTimeMillis()
         ));
       }

@@ -17,6 +17,8 @@
 
 package com.zextras.modules.chat.server.xmpp;
 
+import com.zextras.lib.Container;
+import com.zextras.lib.ContainerImpl;
 import com.zextras.modules.chat.server.*;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.relationship.Relationship;
@@ -118,6 +120,12 @@ public class AnonymousUser implements User
   @Override
   public void delete()
   {
+  }
+
+  @Override
+  public Container getPublicCapabilities()
+  {
+    return new ContainerImpl();
   }
 
   @Override

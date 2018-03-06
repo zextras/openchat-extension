@@ -46,10 +46,11 @@ public class OpenUserProvider implements UserProvider
   private final UserModifier                  mUserModifier;
   private final Provisioning                  mProvisioning;
   private final UserInfoIteratorMapper        mUserInfoIteratorMapper;
-  private final RelationshipProvider   mRelationshipProvider;
-  private final RelationshipModifier   mRelationshipModifier;
-  private final DirectRelationshipProvider mDirectRelationshipProvider;
-  private final EventQueueFactory mEventQueueFactory;
+  private final RelationshipProvider          mRelationshipProvider;
+  private final RelationshipModifier          mRelationshipModifier;
+  private final DirectRelationshipProvider    mDirectRelationshipProvider;
+  private final EventQueueFactory             mEventQueueFactory;
+  private final UserCapabilitiesProvider      mCapabilitiesProvider;
   private ReentrantLock mLock = new ReentrantLock();
 
 
@@ -63,7 +64,8 @@ public class OpenUserProvider implements UserProvider
     RelationshipProvider relationshipProvider,
     RelationshipModifier relationshipModifier,
     final DirectRelationshipProvider directRelationshipProvider,
-    EventQueueFactory eventQueueFactory
+    EventQueueFactory eventQueueFactory,
+    UserCapabilitiesProvider capabilitiesProvider
   )
   {
     mUserInfoMapper = userInfoMapper;
@@ -75,6 +77,7 @@ public class OpenUserProvider implements UserProvider
     mUserInfoIteratorMapper = userInfoIteratorMapper;
     mDirectRelationshipProvider = directRelationshipProvider;
     mEventQueueFactory = eventQueueFactory;
+    mCapabilitiesProvider = capabilitiesProvider;
   }
 
   @Override
@@ -149,7 +152,8 @@ public class OpenUserProvider implements UserProvider
                             mUserModifier,
                             mRelationshipProvider,
                             mRelationshipModifier,
-                            mDirectRelationshipProvider);
+                            mDirectRelationshipProvider,
+                            mCapabilitiesProvider);
   }
 
   @Override

@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server;
 
+import com.zextras.lib.Container;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 
@@ -36,6 +37,7 @@ public class InternalUser implements User, PersistentEntity
   private final SpecificAddress            mAddress;
   private final RelationshipModifier       mRelationshipModifier;
   private final DirectRelationshipProvider mDirectRelationshipProvider;
+  private final UserCapabilitiesProvider   mCapabilitiesProvider;
   private final int                        mId;
   private final UserModifier               mUserModifier;
   private final RelationshipProvider       mRelationshipProvider;
@@ -49,7 +51,8 @@ public class InternalUser implements User, PersistentEntity
     UserModifier userModifier,
     RelationshipProvider relationshipProvider,
     RelationshipModifier relationshipModifier,
-    DirectRelationshipProvider directRelationshipProvider
+    DirectRelationshipProvider directRelationshipProvider,
+    UserCapabilitiesProvider capabilitiesProvider
   )
   {
     mId = id;
@@ -59,6 +62,7 @@ public class InternalUser implements User, PersistentEntity
     mRelationshipProvider = relationshipProvider;
     mRelationshipModifier = relationshipModifier;
     mDirectRelationshipProvider = directRelationshipProvider;
+    mCapabilitiesProvider = capabilitiesProvider;
   }
 
   public EventQueue getEventQueue()
@@ -178,6 +182,12 @@ public class InternalUser implements User, PersistentEntity
       ChatLog.log.warn("Cannot delete user " + mAddress + ": " + e.getMessage());
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public Container getPublicCapabilities()
+  {
+    return mCapabilitiesProvider.getPublicCapabilities(this);
   }
 
   @Override

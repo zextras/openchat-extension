@@ -18,6 +18,8 @@
 package com.zextras.modules.chat.server.events;
 
 
+import com.zextras.lib.Container;
+import com.zextras.lib.ContainerImpl;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.encoding.Encoder;
@@ -36,18 +38,31 @@ public class EventFriendBackAdded extends Event implements EventFriendAddedGener
   }
 
   private final SpecificAddress mSender;
+  private final Container mCapabilities;
+
+  public EventFriendBackAdded(
+    SpecificAddress sender,
+    EventId eventId,
+    SpecificAddress friendAdded,
+    String friendNickname
+  )
+  {
+    this(sender, eventId, friendAdded, friendNickname, new ContainerImpl());
+  }
 
   public EventFriendBackAdded(
       SpecificAddress sender,
       EventId eventId,
       SpecificAddress friendAdded,
-      String friendNickname
+      String friendNickname,
+      Container capabilities
   )
   {
     super(eventId, sender, new Target(sender) );
     mFriendAdded = friendAdded;
     mFriendNickname = friendNickname;
     mSender = sender;
+    mCapabilities = capabilities;
   }
 
   public SpecificAddress getFriendToAdd() {
@@ -56,6 +71,11 @@ public class EventFriendBackAdded extends Event implements EventFriendAddedGener
 
   public String getNickname() {
     return mFriendNickname;
+  }
+
+  public Container getCapabilities()
+  {
+    return mCapabilities;
   }
 
   @Override

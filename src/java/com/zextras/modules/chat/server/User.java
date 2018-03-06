@@ -60,5 +60,7 @@ public interface User
 
   void delete();
 
+  Container getCapabilities();
+
   Container getPublicCapabilities();
 }

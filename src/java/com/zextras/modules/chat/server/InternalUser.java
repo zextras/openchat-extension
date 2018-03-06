@@ -191,6 +191,12 @@ public class InternalUser implements User, PersistentEntity
   }
 
   @Override
+  public Container getCapabilities()
+  {
+    return mCapabilitiesProvider.getCapabilities(this);
+  }
+
+  @Override
   public boolean hasRelationship(SpecificAddress buddy)
   {
     return mRelationshipProvider.userRelationshipType(

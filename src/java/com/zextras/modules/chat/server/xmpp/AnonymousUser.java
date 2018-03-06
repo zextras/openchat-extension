@@ -123,6 +123,12 @@ public class AnonymousUser implements User
   }
 
   @Override
+  public Container getCapabilities()
+  {
+    return new ContainerImpl();
+  }
+
+  @Override
   public Container getPublicCapabilities()
   {
     return new ContainerImpl();

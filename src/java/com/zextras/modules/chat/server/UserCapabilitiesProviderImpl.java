@@ -23,6 +23,12 @@ import com.zextras.lib.ContainerImpl;
 public class UserCapabilitiesProviderImpl implements UserCapabilitiesProvider
 {
   @Override
+  public Container getCapabilities(User user)
+  {
+    return new ContainerImpl();
+  }
+
+  @Override
   public Container getPublicCapabilities(User user)
   {
     return new ContainerImpl();

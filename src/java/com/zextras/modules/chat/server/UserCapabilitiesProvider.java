@@ -21,5 +21,6 @@ import com.zextras.lib.Container;
 
 public interface UserCapabilitiesProvider
 {
+  Container getCapabilities(User user);
   Container getPublicCapabilities(User user);
 }

@@ -86,6 +86,7 @@ public class AddFriend implements ChatOperation
     }
 
     User user = userProvider.getUser(mSender);
+    User friend = userProvider.getUser(mFriendToAdd);
     if (!user.hasRelationship(mFriendToAdd))
     {
       AccountHelper accountHelper = new AccountHelper(
@@ -111,7 +112,8 @@ public class AddFriend implements ChatOperation
       mSender.withoutSession(),
       eventFriendAdded.getId(),
       mFriendToAdd,
-      mNickname
+      mNickname,
+      friend.getPublicCapabilities()
     );
 
     events.add(eventFriendBackAdded);

@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server;
 
+import com.zextras.lib.Container;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.relationship.Relationship;
 
@@ -58,4 +59,8 @@ public interface User
   boolean hasAddressEquals(SpecificAddress buddyAddress);
 
   void delete();
+
+  Container getCapabilities();
+
+  Container getPublicCapabilities();
 }

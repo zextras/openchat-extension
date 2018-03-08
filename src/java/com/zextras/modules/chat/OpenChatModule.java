@@ -22,6 +22,8 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.zextras.lib.ZimbraSSLContextProvider;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.properties.LdapChatProperties;
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
+import com.zextras.modules.chat.server.UserCapabilitiesProviderImpl;
 import com.zextras.modules.chat.server.ChatVersion;
 import com.zextras.modules.chat.server.OpenchatVersion;
 import com.zextras.modules.chat.server.LocalXmppConnectionProvider;
@@ -128,6 +130,7 @@ public class OpenChatModule extends AbstractModule
     bind(CommonSessionEventFilter.class).to(CommonSessionEventFilterImpl.class);
     bind(ChatVersion.class).to(OpenchatVersion.class);
     bind(AddressResolver.class).to(AddressResolverStub.class);
+    bind(UserCapabilitiesProvider.class).to(UserCapabilitiesProviderImpl.class);
     install(new FactoryModuleBuilder().build(SoapHandlerCreatorFactory.class));
     install(new FactoryModuleBuilder().build(InitialSoapRequestHandlerFactory.class));
     install(new FactoryModuleBuilder().build(SoapSessionFactory.class));

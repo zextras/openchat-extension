@@ -21,14 +21,15 @@ import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;
 import com.zextras.modules.chat.server.events.EventFriendAddedGeneric;
+import com.zextras.modules.chat.server.events.EventFriendBackAdded;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 
 public class EventFriendBackAddedEncoder implements SoapEncoder
 {
-  private final EventFriendAddedGeneric mEvent;
+  private final EventFriendBackAdded mEvent;
 
-  public EventFriendBackAddedEncoder(EventFriendAddedGeneric event)
+  public EventFriendBackAddedEncoder(EventFriendBackAdded event)
   {
     mEvent = event;
   }
@@ -46,6 +47,7 @@ public class EventFriendBackAddedEncoder implements SoapEncoder
     //so the user's other sessions know the buddy nickname
     message.put("buddyNickname", mEvent.getNickname());
     message.put("buddyAddress", mEvent.getFriendToAdd().toString() );
+    message.put("capabilities", mEvent.getCapabilities());
 
     response.addResponse(message);
   }

@@ -154,8 +154,8 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         mSenderAddress,
         mQueryid,
         new Target(addresses),
-        mWith,
         mNode,
+        mWith,
         mStart,
         mEnd,
         mMax

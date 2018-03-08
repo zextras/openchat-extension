@@ -160,6 +160,12 @@ public class MessageHistoryLastParser extends XmppParser
         case XMLStreamReader.START_ELEMENT:
         {
           tag = sr.getLocalName();
+          switch (tag)
+          {
+            case "last":
+              mTimestamp = emptyStringWhenNull(sr.getAttributeValue("", "stamp"));
+              break;
+          }
           break;
         }
         case XMLStreamConstants.CHARACTERS:
@@ -171,7 +177,6 @@ public class MessageHistoryLastParser extends XmppParser
               break;
             case "last":
               mLast = emptyStringWhenNull(sr.getText());
-              mTimestamp = emptyStringWhenNull(sr.getAttributeValue("", "stamp"));
               break;
             case "count":
               mCount = emptyStringWhenNull(sr.getText());

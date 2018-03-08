@@ -136,7 +136,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
         String sender = eventMessage.getSender().withoutResource().toString();
         try
         {
-          Account account = mProvisioning.assertAccountByName(eventMessage.getTarget().toSingleAddress());
+          Account account = mProvisioning.getAccountByName(eventMessage.getTarget().toSingleAddress());
           if (account != null && mProvisioning.onLocalServer(account))
           {
             mImMessageStatements.upsertMessageRead(

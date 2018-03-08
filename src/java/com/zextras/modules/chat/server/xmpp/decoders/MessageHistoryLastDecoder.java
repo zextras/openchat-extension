@@ -1,5 +1,6 @@
 package com.zextras.modules.chat.server.xmpp.decoders;
 
+import com.zextras.lib.DateUtils;
 import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -12,6 +13,7 @@ import org.openzal.zal.Utils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,10 +44,10 @@ public class MessageHistoryLastDecoder implements EventDecoder
       String s = parser.getTimestamp();
       if (!s.isEmpty())
       {
-        timestamp = Long.getLong(s);
+        timestamp = DateUtils.parseUTCDate(s);
       }
     }
-    catch (RuntimeException e)
+    catch (ParseException e)
     {
       ChatLog.log.warn(Utils.exceptionToString(e));
     }

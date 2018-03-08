@@ -187,7 +187,7 @@ public class InternalUser implements User, PersistentEntity
   @Override
   public Container getPublicCapabilities()
   {
-    return mCapabilitiesProvider.getPublicCapabilities(this);
+    return mCapabilitiesProvider.getPublicCapabilities(this.getAddress());
   }
 
   @Override

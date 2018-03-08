@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.operations.UpsertFriend;
 import com.zextras.modules.chat.server.operations.ChatOperation;
@@ -31,15 +32,18 @@ import java.util.Map;
 public class SoapCommandFriendRename extends SoapCommand
 {
   private final Provisioning mProvisioning;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
 
   public SoapCommandFriendRename(
     SpecificAddress senderAddress,
     Map<String, String> parameters,
-    Provisioning provisioning
+    Provisioning provisioning,
+    UserCapabilitiesProvider userCapabilitiesProvider
   )
   {
     super(senderAddress, parameters);
     mProvisioning = provisioning;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
   }
 
   @Override
@@ -59,7 +63,8 @@ public class SoapCommandFriendRename extends SoapCommand
       getTargetAddress(),
       targetNickName,
       targetGroup,
-      mProvisioning
+      mProvisioning,
+      mUserCapabilitiesProvider
     );
 
     return Arrays.<ChatOperation>asList(renameFriend);

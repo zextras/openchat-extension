@@ -18,9 +18,10 @@
 package com.zextras.modules.chat.server;
 
 import com.zextras.lib.Container;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 
 public interface UserCapabilitiesProvider
 {
   Container getCapabilities(User user);
-  Container getPublicCapabilities(User user);
+  Container getPublicCapabilities(SpecificAddress user);
 }

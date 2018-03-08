@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.activities.ActivityManager;
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
@@ -63,6 +64,7 @@ public class SoapParser implements Parser
   final         SoapResponse       mSoapResponse;
   private final Clock mClock;
   private final QueryArchiveFactory mQueryArchiveFactory;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
@@ -83,7 +85,8 @@ public class SoapParser implements Parser
     ActivityManager activityManager,
     EventQueueFactory eventQueueFactory,
     Clock clock,
-    QueryArchiveFactory queryArchiveFactory
+    QueryArchiveFactory queryArchiveFactory,
+    UserCapabilitiesProvider userCapabilitiesProvider
   )
   {
     mProvisioning = provisioning;
@@ -97,6 +100,7 @@ public class SoapParser implements Parser
     mSoapResponse = soapResponse;
     mClock = clock;
     mQueryArchiveFactory = queryArchiveFactory;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
     mCommandCreatorMap = new HashMap<String, CommandCreator>(32);
     setupCommands();
   }
@@ -112,7 +116,7 @@ public class SoapParser implements Parser
     {
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandFriendAdd(mSenderAddress, commandParameters, mProvisioning); }
+      { return new SoapCommandFriendAdd(mSenderAddress, commandParameters, mProvisioning, mUserCapabilitiesProvider); }
     } );
     setupCommand(ACTION_BLOCK_FRIEND, new CommandCreator()
     {
@@ -203,7 +207,7 @@ public class SoapParser implements Parser
     {
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandFriendRename( mSenderAddress,commandParameters, mProvisioning); }
+      { return new SoapCommandFriendRename( mSenderAddress,commandParameters, mProvisioning, mUserCapabilitiesProvider); }
     });
     setupCommand(ACTION_RENAME_GROUP, new CommandCreator()
     {

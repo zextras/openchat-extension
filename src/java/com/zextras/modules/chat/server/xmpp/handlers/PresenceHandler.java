@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.handlers;
 
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.modules.chat.server.status.VolatileStatus;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -37,18 +38,21 @@ public class PresenceHandler implements StanzaHandler
 {
   private final XmppSession                           mSession;
   private final Provisioning                          mProvisioning;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
   private final StanzaProcessor.XmppConnectionHandler mConnectionHandler;
 
   private PresenceParser mParser = null;
 
   public PresenceHandler(
     StanzaProcessor.XmppConnectionHandler connectionHandler,
-    Provisioning provisioning
+    Provisioning provisioning,
+    UserCapabilitiesProvider userCapabilitiesProvider
   )
   {
     mSession = connectionHandler.getSession();
     mConnectionHandler = connectionHandler;
     mProvisioning = provisioning;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
   }
 
   public List<ChatOperation> handleSubscribed()
@@ -90,7 +94,8 @@ public class PresenceHandler implements StanzaHandler
         new SpecificAddress(mParser.getTo()),
         "",
         "",
-        mProvisioning
+        mProvisioning,
+        mUserCapabilitiesProvider
       );
 
       return Collections.<ChatOperation>singletonList(operationFriendAccept);

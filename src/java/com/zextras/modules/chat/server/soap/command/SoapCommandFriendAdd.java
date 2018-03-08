@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
@@ -35,15 +36,18 @@ import java.util.Map;
 public class SoapCommandFriendAdd extends SoapCommand
 {
   private Provisioning mProvisioning;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
 
   public SoapCommandFriendAdd(
     SpecificAddress senderAddress,
     Map<String, String> parameters,
-    Provisioning provisioning
+    Provisioning provisioning,
+    UserCapabilitiesProvider userCapabilitiesProvider
   )
   {
     super(senderAddress, parameters);
     mProvisioning = provisioning;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
   }
 
   @Override
@@ -68,7 +72,8 @@ public class SoapCommandFriendAdd extends SoapCommand
       new SpecificAddress(account.getName()),
       getTargetUsername(),
       group,
-      mProvisioning
+      mProvisioning,
+      mUserCapabilitiesProvider
     );
 
     return Arrays.<ChatOperation>asList(addFriend);

@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server;
 
 import com.zextras.lib.Container;
 import com.zextras.lib.ContainerImpl;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 
 public class UserCapabilitiesProviderImpl implements UserCapabilitiesProvider
 {
@@ -29,7 +30,7 @@ public class UserCapabilitiesProviderImpl implements UserCapabilitiesProvider
   }
 
   @Override
-  public Container getPublicCapabilities(User user)
+  public Container getPublicCapabilities(SpecificAddress user)
   {
     return new ContainerImpl();
   }

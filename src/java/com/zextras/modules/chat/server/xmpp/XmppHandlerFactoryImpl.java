@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.xmpp;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.xmpp.handlers.*;
@@ -41,6 +42,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
   private final XmppEventFilter     mXmppEventFilter;
   private final QueryArchiveFactory mQueryArchiveFactory;
   private final Clock               mClock;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
 
   @Inject
   public XmppHandlerFactoryImpl(
@@ -52,7 +54,8 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter,
     QueryArchiveFactory queryArchiveFactory,
-    Clock clock
+    Clock clock,
+    UserCapabilitiesProvider userCapabilitiesProvider
     )
   {
     mStanzaRecognizer = stanzaRecognizer;
@@ -64,6 +67,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
     mXmppEventFilter = xmppEventFilter;
     mQueryArchiveFactory = queryArchiveFactory;
     mClock = clock;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
   }
 
   public StanzaHandler createHandler(
@@ -137,7 +141,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
 
       case IQRoster:
       {
-        handler = new IQRosterHandler(connectionStatus.getSession(),mProvisioning);
+        handler = new IQRosterHandler(connectionStatus.getSession(),mProvisioning, mUserCapabilitiesProvider);
         break;
       }
 
@@ -149,7 +153,7 @@ public class XmppHandlerFactoryImpl implements XmppHandlerFactory
 
       case Presence:
       {
-        handler = new PresenceHandler(connectionStatus, mProvisioning);
+        handler = new PresenceHandler(connectionStatus, mProvisioning, mUserCapabilitiesProvider);
         break;
       }
 

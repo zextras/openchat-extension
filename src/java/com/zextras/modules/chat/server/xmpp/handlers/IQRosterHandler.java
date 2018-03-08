@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.handlers;
 
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.operations.UpsertFriend;
 import com.zextras.modules.chat.server.operations.ChatOperation;
@@ -39,15 +40,18 @@ public class IQRosterHandler implements StanzaHandler
 {
   private final XmppSession  mSession;
   private final Provisioning mProvisioning;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
   IQRosterParser mParser = null;
 
   public IQRosterHandler(
     XmppSession session,
-    Provisioning provisioning
+    Provisioning provisioning,
+    UserCapabilitiesProvider userCapabilitiesProvider
   )
   {
     mSession = session;
     mProvisioning = provisioning;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
   }
 
   @Override
@@ -80,7 +84,8 @@ public class IQRosterHandler implements StanzaHandler
             target,
             mParser.getItemName(),
             mParser.getGroup(),
-            mProvisioning
+            mProvisioning,
+            mUserCapabilitiesProvider
           )
         );
       }

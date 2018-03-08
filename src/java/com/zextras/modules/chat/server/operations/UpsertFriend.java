@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.operations;
 
 import com.zextras.lib.log.ChatLog;
+import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.Event;
@@ -47,13 +48,15 @@ public class UpsertFriend implements ChatOperation
   private final String          mNewNickname;
   private final Provisioning    mProvisioning;
   private final String          mNewGroup;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
 
   public UpsertFriend(
     SpecificAddress sender,
     SpecificAddress friendToRename,
     String newNickname,
     String newGroup,
-    Provisioning provisioning
+    Provisioning provisioning,
+    UserCapabilitiesProvider userCapabilitiesProvider
   )
   {
     mSender = sender;
@@ -61,6 +64,7 @@ public class UpsertFriend implements ChatOperation
     mNewNickname = newNickname;
     mProvisioning = provisioning;
     mNewGroup = newGroup;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
   }
 
   @Override
@@ -71,7 +75,7 @@ public class UpsertFriend implements ChatOperation
 
     if (!user.hasRelationship(mFriendToRename))
     {
-      AddFriend addFriend = new AddFriend(mSender, mFriendToRename, mNewNickname, mNewGroup, mProvisioning);
+      AddFriend addFriend = new AddFriend(mSender, mFriendToRename, mNewNickname, mNewGroup, mProvisioning, mUserCapabilitiesProvider);
       return addFriend.exec(sessionManager, userProvider);
     }
     else

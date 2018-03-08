@@ -49,13 +49,15 @@ public class AddFriend implements ChatOperation
   private       String          mNickname;
   private final String          mGroup;
   private final Provisioning    mProvisioning;
+  private final UserCapabilitiesProvider mUserCapabilitiesProvider;
 
   public AddFriend(
     SpecificAddress sender,
     SpecificAddress friendToAdd,
     String nickname,
     String group,
-    Provisioning provisioning
+    Provisioning provisioning,
+    UserCapabilitiesProvider userCapabilitiesProvider
   )
   {
     mFriendToAdd = friendToAdd;
@@ -63,6 +65,7 @@ public class AddFriend implements ChatOperation
     mNickname = nickname;
     mGroup = group;
     mProvisioning = provisioning;
+    mUserCapabilitiesProvider = userCapabilitiesProvider;
   }
 
   @Override
@@ -86,7 +89,6 @@ public class AddFriend implements ChatOperation
     }
 
     User user = userProvider.getUser(mSender);
-    User friend = userProvider.getUser(mFriendToAdd);
     if (!user.hasRelationship(mFriendToAdd))
     {
       AccountHelper accountHelper = new AccountHelper(
@@ -113,7 +115,7 @@ public class AddFriend implements ChatOperation
       eventFriendAdded.getId(),
       mFriendToAdd,
       mNickname,
-      friend.getPublicCapabilities()
+      mUserCapabilitiesProvider.getPublicCapabilities(mFriendToAdd)
     );
 
     events.add(eventFriendBackAdded);

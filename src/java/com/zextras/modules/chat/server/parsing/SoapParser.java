@@ -52,7 +52,6 @@ public class SoapParser implements Parser
   public final static String ACTION_PING_WRITING          = "ping_writing";
   public final static String ACTION_SET_STATUS            = "set_user_status";
   public final static String ACTION_UNBLOCK_FRIEND        = "unblock_friend";
-  public final static String ACTION_WINDOW_CLOSED         = "chat_window_closed";
   public final static String ACTION_MESSAGE_RECEIVED      = "notify_msg_received";
   public final static String ACTION_SET_AUTO_AWAY         = "set_auto_away";
   public final static String ACTION_RENAME_GROUP          = "rename_group";
@@ -140,6 +139,12 @@ public class SoapParser implements Parser
       }
     });
 
+    setupCommand(ACTION_SET_AUTO_AWAY, new CommandCreator()
+    {
+      @Override
+      public SoapCommand create(Map<String, String> commandParameters)
+      { return new SoapCommandSetAutoAway(mSenderAddress,commandParameters); }
+    });
     setupCommand(ACTION_LOGOUT, new CommandCreator()
     {
       @Override
@@ -182,12 +187,6 @@ public class SoapParser implements Parser
       public SoapCommand create(Map<String, String> commandParameters)
       { return new SoapCommandUnblockUser(mSenderAddress,commandParameters); }
     });
-    setupCommand(ACTION_WINDOW_CLOSED, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandWindowClosed(mSenderAddress,commandParameters); }
-    });
     setupCommand(ACTION_MESSAGE_RECEIVED, new CommandCreator()
     {
       @Override
@@ -199,12 +198,6 @@ public class SoapParser implements Parser
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
       { return new SoapCommandFriendAccept( mSenderAddress,commandParameters, mProvisioning); }
-    });
-    setupCommand(ACTION_SET_AUTO_AWAY, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandSetAutoAway(mSenderAddress,commandParameters); }
     });
     setupCommand(ACTION_RENAME_FRIEND, new CommandCreator()
     {

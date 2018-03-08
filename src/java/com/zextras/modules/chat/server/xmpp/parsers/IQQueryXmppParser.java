@@ -75,6 +75,9 @@ public class IQQueryXmppParser extends XmppParser
         <value>juliet@capulet.lit</value>
       </field>
     </x>
+    <set xmlns='http://jabber.org/protocol/rsm'>
+      <max>10</max>
+    </set>
   </query>
 </iq>
 */
@@ -103,6 +106,7 @@ public class IQQueryXmppParser extends XmppParser
             case "query":
             {
               mQueryId = emptyStringWhenNull(sr.getAttributeValue("", "queryid"));
+              mNode = Optional.<String>of(emptyStringWhenNull(sr.getAttributeValue("", "node")));
               parseQuery(sr);
               continue;
             }
@@ -213,6 +217,10 @@ public class IQQueryXmppParser extends XmppParser
         }
         case XMLStreamConstants.END_ELEMENT:
         {
+          if (sr.getLocalName().equals("x"))
+          {
+            return;
+          }
           tag = "";
           var = "";
           type = "";
@@ -225,14 +233,19 @@ public class IQQueryXmppParser extends XmppParser
 
   private void parseSet(XMLStreamReader2 sr) throws XMLStreamException
   {
-    String var = "";
+    String tag = "";
     while (sr.hasNext())
     {
       switch (sr.getEventType())
       {
+        case XMLStreamReader.START_ELEMENT:
+        {
+          tag = sr.getLocalName();
+          break;
+        }
         case XMLStreamConstants.CHARACTERS:
         {
-          switch(var)
+          switch(tag)
           {
             case "max":
               mMax = Optional.<Integer>of(Integer.valueOf(sr.getText()));
@@ -242,7 +255,11 @@ public class IQQueryXmppParser extends XmppParser
         }
         case XMLStreamConstants.END_ELEMENT:
         {
-          var = "";
+          if (sr.getLocalName().equals("set"))
+          {
+            return;
+          }
+          tag = "";
           break;
         }
       }

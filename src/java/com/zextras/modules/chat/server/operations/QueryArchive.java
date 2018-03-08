@@ -108,8 +108,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
   public List<Event> exec(SessionManager sessionManager, UserProvider userProvider)
     throws ChatException, ChatDbException
   {
-    List<Event> queryEvents = new ArrayList<Event>();
-    List<Event> historyEvents = new ArrayList<Event>();
+    final List<Event> queryEvents = new ArrayList<Event>();
     SpecificAddress localServer = new SpecificAddress(mProvisioning.getLocalServer().getServerHostname());
     mQueryid = EventId.randomUUID().toString();
 
@@ -118,68 +117,67 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
       throw new UnsupportedOperationException();
     }
     Account account = mProvisioning.getAccountByName(mWith.getValue());
+    if (account != null)
+    {
+      queryEvents.add(new EventIQQuery(
+        EventId.randomUUID(),
+        mSenderAddress,
+        mQueryid,
+        new Target(localServer),
+        Optional.of(mSenderAddress.withoutResource().toString()),
+        mWith,
+        mStart,
+        mEnd,
+        mMax
+      ));
+      queryEvents.add(new EventIQQuery(
+        EventId.randomUUID(),
+        mSenderAddress,
+        mQueryid,
+        new Target(new SpecificAddress(account.getServerHostname())),
+        mWith,
+        Optional.of(mSenderAddress.withoutResource().toString()),
+        mStart,
+        mEnd,
+        mMax
+      ));
+    }
+    else
+    {
+      List<ChatAddress> addresses = new ArrayList<ChatAddress>();
+      for (Server server : mProvisioning.getAllServers())
+      {
+        addresses.add(new SpecificAddress(server.getServerHostname())); // TODO: stop spam all servers
+      }
+      queryEvents.add(new EventIQQuery(
+        EventId.randomUUID(),
+        mSenderAddress,
+        mQueryid,
+        new Target(addresses),
+        mWith,
+        mNode,
+        mStart,
+        mEnd,
+        mMax
+      ));
+    }
+
+    mQueries = Math.max(queryEvents.size(),mProvisioning.getAllServers().size());
+    mArchiveInterceptorFactory.register(this);
+    mEventManager.dispatchUnfilteredEvents(queryEvents);
+
+    List<Event> historyEvents = new ArrayList<Event>();
     try
     {
-      if (account != null)
-      {
-        queryEvents.add(new EventIQQuery(
-          EventId.randomUUID(),
-          mSenderAddress,
-          mQueryid,
-          new Target(localServer),
-          mNode,
-          mWith,
-          mStart,
-          mEnd,
-          mMax
-        ));
-        queryEvents.add(new EventIQQuery(
-          EventId.randomUUID(),
-          new SpecificAddress(mWith.getValue()),
-          mQueryid,
-          new Target(new SpecificAddress(account.getServerHostname())),
-          mNode,
-          Optional.<String>of(mSenderAddress.withoutResource().toString()),
-          mStart,
-          mEnd,
-          mMax
-        ));
-      }
-      else
-      {
-        List<ChatAddress> addresses = new ArrayList<ChatAddress>();
-        for (Server server : mProvisioning.getAllServers())
-        {
-          addresses.add(new SpecificAddress(server.getServerHostname())); // TODO: stop spam all servers
-        }
-        queryEvents.add(new EventIQQuery(
-          EventId.randomUUID(),
-          mSenderAddress,
-          mQueryid,
-          new Target(addresses),
-          mNode,
-          mWith,
-          mStart,
-          mEnd,
-          mMax
-        ));
-      }
-
-      if (mMax.hasValue() && mMax.getValue() == 0)
-      {
-        return queryEvents; // No need to collect EventMessageHistory
-      }
-
-      mQueries = queryEvents.size();
-      mArchiveInterceptorFactory.register(this);
-      mEventManager.dispatchUnfilteredEvents(queryEvents);
-
       try
       {
         mLock.lock();
         if (mQueries > 0)
         {
-          mReady.await(5000L, TimeUnit.MILLISECONDS);
+          if (!mReady.await(5000L, TimeUnit.MILLISECONDS))
+          {
+            ChatLog.log.warn("QueryArchive: Not all servers replied in time");
+          }
         }
       }
       catch (InterruptedException e)

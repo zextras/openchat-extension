@@ -111,34 +111,34 @@ public class ImMessageStatements
   private final static String sSELECT_MESSAGE_READ =
     "SELECT TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
 
+  private final static String sSELECT_MESSAGE_READ_ONLY_SENDER =
+    "SELECT TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ?";
+
   private final static String sCOUNT_MESSAGE_TO_READ =
     "SELECT COUNT(*) FROM MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final static String sCOUNT_MESSAGE_TO_READ_FROM_EVERYONE =
     "SELECT COUNT(*) FROM MESSAGE WHERE DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
-  private final static String sALL_RECIPENTS =
-    "SELECT MESSAGE.SENDER " +
+  private final static String sALL_RECIPIENTS =
+      "SELECT DISTINCT MESSAGE.SENDER " +
       " FROM MESSAGE " +
       " WHERE MESSAGE.DESTINATION = ? " +
-      " GROUP BY MESSAGE.SENDER";
+      " UNION " +
+      "SELECT MESSAGE_READ.DESTINATION " +
+      " FROM MESSAGE_READ " +
+      " WHERE MESSAGE_READ.SENDER = ?";
 
-  private final DbHandler mDbHandler;
   private final ChatDbHelper mChatDbHelper;
-  private final MessageFactory mMessageFactory;
   private final SubdomainResolver mSubdomainResolver;
 
   @Inject
   public ImMessageStatements(
-    DbHandler dbHandler,
     ChatDbHelper chatDbHelper,
-    MessageFactory messageFactory,
     SubdomainResolver subdomainResolver
   )
   {
-    mDbHandler = dbHandler;
     mChatDbHelper = chatDbHelper;
-    mMessageFactory = messageFactory;
     mSubdomainResolver = subdomainResolver;
   }
 
@@ -351,13 +351,15 @@ public class ImMessageStatements
   {
     final Set<String> set = new HashSet<String>();
 
-    mChatDbHelper.query(sALL_RECIPENTS,
+    mChatDbHelper.query(sALL_RECIPIENTS,
       new ChatDbHelper.ParametersFactory()
       {
         @Override
         public void create(PreparedStatement preparedStatement) throws SQLException
         {
-          preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(destination));
+          String dst = mSubdomainResolver.removeSubdomainFrom(destination);
+          preparedStatement.setString(1, dst);
+          preparedStatement.setString(2, dst);
         }
       },
       new ChatDbHelper.ResultSetFactory()

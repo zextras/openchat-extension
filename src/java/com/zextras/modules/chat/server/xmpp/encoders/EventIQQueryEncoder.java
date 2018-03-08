@@ -82,10 +82,15 @@ public class EventIQQueryEncoder extends XmppEncoder
       if (!mEventIQQuery.getQueryId().isEmpty())
       {
         sw.writeAttribute("queryid", mEventIQQuery.getQueryId());
+        if (mEventIQQuery.getNode().hasValue())
+        {
+          sw.writeAttribute("node", mEventIQQuery.getNode().getValue());
+        }
       }
       if (mEventIQQuery.getWith().hasValue() ||
           mEventIQQuery.getStart().hasValue() ||
-          mEventIQQuery.getEnd().hasValue())
+          mEventIQQuery.getEnd().hasValue() ||
+          mEventIQQuery.getMax().hasValue())
       {
         sw.writeStartElement("","x","jabber:x:data" );
           sw.writeAttribute("type","submit");

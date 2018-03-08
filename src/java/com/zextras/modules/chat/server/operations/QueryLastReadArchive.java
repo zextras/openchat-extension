@@ -27,21 +27,17 @@ import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventId;
-import com.zextras.modules.chat.server.events.EventManager;
-import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
+import com.zextras.modules.chat.server.session.Session;
 import com.zextras.modules.chat.server.session.SessionManager;
-import org.openzal.zal.Account;
+import com.zextras.modules.chat.server.session.SessionUUID;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Server;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -50,46 +46,37 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class QueryLastReadArchive implements ChatOperation
 {
+  private final SessionUUID mSessionUUID;
   private final Optional<Integer> mMax;
   private final Provisioning mProvisioning;
-  private final EventManager mEventManager;
-  private final SpecificAddress mSenderAddress;
+  private final SessionManager mSessionManager;
   private final Optional<String> mWith;
   private String mQueryid;
   private final Optional<Long> mStart;
   private final Optional<Long> mEnd;
   private final Optional<String> mNode;
-  private List<EventMessageHistory> mMessages;
-  private Lock mLock;
-  private Condition mReady;
-  private String mLastMessageId;
-  private String mFirstMessageId;
+  private SpecificAddress mSenderAddress;
 
   @Inject
   public QueryLastReadArchive(
-    @Assisted("senderAddress") SpecificAddress senderAddress,
+    @Assisted("sessionUUID") SessionUUID sessionUUID,
     @Assisted("with") Optional<String> with,
     @Assisted("start") Optional<Long> start,
     @Assisted("end") Optional<Long> end,
     @Assisted("node") Optional<String> node,
     @Assisted("max") Optional<Integer> max,
     Provisioning provisioning,
-    EventManager eventManager
+    SessionManager sessionManager
   )
   {
+    mSessionUUID = sessionUUID;
     mMax = max;
     mProvisioning = provisioning;
-    mEventManager = eventManager;
-    mSenderAddress = senderAddress;
+    mSessionManager = sessionManager;
     mWith = with;
     mStart = start;
     mEnd = end;
     mNode = node;
-    mMessages = new ArrayList<EventMessageHistory>();
-    mLock = new ReentrantLock();
-    mReady = mLock.newCondition();
-    mLastMessageId = "";
-    mFirstMessageId = "";
   }
 
   @Override
@@ -105,20 +92,20 @@ public class QueryLastReadArchive implements ChatOperation
     {
       addresses.add(new SpecificAddress(server.getServerHostname())); // TODO: stop spam
     }
-    if (!addresses.isEmpty())
-    {
-      queryEvents.add(new EventIQQuery(
-        EventId.randomUUID(),
-        mSenderAddress,
-        mQueryid,
-        new Target(addresses),
-        mNode,
-        Optional.sEmptyInstance,
-        mStart,
-        mEnd,
-        mMax
-      ));
-    }
+    Session session = mSessionManager.getSessionById(mSessionUUID);
+    mSenderAddress = session.getMainAddress();
+
+    queryEvents.add(new EventIQQuery(
+      EventId.randomUUID(),
+      mSenderAddress,
+      mQueryid,
+      new Target(addresses),
+      mNode,
+      Optional.of(session.getMainAddress().withoutResource().toString()),
+      mStart,
+      mEnd,
+      mMax
+    ));
 
     return queryEvents;
   }

@@ -20,6 +20,7 @@ package com.zextras.modules.chat.server.xmpp.parsers;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryEncoder;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.jetbrains.annotations.NotNull;
 
@@ -175,8 +176,8 @@ public class MessageHistoryParser extends XmppParser
             }
             case "message":
             {
-              mMessageTo = emptyStringWhenNull(sr.getAttributeValue("", "from"));
-              mMessageFrom = emptyStringWhenNull(sr.getAttributeValue("", "to"));
+              mMessageFrom = emptyStringWhenNull(sr.getAttributeValue("", "from"));
+              mMessageTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
               parseMessage(sr);
               continue;
             }
@@ -216,7 +217,7 @@ public class MessageHistoryParser extends XmppParser
           {
             case "body":
             {
-              mBody = emptyStringWhenNull(sr.getText());
+              mBody = emptyStringWhenNull(StringEscapeUtils.unescapeXml(sr.getText()));
               break;
             }
           }

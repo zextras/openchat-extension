@@ -24,6 +24,7 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.stax2.XMLStreamWriter2;
 
 import javax.xml.stream.XMLStreamException;
@@ -70,7 +71,7 @@ public class EventMessageHistoryEncoder extends XmppEncoder
 
     sw.writeStartElement("", "message");
       sw.writeAttribute("id", mEvent.getId().toString());
-      sw.writeAttribute("from", mEvent.getSender().toString()); // not really standard
+      sw.writeAttribute("from", mEvent.getSender().resourceAddress()); // not really standard
       sw.writeAttribute("to", target.resourceAddress()); // not really standard
 
       sw.writeStartElement("","result","urn:xmpp:mam:2" );
@@ -81,7 +82,7 @@ public class EventMessageHistoryEncoder extends XmppEncoder
         sw.writeStartElement("urn:xmpp:forward:0", "forwarded");
 
           sw.writeStartElement("","delay","urn:xmpp:delay" );
-          sw.writeAttribute("stamp", convertUnixTimestampToUTCDateString(message.getTimestamp(), CURRENT_XMPP_FORMAT));
+            sw.writeAttribute("stamp", convertUnixTimestampToUTCDateString(message.getTimestamp(), CURRENT_XMPP_FORMAT));
           sw.writeEndElement();
 
           sw.writeStartElement("","message","jabber:client");
@@ -89,7 +90,7 @@ public class EventMessageHistoryEncoder extends XmppEncoder
             sw.writeAttribute("to", message.getTarget().toString());
 
             sw.writeStartElement("jabber:client", "body");
-              sw.writeCharacters(message.getMessage());
+              sw.writeCharacters(StringEscapeUtils.escapeXml(message.getMessage()));
             sw.writeEndElement();
           sw.writeEndElement();
         sw.writeEndElement();

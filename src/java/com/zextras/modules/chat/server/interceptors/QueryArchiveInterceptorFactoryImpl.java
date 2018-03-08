@@ -58,21 +58,18 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
   private final Provisioning   mProvisioning;
   private final ChatProperties mChatProperties;
   private final ImMessageStatements mImMessageStatements;
-  private final EventManager mEventManager;
   private final Set<MessageHistoryFactory> mListeners;
 
   @Inject
   public QueryArchiveInterceptorFactoryImpl(
     Provisioning provisioning,
     ChatProperties chatProperties,
-    ImMessageStatements imMessageStatements,
-    EventManager eventManager
+    ImMessageStatements imMessageStatements
   )
   {
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mImMessageStatements = imMessageStatements;
-    mEventManager = eventManager;
     mListeners = Collections.newSetFromMap(new ConcurrentHashMap<MessageHistoryFactory,Boolean>());
   }
 
@@ -139,7 +136,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
         String sender = eventMessage.getSender().withoutResource().toString();
         try
         {
-          Account account = mProvisioning.assertAccountByName(sender);
+          Account account = mProvisioning.assertAccountByName(eventMessage.getTarget().toSingleAddress());
           if (account != null && mProvisioning.onLocalServer(account))
           {
             mImMessageStatements.upsertMessageRead(
@@ -165,13 +162,25 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     return new EventInterceptor()
     {
       @Override
-      public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
+      public boolean intercept(final EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        String queryId = event.getQueryId();
-        String sender = event.getSender().withoutResource().toString();
-        List<Event> events = query(sender, event.getWith().optValue(""), queryId,event.getStart(),event.getEnd(), event.getMax());
-        mEventManager.dispatchUnfilteredEvents(events);
-        return true;
+        if (mProvisioning.getLocalServer().getServerHostname().equals(target.withoutResource().toString()))
+        {
+          String queryId = event.getQueryId();
+          final List<Event> events = query(
+            new SpecificAddress(event.getSender().resourceAddress()),
+            event.getNode().optValue(""),
+            event.getWith().optValue(""),
+            queryId,
+            event.getStart(),
+            event.getEnd(),
+            event.getMax());
+
+          eventManager.dispatchUnfilteredEvents(events);
+
+          return true;
+        }
+        return false;
       }
     };
   }
@@ -210,46 +219,50 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     };
   }
 
-  private List<Event> query(String requester, String target, String queryId,Optional<Long> start,Optional<Long> end, Optional<Integer> max) throws ChatException
+  private List<Event> query(SpecificAddress requester,String node,String with, String queryId,Optional<Long> start,Optional<Long> end, Optional<Integer> max) throws ChatException
   {
     List<Event> events = new ArrayList<Event>();
-    String localHost = mProvisioning.getLocalServer().getName();
+    String localHost = mProvisioning.getLocalServer().getServerHostname();
 
     try
     {
       if (max.hasValue() && max.getValue() == 0) // Count only
       {
-        Set<String> recipients = mImMessageStatements.getAllRecipients(requester);
+        Set<String> recipients = mImMessageStatements.getAllRecipients(with);
         for (String recipient : recipients)
         {
-          Pair<Long, String> pair = mImMessageStatements.getLastMessageRead(requester, recipient);
-          long timestamp = pair.getLeft();
-          String messageId = pair.getRight();
-          int count = mImMessageStatements.getCountMessageToRead(recipient, requester, timestamp);
-          events.add(new EventMessageHistoryLast(
-            EventId.randomUUID(),
-            new SpecificAddress(recipient),
-            "",
-            new SpecificAddress(requester),
-            "",
-            "",
-            Optional.<Integer>of(count),
-            0
-          ));
-          if (timestamp > 0)
+          Account account = mProvisioning.getAccountByName(recipient);
+          if (account != null && mProvisioning.onLocalServer(account))
           {
-            events.add(new EventMessageAck(
+            Pair<Long, String> pair = mImMessageStatements.getLastMessageRead(with, recipient);
+            long timestamp = pair.getLeft();
+            String messageId = pair.getRight();
+            int count = mImMessageStatements.getCountMessageToRead(recipient, with, timestamp);
+            events.add(new EventMessageHistoryLast(
+              EventId.randomUUID(),
               new SpecificAddress(recipient),
-              new SpecificAddress(requester),
-              EventId.fromString(messageId),
+              "",
+              requester,
+              "",
+              messageId,
+              Optional.<Integer>of(count),
               timestamp
             ));
+            if (timestamp > 0)
+            {
+              events.add(new EventMessageAck(
+                new SpecificAddress(recipient),
+                requester,
+                EventId.fromString(messageId),
+                timestamp
+              ));
+            }
           }
         }
       }
       else
       {
-        Iterator<ImMessage> it = mImMessageStatements.query(requester, target, start, end, max).iterator();
+        Iterator<ImMessage> it = mImMessageStatements.query(node, with, start, end, max).iterator();
         String lastMessageId = "";
         String firstMessageId = "";
         while (it.hasNext())
@@ -264,7 +277,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
             EventId.randomUUID(),
             new SpecificAddress(localHost),
             queryId,
-            new SpecificAddress(requester),
+            requester,
             new EventMessage(
               EventId.fromString(message.getId()),
               new SpecificAddress(message.getSender()),
@@ -279,14 +292,15 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
           EventId.randomUUID(),
           new SpecificAddress(localHost),
           queryId,
-          new SpecificAddress(requester),
+          requester,
           firstMessageId,
           lastMessageId,
           max,
           System.currentTimeMillis()
         ));
       }
-    } catch (SQLException e)
+    }
+    catch (SQLException e)
     {
       throw new ChatException(Utils.exceptionToString(e));
     }

@@ -1,11 +1,13 @@
 package com.zextras.modules.chat.server.db.sql;
 
+import com.zextras.lib.Container;
+import com.zextras.lib.ContainerImpl;
+import com.zextras.lib.ContainerListContainer;
 import com.zextras.lib.Optional;
 import com.google.inject.Inject;
 import com.zextras.lib.ChatDbHelper;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.address.SubdomainResolver;
-import com.zextras.modules.chat.server.db.DbHandler;
 import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
@@ -115,8 +117,8 @@ public class ImMessageStatements
   private final static String sSELECT_MESSAGE_READ =
     "SELECT TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
 
-  private final static String sSELECT_MESSAGE_READ_ONLY_SENDER =
-    "SELECT TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ?";
+  private final static String sSELECT_ALL_MESSAGE_READ =
+    "SELECT SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ?";
 
   private final static String sCOUNT_MESSAGE_TO_READ =
     "SELECT COUNT(*) FROM MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
@@ -323,7 +325,6 @@ public class ImMessageStatements
     }
   }
 
-  @Nullable
   public Pair<Long,String> getLastMessageRead(final String sender, final String destination) throws SQLException
   {
     final Pair<Long,String> pair[] = new Pair[1];
@@ -352,6 +353,59 @@ public class ImMessageStatements
       });
 
     return pair[0];
+  }
+
+  public ContainerListContainer getAllMessage(String user) throws SQLException
+  {
+    ContainerListContainer messages = new ContainerListContainer();
+    List<ImMessage> list = query(user, "", Optional.sEmptyInstance, Optional.sEmptyInstance, Optional.sEmptyInstance);
+    for (ImMessage message : list)
+    {
+      Container container = new ContainerImpl();
+      container.putString("ID",message.getId());
+      container.putLong("SENT_TIMESTAMP",message.getSentTimestamp());
+      container.putLong("EDIT_TIMESTAMP",message.getEditTimestamp());
+      container.putLong("MESSAGE_TYPE",EventType.toShort(message.getEventType()));
+      container.putLong("TARGET_TYPE",TargetType.toShort(message.getTargetType()));
+      container.putLong("INDEX_STATUS",message.getIndexStatus());
+      container.putString("TEXT",message.getText());
+      container.putString("SENDER",mSubdomainResolver.removeSubdomainFrom(message.getTargetType(), message.getSender()));
+      container.putString("DESTINATION",mSubdomainResolver.removeSubdomainFrom(message.getTargetType(), message.getDestination()));
+      container.putString("REACTIONS",message.getReactions());
+      container.putString("TYPE_EXTRAINFO",message.getTypeExtrainfo());
+      messages.add(container);
+    }
+
+    return messages;
+  }
+
+  public ContainerListContainer getAllMessageRead(final String sender) throws SQLException
+  {
+    final ContainerListContainer list = new ContainerListContainer();
+
+    mChatDbHelper.query(sSELECT_ALL_MESSAGE_READ,
+      new ChatDbHelper.ParametersFactory()
+      {
+        @Override
+        public void create(PreparedStatement preparedStatement) throws SQLException
+        {
+          preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(sender));
+        }
+      },
+      new ChatDbHelper.ResultSetFactory()
+      {
+        @Override
+        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        {
+          ContainerImpl entry = new ContainerImpl();
+          entry.putString("SENDER",rs.getString(1));
+          entry.putString("DESTINATION",rs.getString(2));
+          entry.putLong("TIMESTAMP",rs.getLong(3));
+          entry.putString("MESSAGE_ID",rs.getString(4));
+          list.add(entry);
+        }
+      });
+    return list;
   }
 
   public Set<String> getAllRecipients(final String destination) throws SQLException

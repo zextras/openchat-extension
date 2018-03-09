@@ -25,8 +25,8 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 public class EventMessage extends Event
 {
   private final SpecificAddress mSender;
-  private final String mMessage;
-  private final EventType mType;
+  private final String          mMessage;
+  private final TargetType      mType;
 
   public EventMessage(
     EventId eventId,
@@ -38,7 +38,7 @@ public class EventMessage extends Event
     super(eventId, sender, target);
     mSender = sender;
     mMessage = message;
-    mType = EventType.Chat;
+    mType = TargetType.Chat;
   }
 
   public EventMessage(
@@ -47,7 +47,7 @@ public class EventMessage extends Event
     Target target,
     String message,
     long timestamp,
-    EventType type
+    TargetType type
   )
   {
     super(eventId, sender, target, timestamp);
@@ -67,7 +67,7 @@ public class EventMessage extends Event
     super(eventId, sender, target, clock);
     mSender = sender;
     mMessage = message;
-    mType = EventType.Chat;
+    mType = TargetType.Chat;
   }
 
   public EventMessage(
@@ -81,7 +81,7 @@ public class EventMessage extends Event
     super(eventId, sender, target, timestamp);
     mSender = sender;
     mMessage = message;
-    mType = EventType.Chat;
+    mType = TargetType.Chat;
   }
 
   public String getMessage()
@@ -100,7 +100,7 @@ public class EventMessage extends Event
     return interpreter.interpret(this);
   }
 
-  public EventType getType()
+  public TargetType getType()
   {
     return mType;
   }

@@ -1,14 +1,20 @@
 package com.zextras.modules.chat.server;
 
 
+import com.zextras.lib.Container;
+import com.zextras.lib.ContainerImpl;
+import com.zextras.lib.json.JSONException;
+import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.events.EventType;
+import com.zextras.modules.chat.server.events.TargetType;
 
 public class ImMessage
 {
   private final String mId;
   private final long mEditTimestamp;
   private final long mSentTimestamp;
-  private final EventType mMessageType;
+  private final TargetType mMessageType;
+  private final EventType mEventType;
   private final short mIndexStatus;
   private final String mSender;
   private final String mDestination;
@@ -21,7 +27,7 @@ public class ImMessage
     String sender,
     String destination,
     String text,
-    EventType type,
+    TargetType type,
     long sentTimestamp
   )
   {
@@ -29,6 +35,7 @@ public class ImMessage
       id,
       sentTimestamp,
       0,
+      EventType.Message,
       type,
       (short) 0,
       sender,
@@ -42,7 +49,8 @@ public class ImMessage
     String id,
     long sentTimestamp,
     long editTimestamp,
-    EventType messageType,
+    EventType eventType,
+    TargetType messageType,
     short indexStatus,
     String sender,
     String destination,
@@ -54,6 +62,7 @@ public class ImMessage
     mSentTimestamp = sentTimestamp;
     mEditTimestamp = editTimestamp;
     mMessageType = messageType;
+    mEventType = eventType;
     mIndexStatus = indexStatus;
     mText = text;
     mSender = sender;
@@ -77,9 +86,14 @@ public class ImMessage
     return mEditTimestamp;
   }
 
-  public EventType getMessageType()
+  public TargetType getTargetType()
   {
     return mMessageType;
+  }
+
+  public EventType getEventType()
+  {
+    return mEventType;
   }
 
   public short getIndexStatus()

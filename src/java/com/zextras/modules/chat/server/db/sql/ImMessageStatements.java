@@ -7,6 +7,7 @@ import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.address.SubdomainResolver;
 import com.zextras.modules.chat.server.db.DbHandler;
 import com.zextras.modules.chat.server.events.EventType;
+import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,18 +32,20 @@ public class ImMessageStatements
       "    SENT_TIMESTAMP," +
       "    EDIT_TIMESTAMP," +
       "    MESSAGE_TYPE," +
+      "    TARGET_TYPE," +
       "    INDEX_STATUS," +
       "    TEXT," +
       "    SENDER," +
       "    DESTINATION," +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO)" +
-      "    VALUES(?,?,?,?,?,?,?,?,?,?)";
+      "    VALUES(?,?,?,?,?,?,?,?,?,?,?)";
   private final static String sql_update =
     "    UPDATE MESSAGE " +
       "    SET SENT_TIMESTAMP = ?," +
       "    EDIT_TIMESTAMP = ?," +
       "    MESSAGE_TYPE = ?," +
+      "    TARGET_TYPE = ?," +
       "    INDEX_STATUS = ?," +
       "    TEXT = ?," +
       "    SENDER = ?," +
@@ -55,6 +58,7 @@ public class ImMessageStatements
       "    SENT_TIMESTAMP," +
       "    EDIT_TIMESTAMP," +
       "    MESSAGE_TYPE," +
+      "    TARGET_TYPE," +
       "    INDEX_STATUS," +
       "    SENDER," +
       "    DESTINATION," +
@@ -153,11 +157,12 @@ public class ImMessageStatements
           statement.setString(i++, imMessage.getId());
           statement.setLong(i++, imMessage.getSentTimestamp());
           statement.setLong(i++, imMessage.getEditTimestamp());
-          statement.setShort(i++, EventType.toShort(imMessage.getMessageType()));
+          statement.setShort(i++, EventType.toShort(imMessage.getEventType()));
+          statement.setShort(i++, TargetType.toShort(imMessage.getTargetType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getDestination()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getSender()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
         }
@@ -176,11 +181,12 @@ public class ImMessageStatements
           statement.setString(i++, imMessage.getId());
           statement.setLong(i++, imMessage.getSentTimestamp());
           statement.setLong(i++, imMessage.getEditTimestamp());
-          statement.setShort(i++, EventType.toShort(imMessage.getMessageType()));
+          statement.setShort(i++, EventType.toShort(imMessage.getEventType()));
+          statement.setShort(i++, TargetType.toShort(imMessage.getTargetType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getMessageType(),imMessage.getDestination()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getSender()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
         }
@@ -267,6 +273,7 @@ public class ImMessageStatements
           rs.getLong(i++),
           rs.getLong(i++),
           EventType.fromShort(rs.getShort(i++)),
+          TargetType.fromShort(rs.getShort(i++)),
           rs.getShort(i++),
           rs.getString(i++),
           mSubdomainResolver.toRoomAddress(rs.getString(i++)).resourceAddress(),

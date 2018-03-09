@@ -42,6 +42,8 @@ import com.zextras.modules.chat.server.events.EventInterceptorFactory;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.events.EventQueueFilterEvent;
 import com.zextras.modules.chat.server.events.EventQueueFilterEventImpl;
+import com.zextras.modules.chat.server.history.HistoryMessageBuilder;
+import com.zextras.modules.chat.server.history.HistoryMessageBuilderImpl;
 import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
@@ -131,6 +133,7 @@ public class OpenChatModule extends AbstractModule
     bind(ChatVersion.class).to(OpenchatVersion.class);
     bind(AddressResolver.class).to(AddressResolverStub.class);
     bind(UserCapabilitiesProvider.class).to(UserCapabilitiesProviderImpl.class);
+    bind(HistoryMessageBuilder.class).to(HistoryMessageBuilderImpl.class);
     install(new FactoryModuleBuilder().build(SoapHandlerCreatorFactory.class));
     install(new FactoryModuleBuilder().build(InitialSoapRequestHandlerFactory.class));
     install(new FactoryModuleBuilder().build(SoapSessionFactory.class));

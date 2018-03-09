@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.encoders;
 
-import com.zextras.modules.chat.server.events.EventType;
+import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.status.Status;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventStatusChanged;
@@ -109,7 +109,7 @@ busy: dnd
     }
     else
     {
-      if(mEvent.getType() != EventType.Chat)
+      if(mEvent.getType() != TargetType.Chat)
       {
         sw.writeStartElement("", "x", "http://jabber.org/protocol/muc#user");
         sw.writeEndElement();

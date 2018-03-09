@@ -20,6 +20,7 @@
 
 package com.zextras.modules.chat.server.xmpp.encoders;
 
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
@@ -67,7 +68,11 @@ public class EventMessageHistoryEncoder extends XmppEncoder
       sw.validateAgainst(getDefaultSchema());
     }
 
-    EventMessage message = mEvent.getOriginalMessage();
+    if (! (mEvent.getOriginalMessage() instanceof EventMessage))
+    {
+      throw new RuntimeException("Unknown event " + mEvent.getOriginalMessage().getClass());
+    }
+    EventMessage message = (EventMessage) mEvent.getOriginalMessage();
 
     sw.writeStartElement("", "message");
       sw.writeAttribute("id", mEvent.getId().toString());

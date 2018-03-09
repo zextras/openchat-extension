@@ -24,7 +24,6 @@ import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.ImMessage;
-import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
 import com.zextras.modules.chat.server.events.Event;
@@ -35,9 +34,10 @@ import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageAck;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
-import com.zextras.modules.chat.server.events.EventType;
+import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
+import com.zextras.modules.chat.server.history.HistoryMessageBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
@@ -55,21 +55,24 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFactory implements QueryArchiveInterceptorFactory
 {
-  private final Provisioning   mProvisioning;
-  private final ChatProperties mChatProperties;
-  private final ImMessageStatements mImMessageStatements;
+  private final Provisioning               mProvisioning;
+  private final ChatProperties             mChatProperties;
+  private final ImMessageStatements        mImMessageStatements;
+  private final HistoryMessageBuilder      mImMessageBuilder;
   private final Set<MessageHistoryFactory> mListeners;
 
   @Inject
   public QueryArchiveInterceptorFactoryImpl(
     Provisioning provisioning,
     ChatProperties chatProperties,
-    ImMessageStatements imMessageStatements
+    ImMessageStatements imMessageStatements,
+    HistoryMessageBuilder imMessageBuilder
   )
   {
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mImMessageStatements = imMessageStatements;
+    mImMessageBuilder = imMessageBuilder;
     mListeners = Collections.newSetFromMap(new ConcurrentHashMap<MessageHistoryFactory,Boolean>());
   }
 
@@ -91,8 +94,8 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
       @Override
       public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
       {
-        final EventType eventType = eventMessage.getType();
-        if (eventType == EventType.Chat)
+        final TargetType eventType = eventMessage.getType();
+        if (eventType == TargetType.Chat)
         {
           String sender = eventMessage.getSender().withoutResource().toString();
           if (mChatProperties.isChatHistoryEnabled(sender))
@@ -107,7 +110,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
                   sender,
                   target.withoutResource().toString(),
                   eventMessage.getMessage(),
-                  EventType.Chat,
+                  TargetType.Chat,
                   eventMessage.getTimestamp());
 
                 mImMessageStatements.insert(message);
@@ -273,20 +276,17 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
           {
             firstMessageId = lastMessageId;
           }
-          events.add(new EventMessageHistory(
-            EventId.randomUUID(),
-            new SpecificAddress(localHost),
-            queryId,
-            requester,
-            new EventMessage(
-              EventId.fromString(message.getId()),
-              new SpecificAddress(message.getSender()),
-              new Target(new SpecificAddress(message.getDestination())),
-              message.getText(),
-              message.getSentTimestamp(),
-              message.getMessageType()
-            )
-          ));
+          Event historyEvent = mImMessageBuilder.buildEvent(message);
+          if (historyEvent != null)
+          {
+            events.add(new EventMessageHistory(
+              EventId.randomUUID(),
+              new SpecificAddress(localHost),
+              queryId,
+              requester,
+              historyEvent
+            ));
+          }
         }
         events.add(new EventMessageHistoryLast(
           EventId.randomUUID(),

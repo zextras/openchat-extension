@@ -18,8 +18,10 @@
 package com.zextras.modules.chat.server.soap.encoders;
 
 import com.zextras.lib.json.JSONObject;
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;
+import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
@@ -37,7 +39,13 @@ public class EventMessageHistoryEncoder implements SoapEncoder
   public void encode(ChatSoapResponse response, SpecificAddress target)
   {
     final JSONObject message = new JSONObject();
-    EventMessageEncoder originalMessageEnc = new EventMessageEncoder(mEventHistory.getOriginalMessage());
+    if (! (mEventHistory.getOriginalMessage() instanceof EventMessage))
+    {
+      ChatLog.log.err("Unknown event " + mEventHistory.getOriginalMessage().getClass());
+      return;
+    }
+
+    EventMessageEncoder originalMessageEnc = new EventMessageEncoder((EventMessage) mEventHistory.getOriginalMessage());
     ChatSoapResponse dummyResponse = new ChatSoapResponse();
     originalMessageEnc.encode(dummyResponse,new SpecificAddress(mEventHistory.getOriginalMessage().getTarget().toSingleAddress()));
 

@@ -20,7 +20,6 @@ package com.zextras.modules.chat.server.soap.encoders;
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;
-import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.events.EventMessage;

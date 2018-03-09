@@ -37,14 +37,14 @@ public class EventStatusChanged extends Event
 
   private final SpecificAddress mSender;
   private final Status          mStatus;
-  private final EventType       mType;
+  private final TargetType      mType;
 
   public EventStatusChanged(SpecificAddress sender, Target target, Status status)
   {
     super(sender, target);
     mSender = sender;
     mStatus = status;
-    mType = EventType.Chat;
+    mType = TargetType.Chat;
   }
 
   public EventStatusChanged(EventId eventId, SpecificAddress sender, Target target, Status status, Clock clock)
@@ -52,10 +52,10 @@ public class EventStatusChanged extends Event
     super(eventId, sender, target, clock);
     mSender = sender;
     mStatus = status;
-    mType = EventType.Chat;
+    mType = TargetType.Chat;
   }
 
-  public EventStatusChanged(SpecificAddress sender, Target target, Status status, EventType type)
+  public EventStatusChanged(SpecificAddress sender, Target target, Status status, TargetType type)
   {
     super(sender, target);
     mSender = sender;
@@ -63,7 +63,7 @@ public class EventStatusChanged extends Event
     mType = type;
   }
 
-  public EventStatusChanged(EventId eventId,SpecificAddress sender, Target target, Status status, EventType type, Clock clock)
+  public EventStatusChanged(EventId eventId, SpecificAddress sender, Target target, Status status, TargetType type, Clock clock)
   {
     super(eventId, sender, target, clock);
     mSender = sender;
@@ -91,14 +91,14 @@ public class EventStatusChanged extends Event
       '}';
   }
 
-  public EventType getType()
+  public TargetType getType()
   {
     return mType;
   }
 
   public boolean isRoomEvent()
   {
-    return mType != EventType.Chat;
+    return mType != TargetType.Chat;
   }
 
   @Override

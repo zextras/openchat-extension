@@ -32,14 +32,14 @@ public class EventMessageHistory extends Event
 {
   private final String mQueryId;
   private final SpecificAddress mMessageTo;
-  private final EventMessage mOriginalMessage;
+  private final Event mOriginalMessage;
 
   public EventMessageHistory(
     EventId eventId,
     ChatAddress sender,
     String queryId,
     SpecificAddress messageTo,
-    EventMessage originalMessage
+    Event originalMessage
   )
   {
     super(eventId,sender,new Target(messageTo));
@@ -59,7 +59,7 @@ public class EventMessageHistory extends Event
     return mMessageTo;
   }
 
-  public EventMessage getOriginalMessage()
+  public Event getOriginalMessage()
   {
     return mOriginalMessage;
   }

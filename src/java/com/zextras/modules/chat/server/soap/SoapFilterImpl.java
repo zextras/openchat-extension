@@ -33,6 +33,7 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
 {
   public SoapFilterImpl()
   {
+    // TODO EventMessageHistoryFilter??
     super(false);
   }
 

@@ -140,7 +140,7 @@ public class PresenceDecoder implements EventDecoder
           sender,
           target,
           status,
-          EventType.GroupChat
+          TargetType.GroupChat
         )
       );
     }

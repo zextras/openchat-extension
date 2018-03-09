@@ -29,6 +29,7 @@ public class XmppFilterImpl extends EventInterpreterAdapter<Boolean> implements 
 {
   public XmppFilterImpl()
   {
+    // TODO EventMessageHistoryFilter??
     super(false);
   }
 

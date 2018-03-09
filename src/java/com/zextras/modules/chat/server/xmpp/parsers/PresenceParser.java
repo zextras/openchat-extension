@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.xmpp.parsers;
 
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventType;
+import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
 
@@ -62,14 +62,14 @@ public class PresenceParser extends XmppParser
     return mPriority;
   }
 
-  private String                mShow                = "chat";
-  private String                mFrom                = "";
-  private String                mStatus              = "";
-  private boolean               mMultiUserChat       = false;
-  private int                   mPriority            = 0;
-  private long                  mValidSince          = 0;
-  private EventType             mGroupType           = EventType.Chat;
-  private List<SpecificAddress> mMeetings            = new LinkedList<>();
+  private String                mShow          = "chat";
+  private String                mFrom          = "";
+  private String                mStatus        = "";
+  private boolean               mMultiUserChat = false;
+  private int                   mPriority      = 0;
+  private long                  mValidSince    = 0;
+  private TargetType            mGroupType     = TargetType.Chat;
+  private List<SpecificAddress> mMeetings      = new LinkedList<>();
 
   public final static String sProtocolMuc = "http://jabber.org/protocol/muc";
 
@@ -124,7 +124,7 @@ public class PresenceParser extends XmppParser
           {
             if(sr.getNamespaceURI().equals(sProtocolZextrasStatus) )
             {
-              mGroupType = EventType.fromString(sr.getAttributeValue(null,"groupType"));
+              mGroupType = TargetType.fromString(sr.getAttributeValue(null, "groupType"));
               mValidSince = Long.valueOf(sr.getAttributeValue(null, "validSince"));
             }
             else
@@ -188,7 +188,7 @@ public class PresenceParser extends XmppParser
     return mValidSince;
   }
 
-  public EventType getGroupType()
+  public TargetType getGroupType()
   {
     return mGroupType;
   }

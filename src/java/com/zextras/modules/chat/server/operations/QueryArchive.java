@@ -38,6 +38,7 @@ import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFacto
 import com.zextras.modules.chat.server.session.SessionManager;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.ProvisioningImp;
 import org.openzal.zal.Server;
 import org.openzal.zal.Utils;
 
@@ -116,6 +117,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     {
       throw new UnsupportedOperationException();
     }
+    List<Server> allServers = mProvisioning.getAllServers(ProvisioningImp.SERVICE_MAILBOX);
     Account account = mProvisioning.getAccountByName(mWith.getValue());
     if (account != null)
     {
@@ -145,9 +147,9 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     else
     {
       List<ChatAddress> addresses = new ArrayList<ChatAddress>();
-      for (Server server : mProvisioning.getAllServers())
+      for (Server server : allServers)
       {
-        addresses.add(new SpecificAddress(server.getServerHostname())); // TODO: stop spam all servers
+        addresses.add(new SpecificAddress(server.getServerHostname())); 
       }
       queryEvents.add(new EventIQQuery(
         EventId.randomUUID(),
@@ -162,7 +164,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
       ));
     }
 
-    mQueries = Math.max(queryEvents.size(),mProvisioning.getAllServers().size());
+    mQueries = Math.max(queryEvents.size(),allServers.size());
     mArchiveInterceptorFactory.register(this);
     mEventManager.dispatchUnfilteredEvents(queryEvents);
 

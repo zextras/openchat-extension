@@ -34,6 +34,7 @@ import com.zextras.modules.chat.server.session.Session;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.ProvisioningImp;
 import org.openzal.zal.Server;
 
 import java.util.ArrayList;
@@ -87,10 +88,10 @@ public class QueryLastReadArchive implements ChatOperation
     mQueryid = EventId.randomUUID().toString();
 
     List<ChatAddress> addresses = new ArrayList<ChatAddress>();
-    List<Server> allServers = mProvisioning.getAllServers();
+    List<Server> allServers = mProvisioning.getAllServers(ProvisioningImp.SERVICE_MAILBOX);
     for (Server server : allServers)
     {
-      addresses.add(new SpecificAddress(server.getServerHostname())); // TODO: stop spam
+      addresses.add(new SpecificAddress(server.getServerHostname()));
     }
     Session session = mSessionManager.getSessionById(mSessionUUID);
     mSenderAddress = session.getMainAddress();

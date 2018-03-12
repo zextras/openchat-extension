@@ -17,7 +17,16 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
+import com.zextras.lib.Optional;
+import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.Event;
+import com.zextras.modules.chat.server.events.EventId;
+import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.events.EventSharedFile;
+import com.zextras.modules.chat.server.events.FileInfo;
+import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryEncoder;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -41,10 +50,10 @@ public class MessageHistoryParser extends XmppParser
   private String mQueryId;
   private String mMessageId;
   private String mMessageStamp;
-  private String mMessageTo;
-  private String mMessageFrom;
   private String mBody;
   private String mSender;
+  private Event  mEvent;
+  private String mTimestamp;
 
   public MessageHistoryParser(
     InputStream xmlInput,
@@ -56,11 +65,8 @@ public class MessageHistoryParser extends XmppParser
     mSender = "";
     mTo = "";
     mQueryId = "";
-    mMessageId = "";
-    mMessageStamp = "";
-    mMessageTo = "";
-    mMessageFrom = "";
-    mBody = "";
+    mEvent = null;
+    mTimestamp = null;
   }
 
 /*
@@ -95,6 +101,7 @@ public class MessageHistoryParser extends XmppParser
               mSender = emptyStringWhenNull(sr.getAttributeValue("", "from"));
               mTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
               mId = emptyStringWhenNull(sr.getAttributeValue("", "id"));
+              mTimestamp = sr.getAttributeValue("", "timestamp");
               break;
             }
             case "result":
@@ -176,9 +183,25 @@ public class MessageHistoryParser extends XmppParser
             }
             case "message":
             {
-              mMessageFrom = emptyStringWhenNull(sr.getAttributeValue("", "from"));
-              mMessageTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
-              parseMessage(sr);
+              String messageFrom = emptyStringWhenNull(sr.getAttributeValue("", "from"));
+              String messageTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
+              parseMessage(messageFrom, messageTo, sr);
+              continue;
+            }
+            case "shared-file":
+            {
+              EventId id = EventId.fromString(sr.getAttributeValue(null, "id"));
+              Target target = new Target(new SpecificAddress(sr.getAttributeValue(null, "to")));
+              SpecificAddress sender = new SpecificAddress(sr.getAttributeValue(null, "from"));
+              String originalTargetString = sr.getAttributeValue(null, "original-target");
+              TargetType targetType = TargetType.fromString(sr.getAttributeValue(null, "target-type"));
+              long timestamp = Long.valueOf(sr.getAttributeValue(null, "timestamp"));
+              SpecificAddress originalTarget = null;
+              if (originalTargetString != null)
+              {
+                originalTarget = new SpecificAddress(originalTargetString);
+              }
+              parseSharedFile(id, target, sender, targetType, timestamp, originalTarget, sr);
               continue;
             }
           }
@@ -199,7 +222,42 @@ public class MessageHistoryParser extends XmppParser
     }
   }
 
-  private void parseMessage(XMLStreamReader2 sr) throws XMLStreamException
+  private void parseSharedFile(EventId id, Target target, SpecificAddress sender, TargetType targetType, long timestamp, SpecificAddress originalTarget, XMLStreamReader2 sr) throws XMLStreamException
+  {
+    FileInfo fileInfo = null;
+    while (sr.hasNext())
+    {
+      switch( sr.getEventType() )
+      {
+        case XMLStreamReader.START_ELEMENT:
+        {
+          if ("file-info".equals(sr.getLocalName()))
+          {
+            fileInfo = new FileInfo(
+              sr.getAttributeValue(null, "owner-id"),
+              sr.getAttributeValue(null, "share-id"),
+              sr.getAttributeValue(null, "filename"),
+              Long.valueOf(sr.getAttributeValue(null, "file-size")),
+              sr.getAttributeValue(null, "content-type")
+            );
+          }
+        }
+      }
+      sr.next();
+    }
+
+    mEvent = new EventSharedFile(
+      id,
+      sender,
+      new Optional<SpecificAddress>(originalTarget),
+      target,
+      timestamp,
+      fileInfo,
+      targetType
+    );
+  }
+
+  private void parseMessage(String messageFrom, String messageTo, XMLStreamReader2 sr) throws XMLStreamException
   {
     String tag = "";
     while (sr.hasNext())
@@ -231,6 +289,12 @@ public class MessageHistoryParser extends XmppParser
       }
       sr.next();
     }
+    mEvent = new EventMessage(
+      EventId.fromString(mMessageId),
+      new SpecificAddress(messageFrom),
+      new Target(new SpecificAddress(messageTo)),
+      mBody
+    );
   }
 
   @NotNull
@@ -269,16 +333,14 @@ public class MessageHistoryParser extends XmppParser
     return mMessageStamp;
   }
 
-  @NotNull
-  public String getMessageTo()
+  public String getTimestamp()
   {
-    return mMessageTo;
+    return mTimestamp == null ? "0":mTimestamp;
   }
 
-  @NotNull
-  public String getMessageFrom()
+  public Event getEvent()
   {
-    return mMessageFrom;
+    return mEvent;
   }
 
   @NotNull

@@ -18,19 +18,21 @@
 package com.zextras.modules.chat.server.soap.encoders;
 
 import com.zextras.lib.json.JSONObject;
-import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;
-import com.zextras.modules.chat.server.events.EventMessage;
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 
 public class EventMessageHistoryEncoder implements SoapEncoder
 {
+  private final SoapEncoderFactory mSoapEncoderFactory;
   private final EventMessageHistory mEventHistory;
 
-  public EventMessageHistoryEncoder(EventMessageHistory eventHistory) {
+  public EventMessageHistoryEncoder(SoapEncoderFactory soapEncoderFactory, EventMessageHistory eventHistory) {
+    mSoapEncoderFactory = soapEncoderFactory;
 
     mEventHistory = eventHistory;
   }
@@ -39,15 +41,19 @@ public class EventMessageHistoryEncoder implements SoapEncoder
   public void encode(ChatSoapResponse response, SpecificAddress target)
   {
     final JSONObject message = new JSONObject();
-    if (! (mEventHistory.getOriginalMessage() instanceof EventMessage))
+    Event originalEvent = mEventHistory.getOriginalMessage();
+    SoapEncoder encoder;
+    try
     {
-      ChatLog.log.err("Unknown event " + mEventHistory.getOriginalMessage().getClass());
-      return;
+      encoder = (SoapEncoder) originalEvent.interpret(mSoapEncoderFactory);
+    }
+    catch (ChatException e)
+    {
+      throw new UnsupportedOperationException("Unsupported history event " + originalEvent.getClass().getSimpleName());
     }
 
-    EventMessageEncoder originalMessageEnc = new EventMessageEncoder((EventMessage) mEventHistory.getOriginalMessage());
     ChatSoapResponse dummyResponse = new ChatSoapResponse();
-    originalMessageEnc.encode(dummyResponse,new SpecificAddress(mEventHistory.getOriginalMessage().getTarget().toSingleAddress()));
+    encoder.encode(dummyResponse,new SpecificAddress(mEventHistory.getOriginalMessage().getTarget().toSingleAddress()));
 
     message.put("type", ClientEventType.HISTORY);
     message.put("from",  mEventHistory.getSender().toString());

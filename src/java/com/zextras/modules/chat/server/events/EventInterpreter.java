@@ -57,4 +57,5 @@ public interface EventInterpreter<T>
   T interpret(EventIQQuery event) throws ChatException;
   T interpret(EventMessageHistory event) throws ChatException;
   T interpret(EventMessageHistoryLast event) throws ChatException;
+  T interpret(EventSharedFile event) throws ChatException;
 }

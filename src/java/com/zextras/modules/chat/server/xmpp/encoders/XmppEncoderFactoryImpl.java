@@ -140,13 +140,19 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   @Override
   public Encoder interpret(EventMessageHistory event) throws ChatException
   {
-    return new EventMessageHistoryEncoder(event,mSchemaProvider);
+    return new EventMessageHistoryEncoder(event,mSchemaProvider,this);
   }
 
   @Override
   public Encoder interpret(EventMessageHistoryLast event) throws ChatException
   {
     return new EventMessageHistoryLastEncoder(event,mSchemaProvider);
+  }
+
+  @Override
+  public Encoder interpret(EventSharedFile event) throws ChatException
+  {
+    throw new UnsupportedOperationException();
   }
 
   @Override

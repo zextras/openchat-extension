@@ -1,19 +1,14 @@
 package com.zextras.modules.chat.server.xmpp.decoders;
 
-import com.zextras.lib.DateUtils;
-import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventId;
-import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.xmpp.parsers.MessageHistoryParser;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
-import org.openzal.zal.lib.FakeClock;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,24 +32,13 @@ public class MessageHistoryDecoder implements EventDecoder
     {
       eventId = EventId.randomUUID().toString();
     }
-    try
-    {
-      return Collections.<Event>singletonList(new EventMessageHistory(
-        EventId.fromString(eventId),
-        new SpecificAddress(parser.getSender()),
-        parser.getQueryId(),
-        new SpecificAddress(parser.getTo()),
-        new EventMessage(
-          EventId.fromString(parser.getMessageId()),
-          new SpecificAddress(parser.getMessageFrom()),
-          new Target(new SpecificAddress(parser.getMessageTo())),
-          parser.getBody(),
-          new FakeClock(DateUtils.parseUTCDate(parser.getMessageStamp()))
-        )
-      ));
-    } catch (ParseException e)
-    {
-      throw new XMLStreamException(e.getMessage());
-    }
+    return Collections.<Event>singletonList(new EventMessageHistory(
+      EventId.fromString(eventId),
+      new SpecificAddress(parser.getSender()),
+      parser.getQueryId(),
+      new SpecificAddress(parser.getTo()),
+      parser.getEvent(),
+      Long.valueOf(parser.getTimestamp())
+    ));
   }
 }

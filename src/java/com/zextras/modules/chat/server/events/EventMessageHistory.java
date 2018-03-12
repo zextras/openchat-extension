@@ -48,6 +48,21 @@ public class EventMessageHistory extends Event
     mOriginalMessage = originalMessage;
   }
 
+  public EventMessageHistory(
+    EventId eventId,
+    ChatAddress sender,
+    String queryId,
+    SpecificAddress messageTo,
+    Event originalMessage,
+    long timestamp
+  )
+  {
+    super(eventId,sender,new Target(messageTo),timestamp);
+    mQueryId = queryId;
+    mMessageTo = messageTo;
+    mOriginalMessage = originalMessage;
+  }
+
   @Override
   public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {

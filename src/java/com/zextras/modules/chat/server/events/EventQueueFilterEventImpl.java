@@ -237,4 +237,10 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
     return false;
   }
 
+  @Override
+  public Boolean interpret(EventSharedFile event) throws ChatException
+  {
+    return false;
+  }
+
 }

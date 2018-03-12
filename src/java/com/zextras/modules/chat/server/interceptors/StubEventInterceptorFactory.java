@@ -41,6 +41,7 @@ import com.zextras.modules.chat.server.events.EventMessageHistory;
 import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.events.EventMessageSizeExceeded;
 import com.zextras.modules.chat.server.events.EventNewClientVersion;
+import com.zextras.modules.chat.server.events.EventSharedFile;
 import com.zextras.modules.chat.server.events.EventSoapSessionRegistered;
 import com.zextras.modules.chat.server.events.EventStatusChanged;
 import com.zextras.modules.chat.server.events.EventStatusProbe;
@@ -270,6 +271,12 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
 
   @Override
   public EventInterceptor interpret(EventMessageHistoryLast event) throws ChatException
+  {
+    return new StubEventInterceptor();
+  }
+
+  @Override
+  public EventInterceptor interpret(EventSharedFile event) throws ChatException
   {
     return new StubEventInterceptor();
   }

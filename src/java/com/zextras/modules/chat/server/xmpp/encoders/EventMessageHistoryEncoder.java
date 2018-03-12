@@ -20,12 +20,11 @@
 
 package com.zextras.modules.chat.server.xmpp.encoders;
 
-import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventMessage;
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.stax2.XMLStreamWriter2;
 
 import javax.xml.stream.XMLStreamException;
@@ -39,6 +38,7 @@ import java.io.OutputStream;
 public class EventMessageHistoryEncoder extends XmppEncoder
 {
   private final EventMessageHistory mEvent;
+  private final XmppEncoderFactory mXmppEncoderFactory;
 
 /*
 <message id='aeb213' to='juliet@capulet.lit/chamber'>
@@ -54,10 +54,11 @@ public class EventMessageHistoryEncoder extends XmppEncoder
 */
 
 
-  public EventMessageHistoryEncoder(EventMessageHistory event, SchemaProvider schemaProvider)
+  public EventMessageHistoryEncoder(EventMessageHistory event, SchemaProvider schemaProvider, XmppEncoderFactory xmppEncoderFactory)
   {
     super("jabber-client.xsd", schemaProvider);
     mEvent = event;
+    mXmppEncoderFactory = xmppEncoderFactory;
   }
 
   @Override
@@ -68,36 +69,35 @@ public class EventMessageHistoryEncoder extends XmppEncoder
       sw.validateAgainst(getDefaultSchema());
     }
 
-    if (! (mEvent.getOriginalMessage() instanceof EventMessage))
+    Event originalEvent = mEvent.getOriginalMessage();
+    XmppEncoder encoder;
+    try
     {
-      throw new RuntimeException("Unknown event " + mEvent.getOriginalMessage().getClass());
+      encoder = ((XmppEncoder) originalEvent.interpret(mXmppEncoderFactory)).setStreamWriter(sw);
     }
-    EventMessage message = (EventMessage) mEvent.getOriginalMessage();
+    catch (ChatException e)
+    {
+      throw new UnsupportedOperationException("Unsupported history event " + originalEvent.getClass().getSimpleName());
+    }
 
     sw.writeStartElement("", "message");
       sw.writeAttribute("id", mEvent.getId().toString());
       sw.writeAttribute("from", mEvent.getSender().resourceAddress()); // not really standard
       sw.writeAttribute("to", target.resourceAddress()); // not really standard
+      sw.writeAttribute("timestamp", String.valueOf(mEvent.getTimestamp()));
 
       sw.writeStartElement("","result","urn:xmpp:mam:2" );
         sw.writeAttribute("queryid",mEvent.getQueryId());
-        sw.writeAttribute("id",message.getId().toString());
+        sw.writeAttribute("id",originalEvent.getId().toString());
 
         sw.setPrefix("","urn:xmpp:forward:0");
         sw.writeStartElement("urn:xmpp:forward:0", "forwarded");
 
           sw.writeStartElement("","delay","urn:xmpp:delay" );
-            sw.writeAttribute("stamp", convertUnixTimestampToUTCDateString(message.getTimestamp(), CURRENT_XMPP_FORMAT));
+            sw.writeAttribute("stamp", convertUnixTimestampToUTCDateString(originalEvent.getTimestamp(), CURRENT_XMPP_FORMAT));
           sw.writeEndElement();
 
-          sw.writeStartElement("","message","jabber:client");
-            sw.writeAttribute("from", message.getSender().toString());
-            sw.writeAttribute("to", message.getTarget().toString());
-
-            sw.writeStartElement("jabber:client", "body");
-              sw.writeCharacters(StringEscapeUtils.escapeXml(message.getMessage()));
-            sw.writeEndElement();
-          sw.writeEndElement();
+          encoder.encode(outputStream, new SpecificAddress(originalEvent.getTarget().toSingleAddressIncludeResource()), extensions);
         sw.writeEndElement();
       sw.writeEndElement();
     sw.writeEndElement();

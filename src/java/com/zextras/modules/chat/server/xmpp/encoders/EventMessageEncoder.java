@@ -62,6 +62,9 @@ public class EventMessageEncoder extends XmppEncoder
     sw.writeEndElement();
     sw.writeEndElement();
 
-    sw.close();
+    if (mStreamWriter == null)
+    {
+      sw.close();
+    }
   }
 }

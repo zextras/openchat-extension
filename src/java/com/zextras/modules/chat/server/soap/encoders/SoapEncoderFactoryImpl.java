@@ -26,7 +26,6 @@ import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.MessageSizeExceededException;
 import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
-import com.zextras.modules.chat.server.xmpp.encoders.EventIQQueryEncoder;
 
 @Singleton
 public class SoapEncoderFactoryImpl implements SoapEncoderFactory
@@ -250,13 +249,20 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
   @Override
   public Encoder interpret(EventMessageHistory event) throws ChatException
   {
-    return new EventMessageHistoryEncoder(event);
+    return new EventMessageHistoryEncoder(this, event);
   }
 
   @Override
   public Encoder interpret(EventMessageHistoryLast event) throws ChatException
   {
     return new EventMessageHistoryLastEncoder(event);
+  }
+
+  @Override
+  public Encoder interpret(EventSharedFile event) throws ChatException
+  {
+    fail(event);
+    return null;
   }
 
   void fail(Event event)

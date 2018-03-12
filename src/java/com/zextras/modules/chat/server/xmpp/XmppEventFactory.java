@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.xmpp;
 
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.xmpp.decoders.EventDecoder;
+import com.zextras.modules.chat.server.xmpp.parsers.XmppParser;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.List;

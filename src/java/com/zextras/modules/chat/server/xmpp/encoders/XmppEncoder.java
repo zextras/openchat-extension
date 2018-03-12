@@ -39,6 +39,7 @@ public abstract class XmppEncoder implements Encoder
   private final String            mSchemaName;
   private final SchemaProvider    mSchemaProvider;
   private final XMLOutputFactory2 mFactory;
+  XMLStreamWriter2 mStreamWriter;
 
   protected XmppEncoder(String schemaName, SchemaProvider schemaProvider)
   {
@@ -47,10 +48,21 @@ public abstract class XmppEncoder implements Encoder
     mFactory = new WstxOutputFactory();
     mFactory.setProperty(XMLStreamProperties.XSP_NAMESPACE_AWARE,Boolean.TRUE);
     mFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES,Boolean.TRUE);
+    mStreamWriter = null;
+  }
+
+  protected XmppEncoder setStreamWriter(XMLStreamWriter2 streamWriter)
+  {
+    mStreamWriter = streamWriter;
+    return this;
   }
 
   protected XMLStreamWriter2 getStreamWriter(OutputStream outputStream) throws XMLStreamException
   {
+    if (mStreamWriter != null)
+    {
+      return mStreamWriter;
+    }
     XMLStreamWriter2 writer = (XMLStreamWriter2) mFactory.createXMLStreamWriter(outputStream);
     return writer;
   }

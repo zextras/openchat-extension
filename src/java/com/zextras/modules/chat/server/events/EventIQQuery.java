@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
@@ -30,6 +31,7 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
  */
 public class EventIQQuery extends Event
 {
+  private final SpecificAddress mSender;
   private final String mQueryId;
   private final Optional<String> mNode;
   private final Optional<String> mWith;
@@ -50,6 +52,7 @@ public class EventIQQuery extends Event
   )
   {
     super(eventId,sender,messageTo);
+    mSender = sender;
     mQueryId = queryId;
     mNode = node;
     mWith = with;
@@ -62,6 +65,12 @@ public class EventIQQuery extends Event
   public <T> T interpret(EventInterpreter<T> interpreter) throws ChatException
   {
     return interpreter.interpret(this);
+  }
+
+  @Override
+  public SpecificAddress getSender()
+  {
+    return mSender;
   }
 
   public String getQueryId()
@@ -92,6 +101,23 @@ public class EventIQQuery extends Event
   public Optional<Integer> getMax()
   {
     return mMax;
+  }
+
+  @Override
+  public String toString() {
+    return "Event{" +
+      getClass().getSimpleName() +
+      ", id=" + getId() +
+      ", sender=" + mSender.resourceAddress() +
+      ", timestamp=" + getTimestamp() +
+      ", target=" + getTarget().toString() +
+      ", queryId=" + getQueryId() +
+      ", node=" + getNode() +
+      ", with=" + getWith() +
+      ", start=" + getStart() +
+      ", end=" + getEnd() +
+      ", max=" + getMax() +
+      '}';
   }
 }
 

@@ -48,24 +48,6 @@ public class SoapFilterImpl extends EventInterpreterAdapter<Boolean> implements 
     return true;
   }
 
-  public Boolean interpret(EventMessageHistory event)
-  {
-    if (!isUser(event.getSender()) || !isUser(event.getMessageTo()))
-    {
-      return true;
-    }
-    return false;
-  }
-
-  public Boolean interpret(EventMessageHistoryLast event)
-  {
-    if (!isUser(event.getSender()) || !isUser(event.getMessageTo()))
-    {
-      return true;
-    }
-    return false;
-  }
-
   public Boolean interpret(EventIQQuery event)
   {
     return true;

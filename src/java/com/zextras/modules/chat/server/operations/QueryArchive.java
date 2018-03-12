@@ -22,6 +22,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.Target;
+import com.zextras.modules.chat.server.address.AddressResolver;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
@@ -68,6 +69,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
   private final Optional<Long> mStart;
   private final Optional<Long> mEnd;
   private final Optional<String> mNode;
+  private final AddressResolver   mAddressResolver;
   private final QueryArchiveInterceptorFactory mArchiveInterceptorFactory;
   private List<EventMessageHistory> mMessages;
   private Lock mLock;
@@ -85,12 +87,14 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     @Assisted("node") Optional<String> node,
     @Assisted("max") Optional<Integer> max,
     Provisioning provisioning,
+    AddressResolver addressResolver,
     QueryArchiveInterceptorFactory archiveInterceptorFactory,
     EventManager eventManager
   )
   {
     mMax = max;
     mProvisioning = provisioning;
+    mAddressResolver = addressResolver;
     mArchiveInterceptorFactory = archiveInterceptorFactory;
     mEventManager = eventManager;
     mSenderAddress = senderAddress;
@@ -109,7 +113,6 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
   public List<Event> exec(SessionManager sessionManager, UserProvider userProvider)
     throws ChatException, ChatDbException
   {
-    final List<Event> queryEvents = new ArrayList<Event>();
     SpecificAddress localServer = new SpecificAddress(mProvisioning.getLocalServer().getServerHostname());
     mQueryid = EventId.randomUUID().toString();
 
@@ -117,13 +120,42 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     {
       throw new UnsupportedOperationException();
     }
-    List<Server> allServers = mProvisioning.getAllServers(ProvisioningImp.SERVICE_MAILBOX);
+
+    String hostname = mAddressResolver.tryResolveAddress(new SpecificAddress(mWith.getValue()));
+    if( hostname != null )
+    {
+/*
+       QueryArchiveInterceptorFactoryImpl will answer directly to the client because we don't need re-ordering so
+       there is no need to keep track and re-order history events.
+*/
+      SpecificAddress hostnameAddress = new SpecificAddress(hostname);
+
+      return Collections.<Event>singletonList(
+        new EventIQQuery(
+          EventId.randomUUID(),
+          mSenderAddress,
+          mQueryid,
+          new Target(hostnameAddress),
+          mNode,
+          mWith,
+          mStart,
+          mEnd,
+          mMax
+        )
+      );
+    }
+
+    List<Event> queryEvents = new ArrayList<Event>(2);
     Account account = mProvisioning.getAccountByName(mWith.getValue());
     if (account != null)
     {
+      SpecificAddress localServerAddress = new SpecificAddress(
+        mProvisioning.getLocalServer().getServerHostname()
+      );
+
       queryEvents.add(new EventIQQuery(
         EventId.randomUUID(),
-        mSenderAddress,
+        localServerAddress,
         mQueryid,
         new Target(localServer),
         Optional.of(mSenderAddress.withoutResource().toString()),
@@ -134,7 +166,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
       ));
       queryEvents.add(new EventIQQuery(
         EventId.randomUUID(),
-        mSenderAddress,
+        localServerAddress,
         mQueryid,
         new Target(new SpecificAddress(account.getServerHostname())),
         mWith,
@@ -146,39 +178,24 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     }
     else
     {
-      List<ChatAddress> addresses = new ArrayList<ChatAddress>();
-      for (Server server : allServers)
-      {
-        addresses.add(new SpecificAddress(server.getServerHostname())); 
-      }
-      queryEvents.add(new EventIQQuery(
-        EventId.randomUUID(),
-        mSenderAddress,
-        mQueryid,
-        new Target(addresses),
-        mNode,
-        mWith,
-        mStart,
-        mEnd,
-        mMax
-      ));
+      return Collections.emptyList();
     }
 
-    mQueries = Math.max(queryEvents.size(),allServers.size());
+    mQueries = queryEvents.size();
     mArchiveInterceptorFactory.register(this);
     mEventManager.dispatchUnfilteredEvents(queryEvents);
 
     List<Event> historyEvents = new ArrayList<Event>();
     try
     {
+      mLock.lock();
       try
       {
-        mLock.lock();
         if (mQueries > 0)
         {
           if (!mReady.await(5000L, TimeUnit.MILLISECONDS))
           {
-            ChatLog.log.warn("QueryArchive: Not all servers replied in time");
+            ChatLog.log.warn("QueryArchive: Not all servers replied in time for address: '"+mWith+ '\'');
           }
         }
       }

@@ -1,10 +1,6 @@
 package com.zextras.modules.chat.server;
 
 
-import com.zextras.lib.Container;
-import com.zextras.lib.ContainerImpl;
-import com.zextras.lib.json.JSONException;
-import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.events.TargetType;
 

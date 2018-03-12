@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.xmpp.parsers;
 
+import com.zextras.lib.DateUtils;
 import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -37,6 +38,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
+import java.text.ParseException;
 
 /**
  * @see EventMessageHistory
@@ -185,7 +187,8 @@ public class MessageHistoryParser extends XmppParser
             {
               String messageFrom = emptyStringWhenNull(sr.getAttributeValue("", "from"));
               String messageTo = emptyStringWhenNull(sr.getAttributeValue("", "to"));
-              parseMessage(messageFrom, messageTo, sr);
+              String targetType = sr.getAttributeValue("", "type");
+              parseMessage(messageFrom, messageTo, targetType, sr);
               continue;
             }
             case "shared-file":
@@ -195,13 +198,12 @@ public class MessageHistoryParser extends XmppParser
               SpecificAddress sender = new SpecificAddress(sr.getAttributeValue(null, "from"));
               String originalTargetString = sr.getAttributeValue(null, "original-target");
               TargetType targetType = TargetType.fromString(sr.getAttributeValue(null, "target-type"));
-              long timestamp = Long.valueOf(sr.getAttributeValue(null, "timestamp"));
               SpecificAddress originalTarget = null;
               if (originalTargetString != null)
               {
                 originalTarget = new SpecificAddress(originalTargetString);
               }
-              parseSharedFile(id, target, sender, targetType, timestamp, originalTarget, sr);
+              parseSharedFile(id, target, sender, targetType, originalTarget, sr);
               continue;
             }
           }
@@ -222,7 +224,7 @@ public class MessageHistoryParser extends XmppParser
     }
   }
 
-  private void parseSharedFile(EventId id, Target target, SpecificAddress sender, TargetType targetType, long timestamp, SpecificAddress originalTarget, XMLStreamReader2 sr) throws XMLStreamException
+  private void parseSharedFile(EventId id, Target target, SpecificAddress sender, TargetType targetType, SpecificAddress originalTarget, XMLStreamReader2 sr) throws XMLStreamException
   {
     FileInfo fileInfo = null;
     while (sr.hasNext())
@@ -246,18 +248,25 @@ public class MessageHistoryParser extends XmppParser
       sr.next();
     }
 
-    mEvent = new EventSharedFile(
-      id,
-      sender,
-      new Optional<SpecificAddress>(originalTarget),
-      target,
-      timestamp,
-      fileInfo,
-      targetType
-    );
+    try
+    {
+      mEvent = new EventSharedFile(
+        id,
+        sender,
+        new Optional<SpecificAddress>(originalTarget),
+        target,
+        DateUtils.parseUTCDate(mMessageStamp),
+        fileInfo,
+        targetType
+      );
+    }
+    catch (ParseException e)
+    {
+      throw new XMLStreamException(e);
+    }
   }
 
-  private void parseMessage(String messageFrom, String messageTo, XMLStreamReader2 sr) throws XMLStreamException
+  private void parseMessage(String messageFrom, String messageTo, String targetTypeString, XMLStreamReader2 sr) throws XMLStreamException
   {
     String tag = "";
     while (sr.hasNext())
@@ -289,12 +298,39 @@ public class MessageHistoryParser extends XmppParser
       }
       sr.next();
     }
-    mEvent = new EventMessage(
-      EventId.fromString(mMessageId),
-      new SpecificAddress(messageFrom),
-      new Target(new SpecificAddress(messageTo)),
-      mBody
-    );
+    TargetType targetType;
+    if (TargetType.GroupChat.name().equalsIgnoreCase(targetTypeString))
+    {
+      targetType = TargetType.GroupChat;
+    }
+    else if (TargetType.Channel.name().equalsIgnoreCase(targetTypeString))
+    {
+      targetType = TargetType.Channel;
+    }
+    else if (TargetType.Space.name().equalsIgnoreCase(targetTypeString))
+    {
+      targetType = TargetType.Space;
+    }
+    else
+    {
+      targetType = TargetType.Chat;
+    }
+
+    try
+    {
+      mEvent = new EventMessage(
+        EventId.fromString(mMessageId),
+        new SpecificAddress(messageFrom),
+        new Target(new SpecificAddress(messageTo)),
+        mBody,
+        DateUtils.parseUTCDate(mMessageStamp),
+        targetType
+      );
+    }
+    catch (ParseException e)
+    {
+      throw new XMLStreamException(e);
+    }
   }
 
   @NotNull

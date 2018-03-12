@@ -133,4 +133,9 @@ public class EventMessage extends Event
     result = 31 * result + mType.hashCode();
     return result;
   }
+
+  public boolean isRoomEvent()
+  {
+    return mType != TargetType.Chat;
+  }
 }

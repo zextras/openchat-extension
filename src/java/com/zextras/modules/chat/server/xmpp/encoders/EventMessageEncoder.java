@@ -55,7 +55,7 @@ public class EventMessageEncoder extends XmppEncoder
     sw.writeAttribute("from", mEvent.getSender().resourceAddress());
     sw.writeAttribute("to", target.resourceAddress());
     sw.writeAttribute("id", mEvent.getId().toString());
-    sw.writeAttribute("type", mEvent.getType().name());
+    sw.writeAttribute("type", mEvent.getType().name().toLowerCase());
 
     sw.setPrefix("", "jabber:client");
     sw.writeStartElement("jabber:client", "body");

@@ -45,6 +45,7 @@ import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 import org.openzal.zal.exceptions.ZimbraException;
 
+import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -284,9 +285,11 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
         Iterator<ImMessage> it = mImMessageStatements.query(node, with, start, end, max).iterator();
         String lastMessageId = "";
         String firstMessageId = "";
+        int count = 0;
         while (it.hasNext())
         {
           ImMessage message = it.next();
+          count++;
           lastMessageId = message.getId();
           if (firstMessageId.isEmpty())
           {
@@ -312,7 +315,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
           requester,
           firstMessageId,
           lastMessageId,
-          max,
+          Optional.of(count),
           System.currentTimeMillis()
         ));
       }

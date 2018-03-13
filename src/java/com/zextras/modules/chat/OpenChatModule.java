@@ -48,6 +48,7 @@ import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.operations.QueryArchive;
+import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.parsing.Parser;
 import com.zextras.modules.chat.server.parsing.ParserFactory;
 import com.zextras.modules.chat.server.parsing.SoapParser;
@@ -138,9 +139,9 @@ public class OpenChatModule extends AbstractModule
     install(new FactoryModuleBuilder().build(InitialSoapRequestHandlerFactory.class));
     install(new FactoryModuleBuilder().build(SoapSessionFactory.class));
     install(new FactoryModuleBuilder().build(EventQueueFactory.class));
+    install(new FactoryModuleBuilder().build(QueryArchiveFactory.class));
     install(new FactoryModuleBuilder()
       .implement(Parser.class,SoapParser.class)
       .build(ParserFactory.class));
-    install(new FactoryModuleBuilder().build(QueryArchive.class));
   }
 }

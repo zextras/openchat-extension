@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 public class ImMessageStatements
 {
   private final static String sql_insert =
-    "    INSERT INTO MESSAGE (" +
+    "    INSERT INTO chat.MESSAGE (" +
       "    ID," +
       "    SENT_TIMESTAMP," +
       "    EDIT_TIMESTAMP," +
@@ -44,7 +44,7 @@ public class ImMessageStatements
       "    TYPE_EXTRAINFO)" +
       "    VALUES(?,?,?,?,?,?,?,?,?,?,?)";
   private final static String sql_update =
-    "    UPDATE MESSAGE " +
+    "    UPDATE chat.MESSAGE " +
       "    SET SENT_TIMESTAMP = ?," +
       "    EDIT_TIMESTAMP = ?," +
       "    MESSAGE_TYPE = ?," +
@@ -68,7 +68,7 @@ public class ImMessageStatements
       "    TEXT," +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO" +
-      "    FROM MESSAGE ";
+      "    FROM chat.MESSAGE ";
 
   private final static String sSELECT_MESSAGE_ORDER =
       "    ORDER BY SENT_TIMESTAMP DESC" + // TODO: EDIT_TIMESTAMP
@@ -85,7 +85,7 @@ public class ImMessageStatements
       "    TEXT," +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO" +
-      "    FROM MESSAGE " +
+      "    FROM chat.MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
       "    AND TEXT LIKE ? ESCAPE '!'" +
@@ -102,7 +102,7 @@ public class ImMessageStatements
       "    TEXT, " +
       "    REACTIONS," +
       "    TYPE_EXTRAINFO" +
-      "    FROM MESSAGE " +
+      "    FROM chat.MESSAGE " +
       "    WHERE SENDER = ? " +
       "    AND DESTINATION = ? " +
       "    AND TRANSLATE( LOWER(TEXT), 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') LIKE TRANSLATE( ?, 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') ESCAPE '!'" +
@@ -110,31 +110,31 @@ public class ImMessageStatements
       "    LIMIT ? OFFSET ?";
 
   private final static String sINSERT_MESSAGE_READ =
-    "INSERT INTO MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) ";
+    "INSERT INTO chat.MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) ";
 
   private final static String sDELETE_MESSAGE_READ =
-    "DELETE FROM MESSAGE_READ WHERE SENDER=? AND DESTINATION=?";
+    "DELETE FROM chat.MESSAGE_READ WHERE SENDER=? AND DESTINATION=?";
 
   private final static String sSELECT_MESSAGE_READ =
-    "SELECT TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
+    "SELECT TIMESTAMP,MESSAGE_ID FROM chat.MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
 
   private final static String sSELECT_ALL_MESSAGE_READ =
-    "SELECT SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID FROM MESSAGE_READ WHERE SENDER = ?";
+    "SELECT SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID FROM chat.MESSAGE_READ WHERE SENDER = ?";
 
   private final static String sCOUNT_MESSAGE_TO_READ =
-    "SELECT COUNT(*) FROM MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
+    "SELECT COUNT(*) FROM chat.MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final static String sCOUNT_MESSAGE_TO_READ_FROM_EVERYONE =
-    "SELECT COUNT(*) FROM MESSAGE WHERE DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
+    "SELECT COUNT(*) FROM chat.MESSAGE WHERE DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final static String sALL_RECIPIENTS =
-      "SELECT DISTINCT MESSAGE.SENDER " +
-      " FROM MESSAGE " +
-      " WHERE MESSAGE.DESTINATION = ? " +
+      "SELECT DISTINCT chat.MESSAGE.SENDER " +
+      " FROM chat.MESSAGE " +
+      " WHERE chat.MESSAGE.DESTINATION = ? " +
       " UNION " +
-      "SELECT MESSAGE_READ.DESTINATION " +
-      " FROM MESSAGE_READ " +
-      " WHERE MESSAGE_READ.SENDER = ?";
+      "SELECT chat.MESSAGE_READ.DESTINATION " +
+      " FROM chat.MESSAGE_READ " +
+      " WHERE chat.MESSAGE_READ.SENDER = ?";
 
   private final ChatDbHelper mChatDbHelper;
   private final SubdomainResolver mSubdomainResolver;
@@ -151,7 +151,7 @@ public class ImMessageStatements
 
   public void insert(final ImMessage imMessage) throws SQLException
   {
-    mChatDbHelper.executeQuery(sql_insert, new ChatDbHelper.ParametersFactory()
+    mChatDbHelper.executeTransactionQuery(sql_insert, new ChatDbHelper.ParametersFactory()
       {
         @Override
         public void create(PreparedStatement statement) throws SQLException
@@ -175,7 +175,7 @@ public class ImMessageStatements
 
   public void update(final ImMessage imMessage) throws SQLException
   {
-    mChatDbHelper.executeQuery(sql_update, new ChatDbHelper.ParametersFactory()
+    mChatDbHelper.executeTransactionQuery(sql_update, new ChatDbHelper.ParametersFactory()
       {
         @Override
         public void create(PreparedStatement statement) throws SQLException
@@ -292,6 +292,7 @@ public class ImMessageStatements
 
   public void upsertMessageRead(final String sender,final String destination,final long timestamp,final String id) throws SQLException
   {
+    //TODO Select insert if not exists or timestamp >
     ChatDbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
     try
     {

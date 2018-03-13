@@ -112,6 +112,7 @@
       <zipgroupfileset dir="${lib}/" includes="stax2-api-3.1.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="woodstox-core-asl-4.2.0.jar" />
       <zipgroupfileset dir="${lib}/" includes="xsdlib-2010.1.jar" />
+      <zipgroupfileset dir="${lib}/" includes="commons-dbutils-1.6.jar" />
       <fileset dir="res/" defaultexcludes="yes" includes="xmpp/" />
     </jar>
   </target>

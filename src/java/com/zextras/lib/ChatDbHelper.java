@@ -185,24 +185,31 @@ public class ChatDbHelper
       DbUtils.closeQuietly(statement);
     }
   }
-  public int executeQuery(String query, ParametersFactory parametersFactory) throws SQLException
+
+  // begin and close transaction
+  public int executeTransactionQuery(String query, ParametersFactory parametersFactory) throws SQLException
   {
-    DbConnection connection = new DbConnection(mDbHandler.getConnection());
+    DbConnection connection = beginTransaction();
     try
     {
-      return executeQuery(connection,query,parametersFactory);
+      int res = executeQuery(connection,query,parametersFactory);
+      connection.commitAndClose();
+      return res;
     }
-    finally
+    catch (SQLException e)
     {
-      connection.close();
+      connection.rollbackAndClose();
+      throw e;
     }
   }
 
+  // require connection.commit and connection.close or connection.rollBackAndClose
   public int executeQuery(DbConnection connection, String query) throws SQLException
   {
     return executeQuery(connection,query,new NoParameters());
   }
 
+  // require connection.commit and connection.close or connection.rollBackAndClose
   public int executeQuery(DbConnection connection, String query, ParametersFactory parametersFactory) throws SQLException
   {
     PreparedStatement statement = null;

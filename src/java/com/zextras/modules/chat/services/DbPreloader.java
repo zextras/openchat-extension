@@ -59,7 +59,7 @@ public class DbPreloader implements Service
 
   private class RelationshipsPreloadSqlClosure extends SqlClosure<Void>
   {
-    final static String sSql = "SELECT * FROM RELATIONSHIP";
+    final static String sSql = "SELECT * FROM chat.RELATIONSHIP";
 
     RelationshipsPreloadSqlClosure(DbHandler dbHandler)
     {
@@ -98,7 +98,10 @@ public class DbPreloader implements Service
         }
         finally
         {
-          rs.close();
+          if (rs != null)
+          {
+            rs.close();
+          }
         }
       }
       catch (SQLException e)

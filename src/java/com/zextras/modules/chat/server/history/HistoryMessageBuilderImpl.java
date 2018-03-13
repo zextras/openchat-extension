@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.history;
 
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.Target;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -27,19 +28,34 @@ import com.zextras.modules.chat.server.events.EventMessage;
 public class HistoryMessageBuilderImpl implements HistoryMessageBuilder
 {
   @Override
-  public Event buildEvent(ImMessage message)
+  public Event buildEvent(ImMessage message, Optional<SpecificAddress> roomAddress)
   {
     switch (message.getEventType())
     {
       case Message:
+      {
+        SpecificAddress sender;
+        if (roomAddress.hasValue())
+        {
+          sender = new SpecificAddress(
+            roomAddress.toString(),
+            message.getSender()
+          );
+        }
+        else
+        {
+          sender = new SpecificAddress(message.getSender());
+        }
+
         return new EventMessage(
           EventId.fromString(message.getId()),
-          new SpecificAddress(message.getSender()),
+          sender,
           new Target(new SpecificAddress(message.getDestination())),
           message.getText(),
           message.getSentTimestamp(),
           message.getTargetType()
         );
+      }
     }
 
     return null;

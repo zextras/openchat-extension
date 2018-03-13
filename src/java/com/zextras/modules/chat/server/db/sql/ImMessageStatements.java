@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ImMessageStatements
 {
@@ -513,9 +514,9 @@ public class ImMessageStatements
   public static String likeSanitize(String input)
   {
     return input
-      .replace("!", "!!")
-      .replace("%", "!%")
-      .replace("_", "!_")
-      .replace("[", "![");
+      .replaceAll(Pattern.quote("!"), "!!")
+      .replaceAll(Pattern.quote("%"), "!%")
+      .replaceAll(Pattern.quote("_"), "!_")
+      .replaceAll(Pattern.quote("["), "![");
   }
 }

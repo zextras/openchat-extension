@@ -24,6 +24,7 @@ import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.ImMessage;
+import com.zextras.modules.chat.server.address.AddressResolver;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.sql.ImMessageStatements;
 import com.zextras.modules.chat.server.events.Event;
@@ -59,6 +60,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
   private final ChatProperties             mChatProperties;
   private final ImMessageStatements        mImMessageStatements;
   private final HistoryMessageBuilder      mImMessageBuilder;
+  private final AddressResolver            mAddressResolver;
   private final Set<MessageHistoryFactory> mListeners;
 
   @Inject
@@ -66,13 +68,15 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     Provisioning provisioning,
     ChatProperties chatProperties,
     ImMessageStatements imMessageStatements,
-    HistoryMessageBuilder imMessageBuilder
+    HistoryMessageBuilder imMessageBuilder,
+    AddressResolver addressResolver
   )
   {
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mImMessageStatements = imMessageStatements;
     mImMessageBuilder = imMessageBuilder;
+    mAddressResolver = addressResolver;
     mListeners = Collections.newSetFromMap(new ConcurrentHashMap<MessageHistoryFactory,Boolean>());
   }
 
@@ -171,7 +175,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
         {
           String queryId = event.getQueryId();
           final List<Event> events = query(
-            new SpecificAddress(event.getSender().resourceAddress()),
+            event.getSender(),
             event.getNode().optValue(""),
             event.getWith().optValue(""),
             queryId,
@@ -222,10 +226,15 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     };
   }
 
-  private List<Event> query(SpecificAddress requester,String node,String with, String queryId,Optional<Long> start,Optional<Long> end, Optional<Integer> max) throws ChatException
+  private List<Event> query(
+    SpecificAddress requester,
+    String node,
+    String with,
+    String queryId,
+    Optional<Long> start, Optional<Long> end, Optional<Integer> max
+  ) throws ChatException
   {
-    List<Event> events = new ArrayList<Event>();
-    String localHost = mProvisioning.getLocalServer().getServerHostname();
+    List<Event> events = new ArrayList<Event>(max.optValue(10));
 
     try
     {
@@ -251,7 +260,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
               Optional.<Integer>of(count),
               timestamp
             ));
-            if (timestamp > 0)
+            if (timestamp > 0L)
             {
               events.add(new EventMessageAck(
                 new SpecificAddress(recipient),
@@ -265,6 +274,13 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
       }
       else
       {
+        SpecificAddress withAddress = new SpecificAddress( with );
+
+        Optional<SpecificAddress> roomAddress = Optional.sEmptyInstance;
+        if( mAddressResolver.tryResolveAddress(withAddress) != null ) {
+          roomAddress = new Optional<>(withAddress);
+        }
+
         Iterator<ImMessage> it = mImMessageStatements.query(node, with, start, end, max).iterator();
         String lastMessageId = "";
         String firstMessageId = "";
@@ -276,21 +292,22 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
           {
             firstMessageId = lastMessageId;
           }
-          Event historyEvent = mImMessageBuilder.buildEvent(message);
+          Event historyEvent = mImMessageBuilder.buildEvent(message, roomAddress);
           if (historyEvent != null)
           {
             events.add(new EventMessageHistory(
               EventId.randomUUID(),
-              new SpecificAddress(localHost),
+              withAddress,
               queryId,
               requester,
               historyEvent
             ));
           }
         }
+
         events.add(new EventMessageHistoryLast(
           EventId.randomUUID(),
-          new SpecificAddress(localHost),
+          withAddress,
           queryId,
           requester,
           firstMessageId,

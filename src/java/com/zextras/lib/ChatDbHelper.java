@@ -150,7 +150,7 @@ public class ChatDbHelper
     executeQuery(connection,query, new NoParameters(), rsFactory);
   }
 
-  protected void executeQuery(DbConnection connection, String query,ParametersFactory parametersFactory,ResultSetFactory rsFactory) throws SQLException
+  public void executeQuery(DbConnection connection, String query,ParametersFactory parametersFactory,ResultSetFactory rsFactory) throws SQLException
   {
     PreparedStatement statement = null;
     ResultSet rs = null;

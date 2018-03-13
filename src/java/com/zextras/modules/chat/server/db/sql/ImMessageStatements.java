@@ -14,7 +14,6 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 public class ImMessageStatements
@@ -112,8 +112,8 @@ public class ImMessageStatements
   private final static String sINSERT_MESSAGE_READ =
     "INSERT INTO chat.MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) ";
 
-  private final static String sDELETE_MESSAGE_READ =
-    "DELETE FROM chat.MESSAGE_READ WHERE SENDER=? AND DESTINATION=?";
+  private final static String sUPDATE_MESSAGE_READ =
+    "UPDATE chat.MESSAGE_READ SET MESSAGE_ID=?, TIMESTAMP=? WHERE SENDER=? AND DESTINATION=?";
 
   private final static String sSELECT_MESSAGE_READ =
     "SELECT TIMESTAMP,MESSAGE_ID FROM chat.MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
@@ -292,32 +292,41 @@ public class ImMessageStatements
 
   public void upsertMessageRead(final String sender,final String destination,final long timestamp,final String id) throws SQLException
   {
-    //TODO Select insert if not exists or timestamp >
     ChatDbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
     try
     {
-      mChatDbHelper.query(connection, sDELETE_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
+      Long currentTimestamp = getLastMessageRead(connection, null, sender, destination).getLeft();
+
+      if (currentTimestamp == null)
       {
-        @Override
-        public void create(PreparedStatement preparedStatement) throws SQLException
+        mChatDbHelper.executeQuery(connection, sINSERT_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
         {
-          int i = 1;
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
-        }
-      });
-      mChatDbHelper.executeQuery(connection, sINSERT_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
+          @Override
+          public void create(PreparedStatement preparedStatement) throws SQLException
+          {
+            int i = 1;
+            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
+            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+            preparedStatement.setLong(i++, timestamp);
+            preparedStatement.setString(i++, id);
+          }
+        });
+      }
+      else if (timestamp > currentTimestamp)
       {
-        @Override
-        public void create(PreparedStatement preparedStatement) throws SQLException
+        mChatDbHelper.executeQuery(connection, sUPDATE_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
         {
-          int i = 1;
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
-          preparedStatement.setLong(i++, timestamp);
-          preparedStatement.setString(i++, id);
-        }
-      });
+          @Override
+          public void create(PreparedStatement preparedStatement) throws SQLException
+          {
+            int i = 1;
+            preparedStatement.setString(i++, id);
+            preparedStatement.setLong(i++, timestamp);
+            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
+            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+          }
+        });
+      }
       connection.commitAndClose();
     }
     catch (SQLException e)
@@ -329,10 +338,25 @@ public class ImMessageStatements
 
   public Pair<Long,String> getLastMessageRead(final String sender, final String destination) throws SQLException
   {
-    final Pair<Long,String> pair[] = new Pair[1];
-    pair[0] = Pair.of(0L,"");
+    ChatDbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
+    try
+    {
+      return getLastMessageRead(connection, 0L, sender, destination);
+    }
+    finally
+    {
+      connection.close();
+    }
+  }
 
-    mChatDbHelper.query(sSELECT_MESSAGE_READ,
+  public Pair<Long,String> getLastMessageRead(ChatDbHelper.DbConnection connection, Long defaultValue, final String sender, final String destination) throws SQLException
+  {
+    final Pair<Long,String> pair[] = new Pair[1];
+    pair[0] = Pair.of(defaultValue,"");
+
+    mChatDbHelper.executeQuery(
+      connection,
+      sSELECT_MESSAGE_READ,
       new ChatDbHelper.ParametersFactory()
       {
         @Override

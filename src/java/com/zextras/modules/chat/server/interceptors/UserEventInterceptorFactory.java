@@ -132,9 +132,12 @@ public class UserEventInterceptorFactory extends StubEventInterceptorFactory
               unreadCount,
               Optional.sEmptyInstance
             );
-            eventManager.dispatchUnfilteredEvent(
-              lastMessageInfo
-            );
+            if (lastMessageInfo.isRequired())
+            {
+              eventManager.dispatchUnfilteredEvent(
+                lastMessageInfo
+              );
+            }
           }
           catch (SQLException e)
           {

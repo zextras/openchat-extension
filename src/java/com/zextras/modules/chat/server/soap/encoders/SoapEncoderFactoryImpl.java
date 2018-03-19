@@ -265,6 +265,12 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
     return null;
   }
 
+  @Override
+  public Encoder interpret(EventLastMessageInfo event) throws ChatException
+  {
+    return new EventLastMessageInfoEncoder(event);
+  }
+
   void fail(Event event)
   {
     throw new RuntimeException("invalid encoding of event "+event.getClass().getName());

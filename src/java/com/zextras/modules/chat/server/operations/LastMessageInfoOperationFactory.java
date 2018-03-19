@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 ZeXtras S.r.l.
+ * Copyright (C) 2018 ZeXtras S.r.l.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,38 +15,11 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server.xmpp;
+package com.zextras.modules.chat.server.operations;
 
-import javax.xml.stream.XMLStreamException;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 
-
-public interface StanzaRecognizer
+public interface LastMessageInfoOperationFactory
 {
-  enum StanzaType
-  {
-    Presence,
-    Message,
-    MessageAck,
-    StatusProbe,
-    LastActivity,
-    ProxyAuth,
-    Unknown,
-    Ping,
-    SASLAuth,
-    Stream,
-    StartTLS,
-    Session,
-    Bind,
-    IQRoster,
-    Discovery,
-    Privacy,
-    IQAuth,
-    Query,
-    MessageHistory,
-    MessageHistoryLast,
-    UnknownIq,
-    LastMessageInfo,
-  }
-
-  StanzaType recognize(String xml) throws XMLStreamException;
+  LastMessageInfoOperation create(SpecificAddress senderAddress);
 }

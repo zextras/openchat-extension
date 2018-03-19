@@ -243,4 +243,10 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
     return false;
   }
 
+  @Override
+  public Boolean interpret(EventLastMessageInfo event) throws ChatException
+  {
+    return false;
+  }
+
 }

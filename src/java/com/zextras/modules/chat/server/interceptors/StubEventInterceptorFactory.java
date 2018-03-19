@@ -34,6 +34,7 @@ import com.zextras.modules.chat.server.events.EventIQAuthResult;
 import com.zextras.modules.chat.server.events.EventIQQuery;
 import com.zextras.modules.chat.server.events.EventInterceptorFactory;
 import com.zextras.modules.chat.server.events.EventIsWriting;
+import com.zextras.modules.chat.server.events.EventLastMessageInfo;
 import com.zextras.modules.chat.server.events.EventMessage;
 import com.zextras.modules.chat.server.events.EventMessageAck;
 import com.zextras.modules.chat.server.events.EventMessageBack;
@@ -277,6 +278,12 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
 
   @Override
   public EventInterceptor interpret(EventSharedFile event) throws ChatException
+  {
+    return new StubEventInterceptor();
+  }
+
+  @Override
+  public EventInterceptor interpret(EventLastMessageInfo event) throws ChatException
   {
     return new StubEventInterceptor();
   }

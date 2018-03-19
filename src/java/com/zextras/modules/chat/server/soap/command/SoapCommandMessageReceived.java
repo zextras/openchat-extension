@@ -45,12 +45,20 @@ public class SoapCommandMessageReceived extends SoapCommand
   public List<ChatOperation> createOperationList() throws MissingParameterException
   {
     SessionUUID sessionUUID = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
+    String s = mParameterMap.get("message_date");
+    long timestamp = System.currentTimeMillis();
+    try
+    {
+      timestamp = Long.valueOf(s);
+    }
+    catch (NumberFormatException e)
+    {}
 
     return Collections.<ChatOperation>singletonList(new SendMessageAck(
           mSenderAddress,
           new SpecificAddress(mParameterMap.get("target_address")),
           EventId.fromString(mParameterMap.get("message_id")),
-          Long.getLong(mParameterMap.get("message_date"),System.currentTimeMillis()),
+          timestamp,
           sessionUUID)
         );
   }

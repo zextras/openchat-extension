@@ -24,6 +24,7 @@ import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamProperties;
 import org.codehaus.stax2.XMLStreamWriter2;
+import org.codehaus.stax2.io.EscapingWriterFactory;
 import org.codehaus.stax2.validation.XMLValidationSchema;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -48,6 +49,7 @@ public abstract class XmppEncoder implements Encoder
     mFactory = new WstxOutputFactory();
     mFactory.setProperty(XMLStreamProperties.XSP_NAMESPACE_AWARE,Boolean.TRUE);
     mFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES,Boolean.TRUE);
+    mFactory.setProperty(XMLOutputFactory2.P_TEXT_ESCAPER,new XmppEscaper());
     mStreamWriter = null;
   }
 

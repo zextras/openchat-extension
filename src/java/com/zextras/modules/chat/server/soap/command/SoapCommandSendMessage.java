@@ -19,16 +19,20 @@ package com.zextras.modules.chat.server.soap.command;
 
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
 import com.zextras.modules.chat.server.operations.SendMessage;
+import com.zextras.modules.chat.server.operations.SendMessageAck;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
+import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import org.openzal.zal.lib.Clock;
 import org.openzal.zal.soap.SoapResponse;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +59,7 @@ public class SoapCommandSendMessage extends SoapCommand
     throws MissingParameterException, InvalidParameterException
   {
     final String message = mParameterMap.get(MESSAGE);
+    SessionUUID sessionUUID = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
 
     if (message == null)
     {
@@ -64,13 +69,21 @@ public class SoapCommandSendMessage extends SoapCommand
     final EventId messageId = EventId.randomUUID();
     final long timestamp = mClock.now();
 
-    ChatOperation sendMessage = new SendMessage(
+    List<ChatOperation> operations = new ArrayList<ChatOperation>(2);
+    operations.add(new SendMessage(
       messageId,
       mSenderAddress,
       getTargetAddress(),
       message,
       timestamp
-    );
+    ));
+    operations.add(new SendMessageAck(
+      mSenderAddress,
+      getTargetAddress(),
+      messageId,
+      timestamp,
+      sessionUUID
+    ));
 
     ChatSoapResponse response = new ChatSoapResponse();
     SoapEncoder soapEncoder = new SoapEncoder() {
@@ -85,6 +98,6 @@ public class SoapCommandSendMessage extends SoapCommand
     soapEncoder.encode(response,mSenderAddress);
     response.encodeInSoapResponse(mSoapResponse);
 
-    return Arrays.<ChatOperation>asList(sendMessage);
+    return operations;
   }
 }

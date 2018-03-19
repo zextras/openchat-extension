@@ -7,6 +7,13 @@ import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+/**
+ * Conversion from and to chat subdomain.
+ *
+ * TODO:
+ *  - avoid getAccountByName()
+ *  - introduce configuration option to change the subdomain
+ */
 public class SubdomainResolver
 {
   private final Provisioning mProvisioning;

@@ -30,7 +30,7 @@ import org.openzal.zal.Provisioning;
 @Singleton
 public class ZEChatDebugLogWriter extends ZEDailyLogWriter implements Service
 {
-  private final static String mLogFilePath = "/opt/zimbra/log/zxchat.log";
+  private final static String sLogFilePath = "/opt/zimbra/log/chat.log";
   private final ChatProperties mChatProperties;
   private final Provisioning mProvisioning;
 
@@ -40,7 +40,7 @@ public class ZEChatDebugLogWriter extends ZEDailyLogWriter implements Service
     Provisioning provisioning
   )
   {
-    super(mLogFilePath, ZEChatDebugLogWriter.class, provisioning);
+    super(sLogFilePath, ZEChatDebugLogWriter.class, provisioning);
     mChatProperties = chatProperties;
     mProvisioning = provisioning;
   }

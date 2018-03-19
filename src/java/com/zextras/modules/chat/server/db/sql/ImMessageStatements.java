@@ -6,6 +6,7 @@ import com.zextras.lib.ContainerListContainer;
 import com.zextras.lib.Optional;
 import com.google.inject.Inject;
 import com.zextras.lib.ChatDbHelper;
+import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.address.SubdomainResolver;
 import com.zextras.modules.chat.server.events.EventType;
@@ -119,7 +120,7 @@ public class ImMessageStatements
     "SELECT TIMESTAMP,MESSAGE_ID FROM chat.MESSAGE_READ WHERE SENDER = ? AND DESTINATION = ?";
 
   private final static String sSELECT_ALL_MESSAGE_READ =
-    "SELECT SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID FROM chat.MESSAGE_READ WHERE SENDER = ?";
+    "SELECT SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID FROM chat.MESSAGE_READ WHERE DESTINATION = ?";
 
   private final static String sCOUNT_MESSAGE_TO_READ =
     "SELECT COUNT(*) FROM chat.MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
@@ -405,7 +406,7 @@ public class ImMessageStatements
     return messages;
   }
 
-  public ContainerListContainer getAllMessageRead(final String sender) throws SQLException
+  public ContainerListContainer getAllMessageRead(final String ackDestination) throws SQLException
   {
     final ContainerListContainer list = new ContainerListContainer();
 
@@ -415,7 +416,7 @@ public class ImMessageStatements
         @Override
         public void create(PreparedStatement preparedStatement) throws SQLException
         {
-          preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(sender));
+          preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(ackDestination));
         }
       },
       new ChatDbHelper.ResultSetFactory()
@@ -424,8 +425,8 @@ public class ImMessageStatements
         public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
         {
           ContainerImpl entry = new ContainerImpl();
-          entry.putString("SENDER",rs.getString(1));
-          entry.putString("DESTINATION",rs.getString(2));
+          entry.putString("ACK_SENDER",rs.getString(1));
+          entry.putString("ACK_DESTINATION",rs.getString(2));
           entry.putLong("TIMESTAMP",rs.getLong(3));
           entry.putString("MESSAGE_ID",rs.getString(4));
           list.add(entry);

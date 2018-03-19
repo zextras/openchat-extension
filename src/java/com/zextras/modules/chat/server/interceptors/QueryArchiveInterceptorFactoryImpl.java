@@ -91,6 +91,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     mListeners.remove(callback);
   }
 
+  // Stored on sender host
   @Override
   public EventInterceptor interpret(final EventMessage eventMessage)
   {
@@ -133,6 +134,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     };
   }
 
+  // Stored on target host (that means: sender EventMessage server)
   @Override
   public EventInterceptor interpret(final EventMessageAck eventMessage)
   {

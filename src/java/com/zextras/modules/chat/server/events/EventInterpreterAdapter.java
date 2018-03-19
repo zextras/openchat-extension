@@ -204,12 +204,6 @@ public class EventInterpreterAdapter<T> implements EventInterpreter<T>
   }
 
   @Override
-  public T interpret(EventFloodControl event) throws ChatException
-  {
-    return mDefaultValue;
-  }
-
-  @Override
   public T interpret(EventIQQuery event) throws ChatException
   {
     return mDefaultValue;

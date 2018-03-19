@@ -214,12 +214,6 @@ public class EventQueueFilterEventImpl implements EventQueueFilterEvent
   }
 
   @Override
-  public Boolean interpret(EventFloodControl event)
-  {
-    return false;
-  }
-
-  @Override
   public Boolean interpret(EventIQQuery event) throws ChatException
   {
     return false;

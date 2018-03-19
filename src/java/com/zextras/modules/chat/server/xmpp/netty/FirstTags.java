@@ -19,7 +19,6 @@ package com.zextras.modules.chat.server.xmpp.netty;
 
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
 import com.zextras.modules.core.services.NettyService;
@@ -48,7 +47,6 @@ public class FirstTags extends ChannelInboundHandlerAdapter
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
   private final XmppEventFilter mXmppEventFilter;
   private final XmppFilterOut mXmppFilterOut;
-  private final EventQueueFactory mEventQueueFactory;
 
   public FirstTags(
     XmppHandlerFactory xmppHandlerFactory,
@@ -61,8 +59,7 @@ public class FirstTags extends ChannelInboundHandlerAdapter
     NettyService nettyService,
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
-    XmppFilterOut xmppFilterOut,
-    EventQueueFactory eventQueueFactory
+    XmppFilterOut xmppFilterOut
   )
   {
     mXmppHandlerFactory = xmppHandlerFactory;
@@ -76,7 +73,6 @@ public class FirstTags extends ChannelInboundHandlerAdapter
     mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
     mXmppEventFilter = xmppEventFilter;
     mXmppFilterOut = xmppFilterOut;
-    mEventQueueFactory = eventQueueFactory;
   }
 
   @Override
@@ -114,8 +110,7 @@ public class FirstTags extends ChannelInboundHandlerAdapter
             mNettyService,
             mProxyAuthRequestEncoder,
             mXmppEventFilter,
-            mXmppFilterOut,
-            mEventQueueFactory
+            mXmppFilterOut
           )
         );
         ctx.fireChannelRead(xmlTag);

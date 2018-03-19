@@ -20,7 +20,6 @@ package com.zextras.modules.chat.server.interceptors;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventBindResult;
 import com.zextras.modules.chat.server.events.EventBootCompleted;
-import com.zextras.modules.chat.server.events.EventFloodControl;
 import com.zextras.modules.chat.server.events.EventFriendAccepted;
 import com.zextras.modules.chat.server.events.EventFriendAdded;
 import com.zextras.modules.chat.server.events.EventFriendAddedForClient;
@@ -247,12 +246,6 @@ public class StubEventInterceptorFactory implements EventInterceptorFactory
 
   @Override
   public EventInterceptor interpret(EventDiscovery event)
-  {
-    return new StubEventInterceptor();
-  }
-
-  @Override
-  public EventInterceptor interpret(EventFloodControl event)
   {
     return new StubEventInterceptor();
   }

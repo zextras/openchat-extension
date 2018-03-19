@@ -46,7 +46,6 @@ public class RegisterSoapSession implements ChatOperation
   private       SoapSessionFactory mSoapSessionFactory;
   private final String             mClientVersion;
   private final boolean            mSilentErrorReportingEnabled;
-  private final EventQueueFactory mEventQueueFactory;
   private final SessionUUID mNewSessionId;
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
@@ -59,8 +58,7 @@ public class RegisterSoapSession implements ChatOperation
     SpecificAddress senderAddress,
     SoapSessionFactory soapSessionFactory,
     String clientVersion,
-    boolean silentErrorReportingEnabled,
-    EventQueueFactory eventQueueFactory
+    boolean silentErrorReportingEnabled
   )
   {
     mNewSessionId = newSessionId;
@@ -70,7 +68,6 @@ public class RegisterSoapSession implements ChatOperation
     mSoapSessionFactory = soapSessionFactory;
     mClientVersion = clientVersion;
     mSilentErrorReportingEnabled = silentErrorReportingEnabled;
-    mEventQueueFactory = eventQueueFactory;
   }
 
   public SessionUUID getNewSessionId()
@@ -95,7 +92,7 @@ public class RegisterSoapSession implements ChatOperation
     final User user = userProvider.getUser(mSenderAddress);
     SoapSession newSession = mSoapSessionFactory.create(
       mNewSessionId,
-      mEventQueueFactory.create(EventQueue.START_FLOOD_WARNING_THRESHOLD),
+      new EventQueue(),
       user,
       mSenderAddress,
       version

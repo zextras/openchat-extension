@@ -41,7 +41,6 @@ public class PingEventQueueListener implements EventQueueListener
   private final SpecificAddress mAddress;
   private final ReentrantLock   mLock;
   private final ActivityManager mActivityManager;
-  private final EventQueueFactory mEventQueueFactory;
   private final int mSuccessfullySentEvents;
   private       boolean         mCanBeResumed;
   private       boolean         mAlreadyReplied;
@@ -51,14 +50,12 @@ public class PingEventQueueListener implements EventQueueListener
 
   public PingEventQueueListener(
     ActivityManager activityManager,
-    EventQueueFactory eventQueueFactory,
     SpecificAddress address,
     Continuation continuation,
     int successFullySentEvents
   )
   {
     mActivityManager = activityManager;
-    mEventQueueFactory = eventQueueFactory;
     mLock = new ReentrantLock();
     mAddress = address;
     mContinuation = continuation;
@@ -83,7 +80,7 @@ public class PingEventQueueListener implements EventQueueListener
   @Override
   public void onDetached(EventQueue eventQueue)
   {
-    mEventQueue = mEventQueueFactory.create(0);
+    mEventQueue = new EventQueue();
     mDetached = true;
     resumeContinuationAndRemoveListener();
   }
@@ -123,7 +120,7 @@ public class PingEventQueueListener implements EventQueueListener
           public void run()
           {
             mEventQueue.removeListenerIfEqual(PingEventQueueListener.this);
-            mEventQueue = mEventQueueFactory.create(0);
+            mEventQueue = new EventQueue();
             resumeContinuationAndRemoveListener();
           }
         },

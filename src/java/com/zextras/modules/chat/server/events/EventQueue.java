@@ -17,82 +17,28 @@
 
 package com.zextras.modules.chat.server.events;
 
-import com.zextras.lib.log.ChatLog;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import com.zextras.modules.chat.server.Target;
-import com.zextras.modules.chat.server.address.ChatAddress;
-import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.EmptyQueueException;
 import com.zextras.modules.chat.server.listener.EventQueueListener;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class EventQueue
 {
-  public final static int START_FLOOD_WARNING_THRESHOLD = 256;
-
   private final ConcurrentLinkedQueue<Event> mEventQueue;
   private final Lock mListenerLock = new ReentrantLock();
-  private final Lock mFilterLock   = new ReentrantLock();
-  private final EventQueueFilterEvent mEventQueueFilterEvent;
-  private final EventManager mEventManager;
-  private final Set<ChatAddress>      mBlockedSenders;
-  private final int mStartFloodWarningThreshold;
-  private final int mStopFloodWarningThreshold;
   private       EventQueueListener    mEventQueueListener;
   private int mTotalSynchronizedEventsAmount = 0;
 
-  public EventQueue(
-    EventQueueFilterEvent eventQueueFilterEvent,
-    EventManager eventManager
-  )
+  public EventQueue()
   {
-    this(eventQueueFilterEvent, eventManager, 0);
-  }
-
-  @Inject
-  public EventQueue(
-    EventQueueFilterEvent eventQueueFilterEvent,
-    EventManager eventManager,
-    @Assisted int threshold
-  )
-  {
-    mEventQueueFilterEvent = eventQueueFilterEvent;
-    mEventManager = eventManager;
     mEventQueue = new ConcurrentLinkedQueue<Event>();
     mEventQueueListener = null;
-    mBlockedSenders = new HashSet<ChatAddress>();
-    if (threshold > 0)
-    {
-      mStartFloodWarningThreshold = threshold;
-      mStopFloodWarningThreshold = threshold - (threshold / 4);
-    }
-    else
-    {
-      mStartFloodWarningThreshold = 0;
-      mStopFloodWarningThreshold = 0;
-    }
-  }
-
-  public int getStartFloodWarningThreshold()
-  {
-    return mStartFloodWarningThreshold;
-  }
-
-  public int getStopFloodWarningThreshold()
-  {
-    return mStopFloodWarningThreshold;
   }
 
   public List<Event> popAllEvents(int howMany)
@@ -143,33 +89,6 @@ public class EventQueue
 
   public void queueEvent(Event event)
   {
-    try
-    {
-      if (mStartFloodWarningThreshold > 0 && event.interpret(mEventQueueFilterEvent))
-      {
-        mFilterLock.lock();
-        try
-        {
-          if (mEventQueue.size() >= mStartFloodWarningThreshold || !mBlockedSenders.isEmpty())
-          {
-            if (mBlockedSenders.add(event.getSender()))
-            {
-              notifyFloodControl(Collections.<ChatAddress>singletonList(event.getSender()), true);
-            }
-            return;
-          }
-        }
-        finally
-        {
-          mFilterLock.unlock();
-        }
-      }
-    }
-    catch (ChatException e)
-    {
-      throw new RuntimeException(e);
-    }
-
     mEventQueue.add(event);
 
     final EventQueueListener eventQueueListener = getEventQueueListener();
@@ -185,33 +104,6 @@ public class EventQueue
 
     if (event != null)
     {
-      try
-      {
-        if (mStartFloodWarningThreshold > 0 && event.interpret(mEventQueueFilterEvent))
-        {
-          Collection<ChatAddress> senders = Collections.<ChatAddress>emptyList();
-          mFilterLock.lock();
-          try
-          {
-            if (!mBlockedSenders.isEmpty() && mEventQueue.size() < mStopFloodWarningThreshold)
-            {
-              senders = new ArrayList<ChatAddress>(mBlockedSenders);
-              mBlockedSenders.clear();
-            }
-          }
-          finally
-          {
-            mFilterLock.unlock();
-          }
-
-          notifyFloodControl(senders, false);
-        }
-      }
-      catch (ChatException e)
-      {
-        throw new RuntimeException(e);
-      }
-
       final EventQueueListener eventQueueListener = getEventQueueListener();
       if (eventQueueListener != null) {
         eventQueueListener.onEventPopped(this,event);
@@ -220,22 +112,6 @@ public class EventQueue
 
 
     return event;
-  }
-
-  private void notifyFloodControl(Collection<ChatAddress> chatAddresses, boolean floodDetected)
-  {
-    if (chatAddresses.isEmpty())
-    {
-      return;
-    }
-
-    Target target = new Target(chatAddresses);
-    mEventManager.dispatchUnfilteredEvents(Collections.<Event>singletonList(
-      new EventFloodControl(
-        target,
-        floodDetected
-      )
-    ));
   }
 
   public Event popEvent()

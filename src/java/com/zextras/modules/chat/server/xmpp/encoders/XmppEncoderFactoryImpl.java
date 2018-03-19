@@ -126,12 +126,6 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   }
 
   @Override
-  public Encoder interpret(EventFloodControl event)
-  {
-    return new EventFloodControlEncoder(event, mSchemaProvider);
-  }
-
-  @Override
   public Encoder interpret(EventIQQuery event) throws ChatException
   {
     return new EventIQQueryEncoder(event,mSchemaProvider);

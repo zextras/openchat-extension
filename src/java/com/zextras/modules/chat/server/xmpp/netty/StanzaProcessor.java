@@ -20,7 +20,6 @@ package com.zextras.modules.chat.server.xmpp.netty;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.events.EventQueue;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
 import com.zextras.modules.core.services.NettyService;
@@ -86,8 +85,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       ChatProperties chatProperties,
       ProxyAuthRequestEncoder proxyAuthRequestEncoder,
       XmppEventFilter xmppEventFilter,
-      XmppFilterOut xmppFilterOut,
-      EventQueueFactory eventQueueFactory
+      XmppFilterOut xmppFilterOut
     )
     {
       mNettyService = nettyService;
@@ -100,7 +98,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       mXmppFilterOut = xmppFilterOut;
       mSession = new AnonymousXmppSession(
         SessionUUID.randomUUID(),
-        eventQueueFactory.create(EventQueue.START_FLOOD_WARNING_THRESHOLD),
+        new EventQueue(),
         socketChannel,
         chatProperties,
         mXmppEventFilter,
@@ -226,7 +224,6 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
   private final XmppEventFilter                      mXmppEventFilter;
   private final XmppFilterOut mXmppFilterOut;
-  private final EventQueueFactory mEventQueueFactory;
   private final XmppHandlerFactory                   mXmppHandlerFactory;
   private final EventManager                         mEventManager;
   private       XmppConnectionHandler                mXmppConnectionHandler;
@@ -243,8 +240,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     NettyService nettyService,
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
-    XmppFilterOut xmppFilterOut,
-    EventQueueFactory eventQueueFactory
+    XmppFilterOut xmppFilterOut
   )
   {
     mXmppHandlerFactory = xmppHandlerFactory;
@@ -259,7 +255,6 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
     mXmppEventFilter = xmppEventFilter;
     mXmppFilterOut = xmppFilterOut;
-    mEventQueueFactory = eventQueueFactory;
   }
 
   public StanzaProcessor(
@@ -273,8 +268,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     NettyService nettyService,
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
-    XmppFilterOut xmppFilterOut,
-    EventQueueFactory eventQueueFactory
+    XmppFilterOut xmppFilterOut
   )
   {
     this(
@@ -294,14 +288,12 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
         chatProperties,
         proxyAuthRequestEncoder,
         xmppEventFilter,
-        xmppFilterOut,
-        eventQueueFactory
+        xmppFilterOut
       ),
       nettyService,
       proxyAuthRequestEncoder,
       xmppEventFilter,
-      xmppFilterOut,
-      eventQueueFactory
+      xmppFilterOut
     );
   }
 
@@ -321,8 +313,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       mChatProperties,
       mProxyAuthRequestEncoder,
       mXmppEventFilter,
-      mXmppFilterOut,
-      mEventQueueFactory
+      mXmppFilterOut
     );
   }
 
@@ -332,7 +323,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     mXmppConnectionHandler.setSession(
       new AnonymousXmppSession(
         SessionUUID.randomUUID(),
-        mEventQueueFactory.create(EventQueue.START_FLOOD_WARNING_THRESHOLD),
+        new EventQueue(),
         mSocketChannel,
         mChatProperties,
         mXmppEventFilter,

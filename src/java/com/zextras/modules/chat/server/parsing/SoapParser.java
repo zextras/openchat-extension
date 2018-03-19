@@ -23,7 +23,6 @@ import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
@@ -68,7 +67,6 @@ public class SoapParser implements Parser
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
-  private final EventQueueFactory           mEventQueueFactory;
   final         SpecificAddress             mSenderAddress;
   final         SoapEncoderFactory          mSoapEncoderFactory;
   private final Map<String, CommandCreator> mCommandCreatorMap;
@@ -83,7 +81,6 @@ public class SoapParser implements Parser
     SoapSessionFactory soapSessionFactory,
     ChatProperties chatProperties,
     ActivityManager activityManager,
-    EventQueueFactory eventQueueFactory,
     Clock clock,
     QueryArchiveFactory queryArchiveFactory,
     UserCapabilitiesProvider userCapabilitiesProvider
@@ -92,7 +89,6 @@ public class SoapParser implements Parser
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mActivityManager = activityManager;
-    mEventQueueFactory = eventQueueFactory;
     mSenderAddress = senderAddress;
     mSoapEncoderFactory = soapEncoderFactory;
     mSoapSessionFactory = soapSessionFactory;
@@ -137,8 +133,7 @@ public class SoapParser implements Parser
           mSoapSessionFactory,
           mProvisioning,
           mZimbraContext,
-          mChatProperties,
-          mEventQueueFactory
+          mChatProperties
         );
       }
     });
@@ -159,7 +154,7 @@ public class SoapParser implements Parser
     {
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandPing(mSoapResponse, mSoapEncoderFactory, mSenderAddress, commandParameters, mZimbraContext, mActivityManager, mEventQueueFactory); }
+      { return new SoapCommandPing(mSoapResponse, mSoapEncoderFactory, mSenderAddress, commandParameters, mZimbraContext, mActivityManager); }
     });
     setupCommand(ACTION_REMOVE_FRIEND, new CommandCreator()
     {

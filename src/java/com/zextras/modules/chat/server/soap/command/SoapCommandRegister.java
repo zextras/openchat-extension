@@ -46,7 +46,6 @@ public class SoapCommandRegister extends SoapCommand
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
   private final ChatProperties     mChatProperties;
-  private final EventQueueFactory mEventQueueFactory;
   private       SoapSessionFactory mSoapSessionFactory;
   private final Provisioning       mProvisioning;
   private final ZimbraContext      mZimbraContext;
@@ -59,8 +58,7 @@ public class SoapCommandRegister extends SoapCommand
     SoapSessionFactory soapSessionFactory,
     Provisioning provisioning,
     ZimbraContext zimbraContext,
-    ChatProperties chatProperties,
-    EventQueueFactory eventQueueFactory
+    ChatProperties chatProperties
   )
   {
     super(
@@ -73,7 +71,6 @@ public class SoapCommandRegister extends SoapCommand
     mProvisioning = provisioning;
     mZimbraContext = zimbraContext;
     mChatProperties = chatProperties;
-    mEventQueueFactory = eventQueueFactory;
   }
 
   public ChatOperation createRegisterSoapSession(
@@ -89,8 +86,7 @@ public class SoapCommandRegister extends SoapCommand
       mSenderAddress,
       mSoapSessionFactory,
       clientVersion,
-      silentErrorReportingEnabled,
-      mEventQueueFactory
+      silentErrorReportingEnabled
     );
   }
 

@@ -25,7 +25,6 @@ import com.zextras.modules.chat.server.db.mappers.UserInfoIteratorMapper;
 import com.zextras.modules.chat.server.db.mappers.UserInfoMapper;
 import com.zextras.modules.chat.server.db.modifiers.UserModifier;
 import com.zextras.modules.chat.server.events.EventQueue;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.relationship.DirectRelationshipProvider;
 import com.zextras.modules.chat.server.relationship.RelationshipModifier;
@@ -49,7 +48,6 @@ public class OpenUserProvider implements UserProvider
   private final RelationshipProvider          mRelationshipProvider;
   private final RelationshipModifier          mRelationshipModifier;
   private final DirectRelationshipProvider    mDirectRelationshipProvider;
-  private final EventQueueFactory             mEventQueueFactory;
   private final UserCapabilitiesProvider      mCapabilitiesProvider;
   private ReentrantLock mLock = new ReentrantLock();
 
@@ -64,7 +62,6 @@ public class OpenUserProvider implements UserProvider
     RelationshipProvider relationshipProvider,
     RelationshipModifier relationshipModifier,
     final DirectRelationshipProvider directRelationshipProvider,
-    EventQueueFactory eventQueueFactory,
     UserCapabilitiesProvider capabilitiesProvider
   )
   {
@@ -76,7 +73,6 @@ public class OpenUserProvider implements UserProvider
     mProvisioning = provisioning;
     mUserInfoIteratorMapper = userInfoIteratorMapper;
     mDirectRelationshipProvider = directRelationshipProvider;
-    mEventQueueFactory = eventQueueFactory;
     mCapabilitiesProvider = capabilitiesProvider;
   }
 
@@ -138,7 +134,7 @@ public class OpenUserProvider implements UserProvider
       userInfo = new UserInfo(userId, userInfo.getAddress());
     }
 
-    EventQueue eventQueue = mEventQueueFactory.create(0);
+    EventQueue eventQueue = new EventQueue();
     return buildUser(userInfo, eventQueue);
   }
 
@@ -174,7 +170,7 @@ public class OpenUserProvider implements UserProvider
       }
       else
       {
-        user = buildUser(userInfo, mEventQueueFactory.create(0));
+        user = buildUser(userInfo, new EventQueue());
       }
 
       visitor.visitUser(user);

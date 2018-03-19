@@ -233,13 +233,6 @@ public class SoapEncoderFactoryImpl implements SoapEncoderFactory
   }
 
   @Override
-  public Encoder interpret(EventFloodControl event)
-  {
-    fail(event);
-    return null;
-  }
-
-  @Override
   public Encoder interpret(EventIQQuery event) throws ChatException
   {
     fail(event);

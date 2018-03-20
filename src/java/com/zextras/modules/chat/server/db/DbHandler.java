@@ -24,4 +24,6 @@ public interface DbHandler
 {
   void shutdown();
   Connection getConnection() throws SQLException;
+  String cleanSql(String sql);
+
 }

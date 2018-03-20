@@ -96,25 +96,41 @@ public class UserEventInterceptorFactory extends StubEventInterceptorFactory
           try
           {
             Pair<Long, String> lastMessageRead = mImMessageStatements.getLastMessageRead(
-              buddyAddress.withoutResource().toString(),
-              event.getFinalDestination().get().withoutResource().toString()
+              event.getFinalDestination().get().withoutResource().toString(),
+              buddyAddress.withoutResource().toString()
             );
             long timestamp = lastMessageRead.getLeft();
-            Optional<Integer> unreadCount = Optional.of(mImMessageStatements.getCountMessageToRead(
-              buddyAddress.withoutResource().toString(),
-              event.getFinalDestination().get().withoutResource().toString(),
-              timestamp
-            ));
             List<ImMessage> messages = mImMessageStatements.query(
               buddyAddress.withoutResource().toString(),
               event.getFinalDestination().get().withoutResource().toString(),
+              Optional.of(timestamp),
               Optional.sEmptyInstance,
-              Optional.sEmptyInstance,
-              Optional.of(1)
+              Optional.sEmptyInstance
             );
-            if (!messages.isEmpty())
+            Optional<Integer> unreadCount = Optional.of(0);
+            if (messages.isEmpty())
             {
-              ImMessage lastMessage = messages.get(0);
+              messages = mImMessageStatements.query(
+                buddyAddress.withoutResource().toString(),
+                event.getFinalDestination().get().withoutResource().toString(),
+                Optional.sEmptyInstance,
+                Optional.sEmptyInstance,
+                Optional.of(1)
+              );
+              if (!messages.isEmpty())
+              {
+                lastIncomingMessageInfo = Optional.of(
+                  Pair.of(
+                    messages.get(0).getSentTimestamp(),
+                    messages.get(0).getId()
+                  )
+                );
+              }
+            }
+            else
+            {
+              unreadCount = Optional.of(messages.size());
+              ImMessage lastMessage = messages.get(messages.size() - 1);
               lastIncomingMessageInfo = Optional.of(
                 Pair.of(
                   lastMessage.getSentTimestamp(),

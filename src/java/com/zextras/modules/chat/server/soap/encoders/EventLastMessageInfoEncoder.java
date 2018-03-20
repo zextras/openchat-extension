@@ -50,7 +50,7 @@ public class EventLastMessageInfoEncoder implements SoapEncoder
       lastMessageSentInfoJson.put("date", lastMessageSentInfo.get().getLeft());
       message.put("last_message_sent", lastMessageSentInfoJson);
     }
-    Optional<Pair<Long, String>> lastMessageReceivedInfo = mEvent.getLastSentMessageInfo();
+    Optional<Pair<Long, String>> lastMessageReceivedInfo = mEvent.getLastIncomingMessageInfo();
     if (lastMessageReceivedInfo.hasValue())
     {
       JSONObject lastMessageReceivedInfoJson = new JSONObject();

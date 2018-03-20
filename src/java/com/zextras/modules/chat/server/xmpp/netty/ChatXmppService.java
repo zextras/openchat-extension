@@ -69,7 +69,6 @@ public class ChatXmppService implements Runnable, Service
   private final XmppFilterOut                        mXmppFilterOut;
   private final XmppEventFilter                      mXmppEventFilter;
   private final Provisioning                         mProvisioning;
-  private final EventQueueFactory                    mEventQueueFactory;
   private       boolean                              mStopped;
   private       Promise<Boolean>                     mInitializationPromise;
   private final ReentrantLock    mLock      = new ReentrantLock();
@@ -87,8 +86,7 @@ public class ChatXmppService implements Runnable, Service
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter,
-    Provisioning provisioning,
-    EventQueueFactory eventQueueFactory
+    Provisioning provisioning
   )
   {
     mEventManager = eventManager;
@@ -101,7 +99,6 @@ public class ChatXmppService implements Runnable, Service
     mXmppFilterOut = xmppFilterOut;
     mXmppEventFilter = xmppEventFilter;
     mProvisioning = provisioning;
-    mEventQueueFactory = eventQueueFactory;
     mStopped = false;
   }
 
@@ -272,8 +269,7 @@ public class ChatXmppService implements Runnable, Service
             mNettyService,
             mProxyAuthRequestEncoder,
             mXmppEventFilter,
-            mXmppFilterOut,
-            mEventQueueFactory
+            mXmppFilterOut
           );
           ch.pipeline().addAfter("SubTagTokenizer", "FirstTags", firstTagsHandler);
         }

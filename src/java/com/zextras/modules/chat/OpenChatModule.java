@@ -38,6 +38,8 @@ import com.zextras.modules.chat.server.db.modifiers.OpenUserModifier;
 import com.zextras.modules.chat.server.db.modifiers.UserModifier;
 import com.zextras.modules.chat.server.db.providers.OpenUserProvider;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
+import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
+import com.zextras.modules.chat.server.dispatch.StubRoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventInterceptorFactory;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.events.EventQueueFilterEvent;
@@ -145,5 +147,6 @@ public class OpenChatModule extends AbstractModule
     install(new FactoryModuleBuilder()
       .implement(Parser.class,SoapParser.class)
       .build(ParserFactory.class));
+    bind(RoomServerHostSetProvider.class).to(StubRoomServerHostSetProvider.class);
   }
 }

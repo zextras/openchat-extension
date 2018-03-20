@@ -35,4 +35,10 @@ public class DbHandlerStub implements DbHandler
   {
     throw new RuntimeException();
   }
+
+  @Override
+  public String cleanSql(String sql)
+  {
+    return sql;
+  }
 }

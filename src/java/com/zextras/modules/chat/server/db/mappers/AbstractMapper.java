@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.db.mappers;
 
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.modules.chat.server.db.MariaDbHandler;
 import com.zextras.modules.chat.server.db.sql.SqlClosure;
 import com.zextras.modules.chat.server.db.sql.SqlParameter;
 import com.zextras.modules.chat.server.db.sql.SqlStatement;
@@ -104,8 +105,8 @@ public abstract class AbstractMapper<T> {
     PreparedStatement stmt;
     try
     {
-      stmt = connection.prepareStatement(sqlStatement.sql(),
-                                                           Statement.RETURN_GENERATED_KEYS);
+      String sql = mDbHandler.cleanSql(sqlStatement.sql());
+      stmt = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
       for (SqlParameter parameter : sqlStatement.parameters())
       {
         stmt.setObject(parameter.getIndex(), parameter.getValue());

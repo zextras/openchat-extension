@@ -166,34 +166,4 @@ public class UserEventInterceptorFactory extends StubEventInterceptorFactory
       }
     };
   }
-
-
-  @Override
-  public EventInterceptor interpret(final EventFloodControl event)
-  {
-    return new EventInterceptor()
-    {
-      @Override
-      public boolean intercept(EventManager eventManager, SpecificAddress target) throws ChatException, ChatDbException, ZimbraException
-      {
-        List<Session> sessions = mSessionManager.getUserSessions(
-          new SpecificAddress(event.getTarget().toSingleAddressIncludeResource())
-        );
-
-        for (Session session : sessions)
-        {
-          if (event.isFloodDetected())
-          {
-            session.refuseInputEvents();
-          }
-          else
-          {
-            session.acceptInputEvents();
-          }
-        }
-
-        return true;
-      }
-    };
-  }
 }

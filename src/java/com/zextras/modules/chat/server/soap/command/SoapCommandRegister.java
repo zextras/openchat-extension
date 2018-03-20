@@ -46,7 +46,6 @@ public class SoapCommandRegister extends SoapCommand
   private final SoapResponse                    mSoapResponse;
   private final SoapEncoderFactory              mSoapEncoderFactory;
   private final ChatProperties                  mChatProperties;
-  private final EventQueueFactory               mEventQueueFactory;
   private final LastMessageInfoOperationFactory mLastMessageInfoFactory;
   private       SoapSessionFactory              mSoapSessionFactory;
   private final Provisioning                    mProvisioning;
@@ -61,7 +60,6 @@ public class SoapCommandRegister extends SoapCommand
     Provisioning provisioning,
     ZimbraContext zimbraContext,
     ChatProperties chatProperties,
-    EventQueueFactory eventQueueFactory,
     LastMessageInfoOperationFactory lastMessageInfoOperationFactory
     )
   {
@@ -75,7 +73,6 @@ public class SoapCommandRegister extends SoapCommand
     mProvisioning = provisioning;
     mZimbraContext = zimbraContext;
     mChatProperties = chatProperties;
-    mEventQueueFactory = eventQueueFactory;
     mLastMessageInfoFactory = lastMessageInfoOperationFactory;
   }
 
@@ -92,8 +89,7 @@ public class SoapCommandRegister extends SoapCommand
       mSenderAddress,
       mSoapSessionFactory,
       clientVersion,
-      silentErrorReportingEnabled,
-      mEventQueueFactory
+      silentErrorReportingEnabled
     );
   }
 

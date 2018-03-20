@@ -50,4 +50,11 @@ public class MariaDbHandler implements DbHandler
   {
     return mZimbraConnectionProvider.getConnection().getConnection();
   }
+
+  @Override
+  public String cleanSql(String sql)
+  {
+    return sql;
+  }
+
 }

@@ -47,7 +47,6 @@ import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 import org.openzal.zal.exceptions.ZimbraException;
 
-import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,6 +92,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     mListeners.remove(callback);
   }
 
+  // Stored on sender host
   @Override
   public EventInterceptor interpret(final EventMessage eventMessage)
   {
@@ -135,6 +135,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
     };
   }
 
+  // Stored on target host (that means: sender EventMessage server)
   @Override
   public EventInterceptor interpret(final EventMessageAck eventMessage)
   {

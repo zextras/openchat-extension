@@ -53,7 +53,6 @@ public interface EventInterpreter<T>
   T interpret(EventXmppSessionEstablished eventXmppSessionEstablished) throws ChatException;
   T interpret(EventXmppPing eventXmppPing) throws ChatException;
   T interpret(EventDiscovery event) throws ChatException;
-  T interpret(EventFloodControl event) throws ChatException;
   T interpret(EventIQQuery event) throws ChatException;
   T interpret(EventMessageHistory event) throws ChatException;
   T interpret(EventMessageHistoryLast event) throws ChatException;

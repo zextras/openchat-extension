@@ -56,7 +56,7 @@ public class MessageHistoryLastParser extends XmppParser
     mFirst = "";
     mLast = "";
     mSender = "";
-    mTimestamp = "";
+    mTimestamp = "0";
     mCount = "";
   }
 
@@ -231,9 +231,9 @@ public class MessageHistoryLastParser extends XmppParser
   }
 
   @NotNull
-  public String getTimestamp()
+  public long getTimestamp()
   {
-    return mTimestamp;
+    return Long.valueOf(mTimestamp);
   }
 
   @NotNull

@@ -68,7 +68,7 @@ public class MessageHistoryParser extends XmppParser
     mTo = "";
     mQueryId = "";
     mEvent = null;
-    mTimestamp = null;
+    mTimestamp = "0";
   }
 
 /*
@@ -255,12 +255,12 @@ public class MessageHistoryParser extends XmppParser
         sender,
         new Optional<SpecificAddress>(originalTarget),
         target,
-        DateUtils.parseUTCDate(mMessageStamp),
+        Long.valueOf(mMessageStamp),
         fileInfo,
         targetType
       );
     }
-    catch (ParseException e)
+    catch (NumberFormatException e)
     {
       throw new XMLStreamException(e);
     }
@@ -323,11 +323,11 @@ public class MessageHistoryParser extends XmppParser
         new SpecificAddress(messageFrom),
         new Target(new SpecificAddress(messageTo)),
         mBody,
-        DateUtils.parseUTCDate(mMessageStamp),
+        Long.valueOf(mMessageStamp),
         targetType
       );
     }
-    catch (ParseException e)
+    catch (NumberFormatException e)
     {
       throw new XMLStreamException(e);
     }
@@ -369,9 +369,9 @@ public class MessageHistoryParser extends XmppParser
     return mMessageStamp;
   }
 
-  public String getTimestamp()
+  public long getTimestamp()
   {
-    return mTimestamp == null ? "0":mTimestamp;
+    return Long.valueOf(mTimestamp);
   }
 
   public Event getEvent()

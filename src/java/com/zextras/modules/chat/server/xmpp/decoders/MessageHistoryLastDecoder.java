@@ -38,18 +38,10 @@ public class MessageHistoryLastDecoder implements EventDecoder
       eventId = EventId.randomUUID().toString();
     }
     long timestamp = System.currentTimeMillis();
-
-    try
+    long stamp = parser.getTimestamp();
+    if (stamp > 0)
     {
-      String s = parser.getTimestamp();
-      if (!s.isEmpty())
-      {
-        timestamp = DateUtils.parseUTCDate(s);
-      }
-    }
-    catch (ParseException e)
-    {
-      ChatLog.log.warn(Utils.exceptionToString(e));
+      timestamp = stamp;
     }
 
     Optional<Integer> count = Optional.sEmptyInstance;

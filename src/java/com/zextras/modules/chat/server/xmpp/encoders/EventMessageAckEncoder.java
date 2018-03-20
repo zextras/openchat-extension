@@ -58,7 +58,7 @@ public class EventMessageAckEncoder extends XmppEncoder
     sw.writeAttribute("id",mEventMessageAck.getId().toString());
     if( extensions )
     {
-      sw.writeAttribute("timestamp", convertUnixTimestampToUTCDateString(mEventMessageAck.getMessageTimestamp(), CURRENT_XMPP_FORMAT));
+      sw.writeAttribute("timestamp", String.valueOf(mEventMessageAck.getMessageTimestamp()));
     }
 
     if( validate() ) {

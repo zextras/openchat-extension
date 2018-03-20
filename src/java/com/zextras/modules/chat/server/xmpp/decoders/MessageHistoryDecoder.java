@@ -38,7 +38,7 @@ public class MessageHistoryDecoder implements EventDecoder
       parser.getQueryId(),
       new SpecificAddress(parser.getTo()),
       parser.getEvent(),
-      Long.valueOf(parser.getTimestamp())
+      parser.getTimestamp()
     ));
   }
 }

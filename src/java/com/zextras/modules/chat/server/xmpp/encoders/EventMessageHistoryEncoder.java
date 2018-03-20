@@ -94,7 +94,7 @@ public class EventMessageHistoryEncoder extends XmppEncoder
         sw.writeStartElement("urn:xmpp:forward:0", "forwarded");
 
           sw.writeStartElement("","delay","urn:xmpp:delay" );
-            sw.writeAttribute("stamp", convertUnixTimestampToUTCDateString(originalEvent.getTimestamp(), CURRENT_XMPP_FORMAT));
+            sw.writeAttribute("stamp", String.valueOf(originalEvent.getTimestamp()));
           sw.writeEndElement();
 
           encoder.encode(outputStream, new SpecificAddress(originalEvent.getTarget().toSingleAddressIncludeResource()), extensions);

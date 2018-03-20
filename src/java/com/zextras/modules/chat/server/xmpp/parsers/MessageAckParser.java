@@ -104,9 +104,9 @@ public class MessageAckParser extends XmppParser
   {
     try
     {
-      return DateUtils.parseUTCDate(mMessageTimestamp);
+      return Long.valueOf(mMessageTimestamp);
     }
-    catch (ParseException e)
+    catch (NumberFormatException e)
     {
       return System.currentTimeMillis();
     }

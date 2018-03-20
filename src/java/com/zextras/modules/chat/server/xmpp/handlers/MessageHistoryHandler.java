@@ -53,7 +53,7 @@ public class MessageHistoryHandler implements StanzaHandler
           mParser.getQueryId(),
           new SpecificAddress(mParser.getTo()),
           mParser.getEvent(),
-          Long.valueOf(mParser.getTimestamp())
+          mParser.getTimestamp()
         ));
       }
     });

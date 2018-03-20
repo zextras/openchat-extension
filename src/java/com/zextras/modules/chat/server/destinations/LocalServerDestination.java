@@ -46,7 +46,6 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
   private final Map<String, DestinationQueue> mDestinationQueues;
   private final DestinationQueueFactory       mDestinationQueueFactory;
   private final AddressResolver               mAddressResolver;
-  private final RoomServerHostSetProvider     mRoomServerHostSetProvider;
   private final EventRouter                   mEventRouter;
 
   @Inject
@@ -54,14 +53,12 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
     Provisioning provisioning,
     EventRouter eventRouter,
     DestinationQueueFactory destinationQueueFactory,
-    AddressResolver addressResolver,
-    RoomServerHostSetProvider roomServerHostSetProvider
+    AddressResolver addressResolver
   )
   {
     mProvisioning = provisioning;
     mDestinationQueueFactory = destinationQueueFactory;
     mAddressResolver = addressResolver;
-    mRoomServerHostSetProvider = roomServerHostSetProvider;
     mDestinationQueues = new HashMap<String, DestinationQueue>();
     mEventRouter = eventRouter;
   }
@@ -78,14 +75,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
       boolean isServerAddress = address.getDomain().isEmpty();
       if( isServerAddress )
       {
-        if( mRoomServerHostSetProvider.isValidChatServer(address) )
-        {
-          host = address.toString();
-        }
-        else
-        {
-          host = null;
-        }
+        host = address.toString();
       }
       else
       {

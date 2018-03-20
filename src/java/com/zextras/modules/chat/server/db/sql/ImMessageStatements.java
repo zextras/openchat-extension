@@ -385,7 +385,7 @@ public class ImMessageStatements
   public ContainerListContainer getAllMessage(String user) throws SQLException
   {
     ContainerListContainer messages = new ContainerListContainer();
-    List<ImMessage> list = query(user, "", Optional.sEmptyInstance, Optional.sEmptyInstance, Optional.sEmptyInstance);
+    List<ImMessage> list = query(user, "", Optional.<Long>empty(), Optional.<Long>empty(), Optional.<Integer>empty());
     for (ImMessage message : list)
     {
       Container container = new ContainerImpl();

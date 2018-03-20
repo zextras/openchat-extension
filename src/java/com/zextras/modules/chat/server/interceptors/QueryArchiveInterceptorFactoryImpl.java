@@ -45,7 +45,6 @@ import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 import org.openzal.zal.exceptions.ZimbraException;
 
-import javax.swing.text.html.Option;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;

@@ -31,7 +31,7 @@ public class OpenchatVersion implements ChatVersion
   @Override
   public Version getRequiredZimletVersion()
   {
-    return new Version(BuildInfo.Version);
+    return new Version(10,0);
   }
 
   @Override

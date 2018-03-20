@@ -130,7 +130,7 @@ public class UserEventInterceptorFactory extends StubEventInterceptorFactory
             else
             {
               unreadCount = Optional.of(messages.size());
-              ImMessage lastMessage = messages.get(messages.size() - 1);
+              ImMessage lastMessage = messages.get(0);
               lastIncomingMessageInfo = Optional.of(
                 Pair.of(
                   lastMessage.getSentTimestamp(),

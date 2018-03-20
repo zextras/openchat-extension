@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.session;
 
 import com.zextras.modules.chat.server.exceptions.ChatException;
+import com.zextras.modules.chat.server.events.EventLastMessageInfo;
 import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
@@ -89,6 +90,12 @@ public class CommonSessionEventFilterImpl implements CommonSessionEventFilter
         Relationship.RelationshipType.INVITED,
         Relationship.RelationshipType.ACCEPTED
       );
+    }
+
+    @Override
+    public Boolean interpret(EventLastMessageInfo event)
+    {
+      return !event.isRequired();
     }
 
     private boolean filterIfDifferentRelationship(

@@ -74,6 +74,12 @@ public class StanzaRecognizerImpl implements StanzaRecognizer
           stanzaType = getTypeIQ(sr);
           break;
         }
+
+        if(sr.getLocalName().equals("last_message_info"))
+        {
+          stanzaType = StanzaType.LastMessageInfo;
+          break;
+        }
       }
     }
 

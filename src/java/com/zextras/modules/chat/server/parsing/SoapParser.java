@@ -23,6 +23,7 @@ import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.operations.LastMessageInfoOperationFactory;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
@@ -64,6 +65,7 @@ public class SoapParser implements Parser
   private final Clock mClock;
   private final QueryArchiveFactory mQueryArchiveFactory;
   private final UserCapabilitiesProvider mUserCapabilitiesProvider;
+  private final LastMessageInfoOperationFactory mLastMessageInfoOperationFactory;
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
@@ -83,7 +85,8 @@ public class SoapParser implements Parser
     ActivityManager activityManager,
     Clock clock,
     QueryArchiveFactory queryArchiveFactory,
-    UserCapabilitiesProvider userCapabilitiesProvider
+    UserCapabilitiesProvider userCapabilitiesProvider,
+    LastMessageInfoOperationFactory lastMessageInfoOperationFactory
   )
   {
     mProvisioning = provisioning;
@@ -97,6 +100,7 @@ public class SoapParser implements Parser
     mClock = clock;
     mQueryArchiveFactory = queryArchiveFactory;
     mUserCapabilitiesProvider = userCapabilitiesProvider;
+    mLastMessageInfoOperationFactory = lastMessageInfoOperationFactory;
     mCommandCreatorMap = new HashMap<String, CommandCreator>(32);
     setupCommands();
   }
@@ -133,7 +137,8 @@ public class SoapParser implements Parser
           mSoapSessionFactory,
           mProvisioning,
           mZimbraContext,
-          mChatProperties
+          mChatProperties,
+          mLastMessageInfoOperationFactory
         );
       }
     });

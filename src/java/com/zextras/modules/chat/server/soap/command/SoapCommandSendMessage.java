@@ -77,13 +77,6 @@ public class SoapCommandSendMessage extends SoapCommand
       message,
       timestamp
     ));
-    operations.add(new SendMessageAck(
-      mSenderAddress,
-      getTargetAddress(),
-      messageId,
-      timestamp,
-      sessionUUID
-    ));
 
     ChatSoapResponse response = new ChatSoapResponse();
     SoapEncoder soapEncoder = new SoapEncoder() {

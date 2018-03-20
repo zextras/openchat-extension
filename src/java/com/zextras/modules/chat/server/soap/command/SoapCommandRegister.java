@@ -43,12 +43,13 @@ import java.util.Map;
 
 public class SoapCommandRegister extends SoapCommand
 {
-  private final SoapResponse       mSoapResponse;
-  private final SoapEncoderFactory mSoapEncoderFactory;
-  private final ChatProperties     mChatProperties;
-  private       SoapSessionFactory mSoapSessionFactory;
-  private final Provisioning       mProvisioning;
-  private final ZimbraContext      mZimbraContext;
+  private final SoapResponse                    mSoapResponse;
+  private final SoapEncoderFactory              mSoapEncoderFactory;
+  private final ChatProperties                  mChatProperties;
+  private final LastMessageInfoOperationFactory mLastMessageInfoFactory;
+  private       SoapSessionFactory              mSoapSessionFactory;
+  private final Provisioning                    mProvisioning;
+  private final ZimbraContext                   mZimbraContext;
 
   public SoapCommandRegister(
     SoapResponse soapResponse,
@@ -58,8 +59,9 @@ public class SoapCommandRegister extends SoapCommand
     SoapSessionFactory soapSessionFactory,
     Provisioning provisioning,
     ZimbraContext zimbraContext,
-    ChatProperties chatProperties
-  )
+    ChatProperties chatProperties,
+    LastMessageInfoOperationFactory lastMessageInfoOperationFactory
+    )
   {
     super(
       senderAddress,
@@ -71,6 +73,7 @@ public class SoapCommandRegister extends SoapCommand
     mProvisioning = provisioning;
     mZimbraContext = zimbraContext;
     mChatProperties = chatProperties;
+    mLastMessageInfoFactory = lastMessageInfoOperationFactory;
   }
 
   public ChatOperation createRegisterSoapSession(
@@ -167,12 +170,15 @@ public class SoapCommandRegister extends SoapCommand
 
     ChatOperation writeUserStatus = createNotifyFriendsStatus();
 
+    ChatOperation lastMessageInfoOperation = mLastMessageInfoFactory.create(mSenderAddress);
+
     return Arrays.<ChatOperation>asList(
       registerSoapSession,
       //sendStatues,
       setStatus,
       sendRelationships,
-      writeUserStatus
+      writeUserStatus,
+      lastMessageInfoOperation
     );
   }
 }

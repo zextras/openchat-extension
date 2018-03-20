@@ -150,6 +150,12 @@ public class XmppEncoderFactoryImpl implements XmppEncoderFactory
   }
 
   @Override
+  public Encoder interpret(EventLastMessageInfo event) throws ChatException
+  {
+    return new EventLastMessageInfoEncoder(event, mSchemaProvider);
+  }
+
+  @Override
   public Encoder interpret(EventBindResult eventBindResult)
   {
     return new EventBindResultEncoder(eventBindResult,mSchemaProvider);

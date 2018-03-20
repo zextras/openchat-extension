@@ -226,4 +226,10 @@ public class EventInterpreterAdapter<T> implements EventInterpreter<T>
   {
     return mDefaultValue;
   }
+
+  @Override
+  public T interpret(EventLastMessageInfo event) throws ChatException
+  {
+    return mDefaultValue;
+  }
 }

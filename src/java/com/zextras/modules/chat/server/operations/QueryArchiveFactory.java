@@ -8,6 +8,7 @@ public interface QueryArchiveFactory
 {
   QueryArchive create(
     @Assisted("senderAddress") SpecificAddress senderAddress,
+    @Assisted("queryId") String queryId,
     @Assisted("with") Optional<String> with,
     @Assisted("start") Optional<Long> start,
     @Assisted("end") Optional<Long> end,

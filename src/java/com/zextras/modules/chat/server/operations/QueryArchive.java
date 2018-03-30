@@ -81,6 +81,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
   @Inject
   public QueryArchive(
     @Assisted("senderAddress") SpecificAddress senderAddress,
+    @Assisted("queryId") String queryId,
     @Assisted("with") Optional<String> with,
     @Assisted("start") Optional<Long> start,
     @Assisted("end") Optional<Long> end,
@@ -107,6 +108,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     mReady = mLock.newCondition();
     mLastMessageId = "";
     mFirstMessageId = "";
+    mQueryid = queryId;
   }
 
   @Override
@@ -114,7 +116,6 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     throws ChatException, ChatDbException
   {
     SpecificAddress localServer = new SpecificAddress(mProvisioning.getLocalServer().getServerHostname());
-    mQueryid = EventId.randomUUID().toString();
 
     if (!mWith.hasValue())
     {

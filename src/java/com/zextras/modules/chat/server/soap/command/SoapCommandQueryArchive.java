@@ -113,6 +113,7 @@ public class SoapCommandQueryArchive extends SoapCommand
 
     ChatOperation sendMessage = mQueryArchiveFactory.create(
       mSenderAddress,
+      queryId.toString(),
       Optional.<String>of(with),
       start,
       end,

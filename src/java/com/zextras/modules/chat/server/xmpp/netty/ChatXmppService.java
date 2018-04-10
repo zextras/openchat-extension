@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
+import com.zextras.modules.chat.server.SSLCipher;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
 import com.zextras.modules.core.services.NettyService;
@@ -69,6 +69,7 @@ public class ChatXmppService implements Runnable, Service
   private final XmppFilterOut                        mXmppFilterOut;
   private final XmppEventFilter                      mXmppEventFilter;
   private final Provisioning                         mProvisioning;
+  private final SSLCipher mSslCipher;
   private       boolean                              mStopped;
   private       Promise<Boolean>                     mInitializationPromise;
   private final ReentrantLock    mLock      = new ReentrantLock();
@@ -86,7 +87,8 @@ public class ChatXmppService implements Runnable, Service
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppFilterOut xmppFilterOut,
     XmppEventFilter xmppEventFilter,
-    Provisioning provisioning
+    Provisioning provisioning,
+    SSLCipher sslCipher
   )
   {
     mEventManager = eventManager;
@@ -99,6 +101,7 @@ public class ChatXmppService implements Runnable, Service
     mXmppFilterOut = xmppFilterOut;
     mXmppEventFilter = xmppEventFilter;
     mProvisioning = provisioning;
+    mSslCipher = sslCipher;
     mStopped = false;
   }
 
@@ -245,6 +248,10 @@ public class ChatXmppService implements Runnable, Service
 
     serverBootstrap.channel(NioServerSocketChannel.class);
 
+    final SSLEngine engine = zimbraSSLContext.createSSLEngine();
+    engine.setUseClientMode(false);
+    mSslCipher.setCiphers(zimbraSSLContext, engine);
+
     ChannelHandler handler = new ChannelInitializer<SocketChannel>(){
       @Override
       public void initChannel(SocketChannel ch) throws Exception
@@ -252,8 +259,6 @@ public class ChatXmppService implements Runnable, Service
         try
         {
           if (oldSSL) {
-            final SSLEngine engine = zimbraSSLContext.createSSLEngine();
-            engine.setUseClientMode(false);
             ch.pipeline().addFirst(null, "SSL", new SslHandler(engine, false));
           }
 
@@ -263,13 +268,13 @@ public class ChatXmppService implements Runnable, Service
             mEventManager,
             ch,
             mSchemaProvider,
-            zimbraSSLContext,
             oldSSL,
             mChatProperties,
             mNettyService,
             mProxyAuthRequestEncoder,
             mXmppEventFilter,
-            mXmppFilterOut
+            mXmppFilterOut,
+            engine
           );
           ch.pipeline().addAfter("SubTagTokenizer", "FirstTags", firstTagsHandler);
         }

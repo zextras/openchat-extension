@@ -47,7 +47,6 @@ import io.netty.channel.DefaultChannelPromise;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.GenericFutureListener;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -58,7 +57,6 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
 {
   private final Channel mSocketChannel;
   private final SchemaProvider mSchemaProvider;
-  private final SSLContext     mSslContext;
   private final boolean        mSsl;
   private final ChatProperties mChatProperties;
 
@@ -67,31 +65,30 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     private final NettyService mNettyService;
     private       Channel      mSocketChannel;
     private final EventManager mEventManager;
-    private final SSLContext   mSSLContext;
     private final ChatProperties mChatProperties;
     private final ProxyAuthRequestEncoder mProxyAuthRequestEncoder;
     private final XmppEventFilter mXmppEventFilter;
     private final XmppFilterOut mXmppFilterOut;
     private boolean mNew = true;
     private XmppSession mSession;
+    private SSLEngine mSSLEngine;
 
 
     public XmppConnectionHandler(
       NettyService nettyService,
       Channel socketChannel,
       EventManager eventManager,
-      SSLContext sslContext,
       boolean ssl,
       ChatProperties chatProperties,
       ProxyAuthRequestEncoder proxyAuthRequestEncoder,
       XmppEventFilter xmppEventFilter,
-      XmppFilterOut xmppFilterOut
+      XmppFilterOut xmppFilterOut,
+      SSLEngine sslEngine
     )
     {
       mNettyService = nettyService;
       mSocketChannel = socketChannel;
       mEventManager = eventManager;
-      mSSLContext = sslContext;
       mChatProperties = chatProperties;
       mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
       mXmppEventFilter = xmppEventFilter;
@@ -105,6 +102,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
         mXmppFilterOut
       );
       mSession.setUsingSSL(ssl);
+      mSSLEngine = sslEngine;
     }
 
     public Channel getSocketChannel()
@@ -167,12 +165,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     public void startTLS(ByteBuf stanza)
     {
       mSession.setUsingSSL(true);
-
-      SSLEngine engine = mSSLContext.createSSLEngine();
-      engine.setUseClientMode(false);
-
       mSocketChannel.pipeline().addFirst(
-        "ssl", new SslHandler(engine, true)
+        "ssl", new SslHandler(mSSLEngine, true)
       );
 
       write(stanza);
@@ -223,7 +217,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
   private final NettyService                         mNettyService;
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
   private final XmppEventFilter                      mXmppEventFilter;
-  private final XmppFilterOut mXmppFilterOut;
+  private final XmppFilterOut                        mXmppFilterOut;
+  private final SSLEngine                            mSslEngine;
   private final XmppHandlerFactory                   mXmppHandlerFactory;
   private final EventManager                         mEventManager;
   private       XmppConnectionHandler                mXmppConnectionHandler;
@@ -233,21 +228,20 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     EventManager eventManager,
     Channel socketChannel,
     SchemaProvider schemaProvider,
-    SSLContext sslContext,
     boolean ssl,
     ChatProperties chatProperties,
     XmppConnectionHandler xmppConnectionHandler,
     NettyService nettyService,
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
-    XmppFilterOut xmppFilterOut
+    XmppFilterOut xmppFilterOut,
+    SSLEngine sslEngine
   )
   {
     mXmppHandlerFactory = xmppHandlerFactory;
     mEventManager = eventManager;
     mSocketChannel = socketChannel;
     mSchemaProvider = schemaProvider;
-    mSslContext = sslContext;
     mSsl = ssl;
     mChatProperties = chatProperties;
     mXmppConnectionHandler = xmppConnectionHandler;
@@ -255,6 +249,7 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
     mXmppEventFilter = xmppEventFilter;
     mXmppFilterOut = xmppFilterOut;
+    mSslEngine = sslEngine;
   }
 
   public StanzaProcessor(
@@ -262,13 +257,13 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     EventManager eventManager,
     Channel socketChannel,
     SchemaProvider schemaProvider,
-    SSLContext sslContext,
     boolean ssl,
     ChatProperties chatProperties,
     NettyService nettyService,
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
-    XmppFilterOut xmppFilterOut
+    XmppFilterOut xmppFilterOut,
+    SSLEngine sslEngine
   )
   {
     this(
@@ -276,24 +271,24 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       eventManager,
       socketChannel,
       schemaProvider,
-      sslContext,
       ssl,
       chatProperties,
       new XmppConnectionHandler(
         nettyService,
         socketChannel,
         eventManager,
-        sslContext,
         ssl,
         chatProperties,
         proxyAuthRequestEncoder,
         xmppEventFilter,
-        xmppFilterOut
+        xmppFilterOut,
+        sslEngine
       ),
       nettyService,
       proxyAuthRequestEncoder,
       xmppEventFilter,
-      xmppFilterOut
+      xmppFilterOut,
+      sslEngine
     );
   }
 
@@ -308,12 +303,12 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       mNettyService,
       channel,
       mEventManager,
-      mSslContext,
       mSsl,
       mChatProperties,
       mProxyAuthRequestEncoder,
       mXmppEventFilter,
-      mXmppFilterOut
+      mXmppFilterOut,
+      mSslEngine
     );
   }
 

@@ -24,23 +24,28 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslHandler;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.io.IOException;
 
 public class LocalXmppConnectionProviderImpl implements LocalXmppConnectionProvider
 {
   private final ZimbraSSLContextProvider mZimbraSSLContextProvider;
+  private final SSLCipher mSslCipher;
 
   @Inject
-  public LocalXmppConnectionProviderImpl(ZimbraSSLContextProvider zimbraSSLContextProvider)
+  public LocalXmppConnectionProviderImpl(
+    ZimbraSSLContextProvider zimbraSSLContextProvider,
+    SSLCipher sslCipher
+  )
   {
     mZimbraSSLContextProvider = zimbraSSLContextProvider;
+    mSslCipher = sslCipher;
   }
 
   @Override
@@ -50,8 +55,10 @@ public class LocalXmppConnectionProviderImpl implements LocalXmppConnectionProvi
       @Override
       protected void initChannel(SocketChannel socketChannel) throws Exception
       {
-        SSLEngine sslEngine = mZimbraSSLContextProvider.get().createSSLEngine();
+        SSLContext sslContext = mZimbraSSLContextProvider.get();
+        SSLEngine sslEngine = sslContext.createSSLEngine();
         sslEngine.setUseClientMode(true);
+        mSslCipher.setCiphers(sslContext,sslEngine);
         SslHandler sslHandler = new SslHandler(sslEngine);
         socketChannel.pipeline().addFirst(
           "ssl",

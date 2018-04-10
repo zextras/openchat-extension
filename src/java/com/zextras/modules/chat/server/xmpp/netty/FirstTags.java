@@ -31,7 +31,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import java.nio.charset.Charset;
 
 public class FirstTags extends ChannelInboundHandlerAdapter
@@ -40,39 +40,39 @@ public class FirstTags extends ChannelInboundHandlerAdapter
   private final EventManager                         mEventManager;
   private final SocketChannel                        mSocketChannel;
   private final SchemaProvider                       mSchemaProvider;
-  private final SSLContext                           mZimbraSSLContext;
   private final boolean                              mSsl;
   private final ChatProperties                       mChatProperties;
   private final NettyService                         mNettyService;
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
   private final XmppEventFilter mXmppEventFilter;
   private final XmppFilterOut mXmppFilterOut;
+  private final SSLEngine mSslEngine;
 
   public FirstTags(
     XmppHandlerFactory xmppHandlerFactory,
     EventManager eventManager,
     SocketChannel socketChannel,
     SchemaProvider schemaProvider,
-    SSLContext zimbraSSLContext,
     boolean ssl,
     ChatProperties chatProperties,
     NettyService nettyService,
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
-    XmppFilterOut xmppFilterOut
+    XmppFilterOut xmppFilterOut,
+    SSLEngine sslEngine
   )
   {
     mXmppHandlerFactory = xmppHandlerFactory;
     mEventManager = eventManager;
     mSocketChannel = socketChannel;
     mSchemaProvider = schemaProvider;
-    mZimbraSSLContext = zimbraSSLContext;
     mSsl = ssl;
     mChatProperties = chatProperties;
     mNettyService = nettyService;
     mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
     mXmppEventFilter = xmppEventFilter;
     mXmppFilterOut = xmppFilterOut;
+    mSslEngine = sslEngine;
   }
 
   @Override
@@ -104,13 +104,13 @@ public class FirstTags extends ChannelInboundHandlerAdapter
             mEventManager,
             mSocketChannel,
             mSchemaProvider,
-            mZimbraSSLContext,
             mSsl,
             mChatProperties,
             mNettyService,
             mProxyAuthRequestEncoder,
             mXmppEventFilter,
-            mXmppFilterOut
+            mXmppFilterOut,
+            mSslEngine
           )
         );
         ctx.fireChannelRead(xmlTag);

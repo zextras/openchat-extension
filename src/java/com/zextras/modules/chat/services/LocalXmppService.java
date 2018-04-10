@@ -24,6 +24,7 @@ import com.zextras.lib.activities.ThreadSlot;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.LocalXmppReceiver;
+import com.zextras.modules.chat.server.SSLCipher;
 import com.zextras.modules.chat.server.xmpp.netty.XmlSubTagTokenizer;
 import com.zextras.modules.chat.server.xmpp.netty.XmlTagTokenizer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -43,6 +44,7 @@ import io.netty.util.concurrent.DefaultProgressivePromise;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import org.openzal.zal.Utils;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -56,6 +58,7 @@ public class LocalXmppService implements Runnable, Service
   private final ZimbraSSLContextProvider        mZimbraSSLContextProvider;
   private final ActivityManager mActivityManager;
   private final LocalXmppReceiver mLocalXmppReceiver;
+  private final SSLCipher mSslCipher;
   private       boolean           mStopRequested;
   private final Condition         mWaitStopRequest;
 
@@ -63,12 +66,14 @@ public class LocalXmppService implements Runnable, Service
   public LocalXmppService(
     ZimbraSSLContextProvider zimbraSSLContextProvider,
     ActivityManager activityManager,
-    LocalXmppReceiver localXmppReceiver
+    LocalXmppReceiver localXmppReceiver,
+    SSLCipher sslCipher
   )
   {
     mZimbraSSLContextProvider = zimbraSSLContextProvider;
     mActivityManager = activityManager;
     mLocalXmppReceiver = localXmppReceiver;
+    mSslCipher = sslCipher;
     mStopRequested = false;
     mLock = new ReentrantLock();
     mWaitStopRequest = mLock.newCondition();
@@ -128,14 +133,16 @@ public class LocalXmppService implements Runnable, Service
       ServerBootstrap bootstrap = new ServerBootstrap();
       bootstrap.group(acceptorGroup, channelWorkerGroup);
       bootstrap.channel(NioServerSocketChannel.class);
+      SSLContext sslContext = mZimbraSSLContextProvider.get();
+      final SSLEngine sslEngine = sslContext.createSSLEngine();
+      sslEngine.setUseClientMode(false);
+      mSslCipher.setCiphers(sslContext,sslEngine);
       ChannelHandler handler = new ChannelInitializer<SocketChannel>() {
         @Override
         protected void initChannel(SocketChannel ch) throws Exception
         {
           try
           {
-            SSLEngine sslEngine = mZimbraSSLContextProvider.get().createSSLEngine();
-            sslEngine.setUseClientMode(false);
             SslHandler sslHandler = new SslHandler(sslEngine);
             ch.pipeline().addFirst("ssl", sslHandler);
             ch.pipeline().addLast(null, "SubTagTokenizer", new XmlSubTagTokenizer());

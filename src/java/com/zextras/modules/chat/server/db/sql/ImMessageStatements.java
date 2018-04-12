@@ -279,9 +279,9 @@ public class ImMessageStatements
           EventType.fromShort(rs.getShort(i++)),
           TargetType.fromShort(rs.getShort(i++)),
           rs.getShort(i++),
+          mSubdomainResolver.toRoomAddress(rs.getString(i++)).resourceAddress(),
+          mSubdomainResolver.toRoomAddress(rs.getString(i++)).resourceAddress(),
           rs.getString(i++),
-          mSubdomainResolver.toRoomAddress(rs.getString(i++)).resourceAddress(),
-          mSubdomainResolver.toRoomAddress(rs.getString(i++)).resourceAddress(),
           rs.getString(i++),
           rs.getString(i++)
         ));

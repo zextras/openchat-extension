@@ -214,8 +214,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         @Override
         public int compare(EventMessageHistory m1, EventMessageHistory m2)
         {
-          long delta = m2.getOriginalMessage().getTimestamp() - m1.getOriginalMessage().getTimestamp();
-          return (int) delta; // TODO: edit timestamp
+          return Long.compare(m2.getOriginalMessage().getTimestamp(), m1.getOriginalMessage().getTimestamp());
         }
       });
 

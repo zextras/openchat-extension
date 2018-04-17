@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.xmpp.netty;
 
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
+import com.zextras.modules.chat.server.SSLCipher;
 import com.zextras.modules.chat.server.events.EventQueue;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
@@ -47,6 +48,7 @@ import io.netty.channel.DefaultChannelPromise;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.GenericFutureListener;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -69,9 +71,10 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     private final ProxyAuthRequestEncoder mProxyAuthRequestEncoder;
     private final XmppEventFilter mXmppEventFilter;
     private final XmppFilterOut mXmppFilterOut;
+    private final SSLContext mZimbraSSLContext;
+    private final SSLCipher mSslCipher;
     private boolean mNew = true;
     private XmppSession mSession;
-    private SSLEngine mSSLEngine;
 
 
     public XmppConnectionHandler(
@@ -83,7 +86,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       ProxyAuthRequestEncoder proxyAuthRequestEncoder,
       XmppEventFilter xmppEventFilter,
       XmppFilterOut xmppFilterOut,
-      SSLEngine sslEngine
+      SSLContext zimbraSSLContext,
+      SSLCipher sslCipher
     )
     {
       mNettyService = nettyService;
@@ -93,6 +97,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
       mXmppEventFilter = xmppEventFilter;
       mXmppFilterOut = xmppFilterOut;
+      mZimbraSSLContext = zimbraSSLContext;
+      mSslCipher = sslCipher;
       mSession = new AnonymousXmppSession(
         SessionUUID.randomUUID(),
         new EventQueue(),
@@ -102,7 +108,6 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
         mXmppFilterOut
       );
       mSession.setUsingSSL(ssl);
-      mSSLEngine = sslEngine;
     }
 
     public Channel getSocketChannel()
@@ -164,9 +169,13 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
 
     public void startTLS(ByteBuf stanza)
     {
+      SSLEngine engine = mZimbraSSLContext.createSSLEngine();
+      engine.setUseClientMode(false);
+      mSslCipher.setCiphers(mZimbraSSLContext, engine);
+
       mSession.setUsingSSL(true);
       mSocketChannel.pipeline().addFirst(
-        "ssl", new SslHandler(mSSLEngine, true)
+        "ssl", new SslHandler(engine, true)
       );
 
       write(stanza);
@@ -218,7 +227,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
   private final XmppEventFilter                      mXmppEventFilter;
   private final XmppFilterOut                        mXmppFilterOut;
-  private final SSLEngine                            mSslEngine;
+  private final SSLContext mSslContext;
+  private final SSLCipher mSslCipher;
   private final XmppHandlerFactory                   mXmppHandlerFactory;
   private final EventManager                         mEventManager;
   private       XmppConnectionHandler                mXmppConnectionHandler;
@@ -235,7 +245,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
     XmppFilterOut xmppFilterOut,
-    SSLEngine sslEngine
+    SSLContext sslContext,
+    SSLCipher sslCipher
   )
   {
     mXmppHandlerFactory = xmppHandlerFactory;
@@ -249,7 +260,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
     mXmppEventFilter = xmppEventFilter;
     mXmppFilterOut = xmppFilterOut;
-    mSslEngine = sslEngine;
+    mSslContext = sslContext;
+    mSslCipher = sslCipher;
   }
 
   public StanzaProcessor(
@@ -263,7 +275,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
     XmppFilterOut xmppFilterOut,
-    SSLEngine sslEngine
+    SSLContext sslContext,
+    SSLCipher sslCipher
   )
   {
     this(
@@ -282,13 +295,15 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
         proxyAuthRequestEncoder,
         xmppEventFilter,
         xmppFilterOut,
-        sslEngine
+        sslContext,
+        sslCipher
       ),
       nettyService,
       proxyAuthRequestEncoder,
       xmppEventFilter,
       xmppFilterOut,
-      sslEngine
+      sslContext,
+      sslCipher
     );
   }
 
@@ -308,7 +323,8 @@ public class StanzaProcessor extends ChannelInboundHandlerAdapter
       mProxyAuthRequestEncoder,
       mXmppEventFilter,
       mXmppFilterOut,
-      mSslEngine
+      mSslContext,
+      mSslCipher
     );
   }
 

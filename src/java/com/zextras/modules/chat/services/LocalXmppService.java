@@ -133,16 +133,16 @@ public class LocalXmppService implements Runnable, Service
       ServerBootstrap bootstrap = new ServerBootstrap();
       bootstrap.group(acceptorGroup, channelWorkerGroup);
       bootstrap.channel(NioServerSocketChannel.class);
-      SSLContext sslContext = mZimbraSSLContextProvider.get();
-      final SSLEngine sslEngine = sslContext.createSSLEngine();
-      sslEngine.setUseClientMode(false);
-      mSslCipher.setCiphers(sslContext,sslEngine);
+      final SSLContext sslContext = mZimbraSSLContextProvider.get();
       ChannelHandler handler = new ChannelInitializer<SocketChannel>() {
         @Override
         protected void initChannel(SocketChannel ch) throws Exception
         {
           try
           {
+            final SSLEngine sslEngine = sslContext.createSSLEngine();
+            sslEngine.setUseClientMode(false);
+            mSslCipher.setCiphers(sslContext,sslEngine);
             SslHandler sslHandler = new SslHandler(sslEngine);
             ch.pipeline().addFirst("ssl", sslHandler);
             ch.pipeline().addLast(null, "SubTagTokenizer", new XmlSubTagTokenizer());

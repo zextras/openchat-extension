@@ -248,10 +248,6 @@ public class ChatXmppService implements Runnable, Service
 
     serverBootstrap.channel(NioServerSocketChannel.class);
 
-    final SSLEngine engine = zimbraSSLContext.createSSLEngine();
-    engine.setUseClientMode(false);
-    mSslCipher.setCiphers(zimbraSSLContext, engine);
-
     ChannelHandler handler = new ChannelInitializer<SocketChannel>(){
       @Override
       public void initChannel(SocketChannel ch) throws Exception
@@ -259,6 +255,9 @@ public class ChatXmppService implements Runnable, Service
         try
         {
           if (oldSSL) {
+            SSLEngine engine = zimbraSSLContext.createSSLEngine();
+            engine.setUseClientMode(false);
+            mSslCipher.setCiphers(zimbraSSLContext, engine);
             ch.pipeline().addFirst(null, "SSL", new SslHandler(engine, false));
           }
 
@@ -274,7 +273,8 @@ public class ChatXmppService implements Runnable, Service
             mProxyAuthRequestEncoder,
             mXmppEventFilter,
             mXmppFilterOut,
-            engine
+            zimbraSSLContext,
+            mSslCipher
           );
           ch.pipeline().addAfter("SubTagTokenizer", "FirstTags", firstTagsHandler);
         }

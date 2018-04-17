@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.xmpp.netty;
 
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
+import com.zextras.modules.chat.server.SSLCipher;
 import com.zextras.modules.chat.server.xmpp.XmppEventFilter;
 import com.zextras.modules.chat.server.xmpp.XmppFilterOut;
 import com.zextras.modules.core.services.NettyService;
@@ -31,7 +32,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 
-import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLContext;
 import java.nio.charset.Charset;
 
 public class FirstTags extends ChannelInboundHandlerAdapter
@@ -46,7 +47,8 @@ public class FirstTags extends ChannelInboundHandlerAdapter
   private final ProxyAuthRequestEncoder              mProxyAuthRequestEncoder;
   private final XmppEventFilter mXmppEventFilter;
   private final XmppFilterOut mXmppFilterOut;
-  private final SSLEngine mSslEngine;
+  private final SSLContext mSslContext;
+  private final SSLCipher mSslCipher;
 
   public FirstTags(
     XmppHandlerFactory xmppHandlerFactory,
@@ -59,7 +61,8 @@ public class FirstTags extends ChannelInboundHandlerAdapter
     ProxyAuthRequestEncoder proxyAuthRequestEncoder,
     XmppEventFilter xmppEventFilter,
     XmppFilterOut xmppFilterOut,
-    SSLEngine sslEngine
+    SSLContext sslContext,
+    SSLCipher sslCipher
   )
   {
     mXmppHandlerFactory = xmppHandlerFactory;
@@ -72,7 +75,8 @@ public class FirstTags extends ChannelInboundHandlerAdapter
     mProxyAuthRequestEncoder = proxyAuthRequestEncoder;
     mXmppEventFilter = xmppEventFilter;
     mXmppFilterOut = xmppFilterOut;
-    mSslEngine = sslEngine;
+    mSslContext = sslContext;
+    mSslCipher = sslCipher;
   }
 
   @Override
@@ -110,7 +114,8 @@ public class FirstTags extends ChannelInboundHandlerAdapter
             mProxyAuthRequestEncoder,
             mXmppEventFilter,
             mXmppFilterOut,
-            mSslEngine
+            mSslContext,
+            mSslCipher
           )
         );
         ctx.fireChannelRead(xmlTag);

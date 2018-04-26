@@ -130,7 +130,7 @@ public class ChatXmppService implements Runnable, Service
     }
     catch (BindException ex)
     {
-      throw new Service.ServiceStartException("Cannot bind to ports 5222 and 5223: please make sure that no other process is bound to such ports in order to use any ZeXtras Chat XMPP feature.", ex);
+      throw new Service.ServiceStartException("Cannot bind to ports 5222 and 5223: please make sure that no other process is bound to such ports.", ex);
     }
     catch (Throwable ex)
     {

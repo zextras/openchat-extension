@@ -17,6 +17,8 @@
 
 package com.zextras.modules.chat.server.address;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
 import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
@@ -25,6 +27,7 @@ import com.zextras.modules.chat.server.dispatch.Dispatcher;
 import com.zextras.modules.chat.server.dispatch.SpecificDispatcher;
 import org.jetbrains.annotations.NotNull;
 
+@JsonSerialize(using = ToStringSerializer.class)
 public class SpecificAddress implements ChatAddress
 {
   protected final String mAddress;

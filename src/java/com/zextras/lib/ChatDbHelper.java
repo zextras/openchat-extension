@@ -8,6 +8,7 @@ import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.dbutils.DbUtils;
 import org.openzal.zal.Utils;
 
+import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +24,7 @@ public class ChatDbHelper
     mDbHandler = dbHandler;
   }
 
-  public static class DbConnection
+  public static class DbConnection implements Closeable
   {
     private java.sql.Connection mConnection;
     private Boolean mOldAutoCommitState;
@@ -122,6 +123,26 @@ public class ChatDbHelper
     return dbConnection;
   }
 
+  // No transaction is started
+  public DbConnection beginConnection() throws SQLException
+  {
+    return new DbConnection(mDbHandler.getConnection());
+  }
+
+  public void rollbackAndClose(DbConnection connection)
+  {
+    if (connection != null)
+    {
+      try
+      {
+        connection.rollbackAndClose();
+      }
+      catch( SQLException e )
+      {
+      }
+    }
+  }
+
   public void query(String sql, ResultSetFactory rsFactory) throws SQLException
   {
     query(sql, new NoParameters() ,rsFactory);
@@ -184,6 +205,11 @@ public class ChatDbHelper
       DbUtils.closeQuietly(rs);
       DbUtils.closeQuietly(statement);
     }
+  }
+  // begin and close transaction
+  public int executeTransactionQuery(String query) throws SQLException
+  {
+    return executeTransactionQuery(query,new NoParameters());
   }
 
   // begin and close transaction

@@ -7,6 +7,7 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.dbutils.DbUtils;
 import org.openzal.zal.Utils;
+import org.openzal.zal.log.ZimbraLog;
 
 import java.io.Closeable;
 import java.sql.Connection;
@@ -139,6 +140,7 @@ public class ChatDbHelper
       }
       catch( SQLException e )
       {
+        ChatLog.log.err(Utils.exceptionToString(e));
       }
     }
   }

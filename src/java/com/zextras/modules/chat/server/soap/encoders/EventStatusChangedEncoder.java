@@ -50,7 +50,12 @@ public class EventStatusChangedEncoder implements SoapEncoder
     message.put("group", mEvent.getType().toString());
 
     message.put("validSince", mEvent.getStatus().validSince());
-    message.put("meetings", new JSONArray(mEvent.getStatus().meetings()));
+    JSONArray meetings = new JSONArray();
+    for (SpecificAddress address:mEvent.getStatus().meetings())
+    {
+      meetings.put(address.withoutResource().toString());
+    }
+    message.put("meetings", meetings);
 
     response.addResponse(message);
   }

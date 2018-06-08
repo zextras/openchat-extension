@@ -102,7 +102,7 @@ busy: dnd
       for (SpecificAddress meeting : mEvent.getStatus().meetings())
       {
         sw.writeStartElement("meeting");
-        sw.writeAttribute("jid", meeting.toString());
+        sw.writeAttribute("jid", meeting.withoutResource().toString());
         sw.writeEndElement();
       }
       sw.writeEndElement();

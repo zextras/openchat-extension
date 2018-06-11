@@ -25,7 +25,7 @@ public class OpenchatVersion implements ChatVersion
   @Override
   public Version getServerChatVersion()
   {
-    return new Version(2, 2);
+    return new Version(2, 3);
   }
 
   @Override

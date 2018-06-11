@@ -152,7 +152,7 @@ public class SetStatus implements ChatOperation
     final Event statusChangedForFriends = new EventStatusChanged(
       from,
       new Target(new FriendsAddress(from)),
-      statusForFriends.withoutMeetings()
+      statusForFriends
     );
 
     final Event statusChangedForMyself = new EventStatusChanged(

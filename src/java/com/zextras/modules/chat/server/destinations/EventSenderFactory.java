@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.destinations;
 
 import com.google.inject.Inject;
+import com.zextras.lib.activities.ActivityManager;
 import com.zextras.modules.chat.server.DestinationQueue;
 import com.zextras.modules.chat.server.EventSender;
 import com.zextras.modules.chat.server.EventSenderImpl;
@@ -26,34 +27,34 @@ import org.openzal.zal.Provisioning;
 
 public class EventSenderFactory
 {
-  private final Provisioning mProvisioning;
   private final LocalXmppConnectionProvider mLocalXmppConnectionProvider;
   private final int mSteps;
+  private final ActivityManager mActivityManager;
 
   @Inject
   public EventSenderFactory(
-    Provisioning provisioning,
-    LocalXmppConnectionProvider localXmppConnectionProvider
+    LocalXmppConnectionProvider localXmppConnectionProvider,
+    ActivityManager activityManager
   )
   {
-    this(provisioning, localXmppConnectionProvider, 0);
+    this(activityManager, localXmppConnectionProvider, 0);
   }
 
   public EventSenderFactory(
-    Provisioning provisioning,
+    ActivityManager activityManager,
     LocalXmppConnectionProvider localXmppConnectionProvider,
     int steps
   )
   {
-    mProvisioning = provisioning;
     mLocalXmppConnectionProvider = localXmppConnectionProvider;
     mSteps = steps;
+    mActivityManager = activityManager;
   }
 
   public EventSender createEventSender(DestinationQueue destinationQueue)
   {
     return new EventSenderImpl(
-      mProvisioning,
+      mActivityManager,
       mLocalXmppConnectionProvider,
       destinationQueue,
       mSteps

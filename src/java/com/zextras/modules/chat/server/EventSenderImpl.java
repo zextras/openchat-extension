@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server;
 
+import com.zextras.lib.activities.ActivityManager;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.destinations.LocalServerDestination;
 import com.zextras.modules.core.netty.EventLoopGroupProvider;
@@ -36,23 +37,23 @@ import java.nio.charset.Charset;
 
 public class EventSenderImpl implements EventSender, Runnable
 {
-  private final    Provisioning                mProvisioning;
   private final    LocalXmppConnectionProvider mLocalXmppConnectionProvider;
   private final    DestinationQueue            mDestinationQueue;
   private final    int                         mSteps;
   private final    String                      mHost;
+  private final    ActivityManager             mActivityManager;
   private          Channel                     mChannel;
   private volatile boolean                     mRequestStop;
-  private          Thread                      mThread;
+
 
   public EventSenderImpl(
-    Provisioning provisioning,
+    ActivityManager activityManager,
     LocalXmppConnectionProvider localXmppConnectionProvider,
     DestinationQueue destinationQueue,
     int steps
   )
   {
-    mProvisioning = provisioning;
+    mActivityManager = activityManager;
     mLocalXmppConnectionProvider = localXmppConnectionProvider;
     mDestinationQueue = destinationQueue;
     mSteps = steps;
@@ -141,11 +142,14 @@ public class EventSenderImpl implements EventSender, Runnable
     }
     catch (Throwable e)
     {
-      if (queuedEvent.getRetryCount() >= 15)
+      if (queuedEvent.getRetryCount() > 10)
       {
         saveOnDisk(queuedEvent);
       }
-      mDestinationQueue.addEvent(queuedEvent);
+      else
+      {
+        mDestinationQueue.addEvent(queuedEvent);
+      }
       try
       {
         Thread.sleep( 1000L );
@@ -157,24 +161,18 @@ public class EventSenderImpl implements EventSender, Runnable
 
   @Override
   public void saveOnDisk(QueuedEvent queuedEvent) {
-    //TODO
+    ChatLog.log.err("EventSender: failed to send event : " + queuedEvent.getEvent().getClass().getName()
+      + " to " + queuedEvent.getRecipient().resourceAddress());
   }
 
   @Override
   public void success(QueuedEvent queuedEvent) {
-    //TODO
   }
 
   @Override
   public void start()
   {
-    if ( mThread != null )
-    {
-      throw new RuntimeException("Invalid Thread state");
-    }
-    mRequestStop = false;
-    mThread = new Thread(this);
-    mThread.start();
+    mActivityManager.addActivity(this);
   }
 
   @Override
@@ -188,12 +186,6 @@ public class EventSenderImpl implements EventSender, Runnable
         throw new RuntimeException(future.cause());
       }
     }
-    if ( mThread == null )
-    {
-      throw new RuntimeException("Invalid Thread state");
-    }
     mRequestStop = true;
-    mThread.interrupt();
-    mThread = null;
   }
 }

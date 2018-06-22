@@ -26,6 +26,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import org.openzal.zal.Provisioning;
+import org.openzal.zal.Utils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
@@ -63,24 +64,35 @@ public class EventSenderImpl implements EventSender, Runnable
   @Override
   public void run()
   {
+    Thread.currentThread().setName("EventSender " + mHost);
     int c = 0;
     while ((mSteps == 0 || c < mSteps) && !mRequestStop)
     {
-      c++;
-      QueuedEvent queuedEvent;
-      try {
-        queuedEvent = mDestinationQueue.getQueuedEvent();
-      } catch (InterruptedException e) {
-        continue;
-      }
-      if (queuedEvent.getNextRetry() > System.currentTimeMillis())
+      try
       {
-        mDestinationQueue.addEvent(queuedEvent);
-        continue;
+        c++;
+        QueuedEvent queuedEvent;
+        try
+        {
+          queuedEvent = mDestinationQueue.getQueuedEvent();
+        }
+        catch (InterruptedException e)
+        {
+          continue;
+        }
+        if (queuedEvent.getNextRetry() > System.currentTimeMillis())
+        {
+          mDestinationQueue.addEvent(queuedEvent);
+          continue;
+        }
+        ChatLog.log.debug("EventSender: deliverEvent: " + queuedEvent.getEvent().getClass().getName()
+                            + " to " + queuedEvent.getRecipient().resourceAddress());
+        sendEvent(queuedEvent);
       }
-      ChatLog.log.debug("EventSender: deliverEvent: " + queuedEvent.getEvent().getClass().getName()
-        + " to " + queuedEvent.getRecipient().resourceAddress());
-      sendEvent(queuedEvent);
+      catch (Throwable t)
+      {
+        ChatLog.log.crit(Utils.exceptionToString(t));
+      }
     }
   }
 

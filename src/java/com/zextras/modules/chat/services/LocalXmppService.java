@@ -46,6 +46,7 @@ import org.openzal.zal.Utils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,9 +60,8 @@ public class LocalXmppService implements Runnable, Service
   private final ActivityManager mActivityManager;
   private final LocalXmppReceiver mLocalXmppReceiver;
   private final SSLCipher mSslCipher;
-  private       boolean           mStopRequested;
-  private final Condition         mWaitStopRequest;
-  private final Condition mWaitStopExecution;
+  private       AtomicBoolean mStopRequested;
+  private final Condition mWaitStopRequest;
 
   @Inject
   public LocalXmppService(
@@ -75,10 +75,9 @@ public class LocalXmppService implements Runnable, Service
     mActivityManager = activityManager;
     mLocalXmppReceiver = localXmppReceiver;
     mSslCipher = sslCipher;
-    mStopRequested = false;
+    mStopRequested = new AtomicBoolean(false);
     mLock = new ReentrantLock();
     mWaitStopRequest = mLock.newCondition();
-    mWaitStopExecution = mLock.newCondition();
   }
 
   @Override
@@ -113,7 +112,7 @@ public class LocalXmppService implements Runnable, Service
     mLock.lock();
     try
     {
-      mStopRequested = true;
+      mStopRequested.set(true);
       mWaitStopRequest.signalAll();
     }
     finally
@@ -169,9 +168,9 @@ public class LocalXmppService implements Runnable, Service
       mLock.lock();
       try
       {
-        while (mStopRequested)
+        while (mStopRequested.get())
         {
-          mWaitStopExecution.await();
+          Thread.yield();
         }
       }
       finally
@@ -203,7 +202,7 @@ public class LocalXmppService implements Runnable, Service
     mLock.lock();
     try
     {
-      while (!mStopRequested)
+      while (!mStopRequested.get())
       {
         try
         {
@@ -216,7 +215,7 @@ public class LocalXmppService implements Runnable, Service
 
       acceptorGroup.shutdownGracefully().sync();
       channelWorkerGroup.shutdownGracefully().sync();
-      mStopRequested = false;
+      mStopRequested.set(false);
     }
     catch (InterruptedException ignored) {}
     finally

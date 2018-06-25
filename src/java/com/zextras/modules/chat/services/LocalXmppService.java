@@ -20,7 +20,6 @@ package com.zextras.modules.chat.services;
 import com.google.inject.Inject;
 import com.zextras.lib.ZimbraSSLContextProvider;
 import com.zextras.lib.activities.ActivityManager;
-import com.zextras.lib.activities.ThreadSlot;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.LocalXmppReceiver;
@@ -154,6 +153,12 @@ public class LocalXmppService implements Runnable, Service
               public void channelRead(ChannelHandlerContext ctx, Object msg)
               {
                 mLocalXmppReceiver.processStanza((String) msg);
+              }
+              @Override
+              public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+              {
+                ChatLog.log.err("[RCV] Connection error from " + ctx.channel().localAddress() + " to " + ctx.channel().remoteAddress() + " connection status: " + (ctx.channel().isOpen() ? "Open":"Close") + ". Exception : " + Utils.exceptionToString(cause));
+                ctx.close();
               }
             });
           }

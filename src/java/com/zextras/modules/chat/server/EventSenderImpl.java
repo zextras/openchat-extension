@@ -20,19 +20,14 @@ package com.zextras.modules.chat.server;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.destinations.LocalServerDestination;
-import com.zextras.modules.core.netty.EventLoopGroupProvider;
-import com.zextras.modules.core.services.NettyService;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
-import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.charset.Charset;
 
 public class EventSenderImpl implements EventSender, Runnable

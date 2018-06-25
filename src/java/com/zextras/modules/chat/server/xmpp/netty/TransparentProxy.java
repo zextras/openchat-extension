@@ -229,7 +229,7 @@ public class TransparentProxy
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
     {
-      ChatLog.log.err(Utils.exceptionToString(cause));
+      ChatLog.log.err("[RCV] Connection error from " + ctx.channel().localAddress() + " to " + ctx.channel().remoteAddress() + " connection status: " + (ctx.channel().isOpen() ? "Open":"Close") + ". Exception : " + Utils.exceptionToString(cause));
 
       ctx.close();
       mDestinationChannel.close();

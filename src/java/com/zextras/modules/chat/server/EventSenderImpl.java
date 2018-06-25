@@ -152,7 +152,8 @@ public class EventSenderImpl implements EventSender, Runnable
       }
       try
       {
-        Thread.sleep( 1000L );
+        // in order to wait 1 hour to retry 10 times (if queue is empty)
+        Thread.sleep( (long) Math.pow(4.5, queuedEvent.getRetryCount()) );
       }
       catch (InterruptedException ignore){
       }

@@ -61,6 +61,7 @@ public class LocalXmppService implements Runnable, Service
   private final SSLCipher mSslCipher;
   private       boolean           mStopRequested;
   private final Condition         mWaitStopRequest;
+  private final Condition mWaitStopExecution;
 
   @Inject
   public LocalXmppService(
@@ -77,6 +78,7 @@ public class LocalXmppService implements Runnable, Service
     mStopRequested = false;
     mLock = new ReentrantLock();
     mWaitStopRequest = mLock.newCondition();
+    mWaitStopExecution = mLock.newCondition();
   }
 
   @Override
@@ -164,7 +166,21 @@ public class LocalXmppService implements Runnable, Service
         }
       };
 
+      mLock.lock();
+      try
+      {
+        while (mStopRequested)
+        {
+          mWaitStopExecution.await();
+        }
+      }
+      finally
+      {
+        mLock.unlock();
+      }
+
       ChannelFuture channelFuture = bootstrap.childHandler(handler)
+        .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_BACKLOG, 128)
         .childOption(ChannelOption.SO_KEEPALIVE, true)
         .childOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 0)
@@ -200,6 +216,7 @@ public class LocalXmppService implements Runnable, Service
 
       acceptorGroup.shutdownGracefully().sync();
       channelWorkerGroup.shutdownGracefully().sync();
+      mStopRequested = false;
     }
     catch (InterruptedException ignored) {}
     finally

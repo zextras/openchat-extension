@@ -20,7 +20,6 @@ package com.zextras.modules.chat.services;
 import com.google.inject.Inject;
 import com.zextras.lib.ZimbraSSLContextProvider;
 import com.zextras.lib.activities.ActivityManager;
-import com.zextras.lib.activities.ThreadSlot;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.LocalXmppReceiver;
@@ -46,6 +45,7 @@ import org.openzal.zal.Utils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,8 +59,8 @@ public class LocalXmppService implements Runnable, Service
   private final ActivityManager mActivityManager;
   private final LocalXmppReceiver mLocalXmppReceiver;
   private final SSLCipher mSslCipher;
-  private       boolean           mStopRequested;
-  private final Condition         mWaitStopRequest;
+  private       AtomicBoolean mStopRequested;
+  private final Condition mWaitStopRequest;
 
   @Inject
   public LocalXmppService(
@@ -74,7 +74,7 @@ public class LocalXmppService implements Runnable, Service
     mActivityManager = activityManager;
     mLocalXmppReceiver = localXmppReceiver;
     mSslCipher = sslCipher;
-    mStopRequested = false;
+    mStopRequested = new AtomicBoolean(false);
     mLock = new ReentrantLock();
     mWaitStopRequest = mLock.newCondition();
   }
@@ -111,7 +111,7 @@ public class LocalXmppService implements Runnable, Service
     mLock.lock();
     try
     {
-      mStopRequested = true;
+      mStopRequested.set(true);
       mWaitStopRequest.signalAll();
     }
     finally
@@ -154,6 +154,12 @@ public class LocalXmppService implements Runnable, Service
               {
                 mLocalXmppReceiver.processStanza((String) msg);
               }
+              @Override
+              public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+              {
+                ChatLog.log.err("[RCV] Connection error from " + ctx.channel().localAddress() + " to " + ctx.channel().remoteAddress() + " connection status: " + (ctx.channel().isOpen() ? "Open":"Close") + ". Exception : " + Utils.exceptionToString(cause));
+                ctx.close();
+              }
             });
           }
           catch ( Throwable t )
@@ -164,7 +170,21 @@ public class LocalXmppService implements Runnable, Service
         }
       };
 
+      mLock.lock();
+      try
+      {
+        while (mStopRequested.get())
+        {
+          Thread.yield();
+        }
+      }
+      finally
+      {
+        mLock.unlock();
+      }
+
       ChannelFuture channelFuture = bootstrap.childHandler(handler)
+        .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_BACKLOG, 128)
         .childOption(ChannelOption.SO_KEEPALIVE, true)
         .childOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 0)
@@ -187,7 +207,7 @@ public class LocalXmppService implements Runnable, Service
     mLock.lock();
     try
     {
-      while (!mStopRequested)
+      while (!mStopRequested.get())
       {
         try
         {
@@ -200,6 +220,7 @@ public class LocalXmppService implements Runnable, Service
 
       acceptorGroup.shutdownGracefully().sync();
       channelWorkerGroup.shutdownGracefully().sync();
+      mStopRequested.set(false);
     }
     catch (InterruptedException ignored) {}
     finally

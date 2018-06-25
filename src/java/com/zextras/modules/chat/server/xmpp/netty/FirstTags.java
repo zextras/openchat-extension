@@ -132,7 +132,7 @@ public class FirstTags extends ChannelInboundHandlerAdapter
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
   { // (4)
-    ChatLog.log.warn("exceptionCaught: " + Utils.exceptionToString(cause));
-    ctx.close();
+      ChatLog.log.err("[RCV] Connection error from " + ctx.channel().localAddress() + " to " + ctx.channel().remoteAddress() + " connection status: " + (ctx.channel().isOpen() ? "Open":"Close") + ". Exception : " + Utils.exceptionToString(cause));
+      ctx.close();
   }
 }

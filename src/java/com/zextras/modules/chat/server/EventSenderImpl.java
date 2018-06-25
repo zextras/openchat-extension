@@ -17,41 +17,38 @@
 
 package com.zextras.modules.chat.server;
 
+import com.zextras.lib.activities.ActivityManager;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.destinations.LocalServerDestination;
-import com.zextras.modules.core.netty.EventLoopGroupProvider;
-import com.zextras.modules.core.services.NettyService;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
-import org.openzal.zal.Provisioning;
+import org.openzal.zal.Utils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.charset.Charset;
 
 public class EventSenderImpl implements EventSender, Runnable
 {
-  private final    Provisioning                mProvisioning;
   private final    LocalXmppConnectionProvider mLocalXmppConnectionProvider;
   private final    DestinationQueue            mDestinationQueue;
   private final    int                         mSteps;
   private final    String                      mHost;
+  private final    ActivityManager             mActivityManager;
   private          Channel                     mChannel;
   private volatile boolean                     mRequestStop;
-  private          Thread                      mThread;
+
 
   public EventSenderImpl(
-    Provisioning provisioning,
+    ActivityManager activityManager,
     LocalXmppConnectionProvider localXmppConnectionProvider,
     DestinationQueue destinationQueue,
     int steps
   )
   {
-    mProvisioning = provisioning;
+    mActivityManager = activityManager;
     mLocalXmppConnectionProvider = localXmppConnectionProvider;
     mDestinationQueue = destinationQueue;
     mSteps = steps;
@@ -63,24 +60,35 @@ public class EventSenderImpl implements EventSender, Runnable
   @Override
   public void run()
   {
+    Thread.currentThread().setName("EventSender " + mHost);
     int c = 0;
     while ((mSteps == 0 || c < mSteps) && !mRequestStop)
     {
-      c++;
-      QueuedEvent queuedEvent;
-      try {
-        queuedEvent = mDestinationQueue.getQueuedEvent();
-      } catch (InterruptedException e) {
-        continue;
-      }
-      if (queuedEvent.getNextRetry() > System.currentTimeMillis())
+      try
       {
-        mDestinationQueue.addEvent(queuedEvent);
-        continue;
+        c++;
+        QueuedEvent queuedEvent;
+        try
+        {
+          queuedEvent = mDestinationQueue.getQueuedEvent();
+        }
+        catch (InterruptedException e)
+        {
+          continue;
+        }
+        if (queuedEvent.getNextRetry() > System.currentTimeMillis())
+        {
+          mDestinationQueue.addEvent(queuedEvent);
+          continue;
+        }
+        ChatLog.log.debug("EventSender: deliverEvent: " + queuedEvent.getEvent().getClass().getName()
+                            + " to " + queuedEvent.getRecipient().resourceAddress());
+        sendEvent(queuedEvent);
       }
-      ChatLog.log.debug("EventSender: deliverEvent: " + queuedEvent.getEvent().getClass().getName()
-        + " to " + queuedEvent.getRecipient().resourceAddress());
-      sendEvent(queuedEvent);
+      catch (Throwable t)
+      {
+        ChatLog.log.crit(Utils.exceptionToString(t));
+      }
     }
   }
 
@@ -129,14 +137,18 @@ public class EventSenderImpl implements EventSender, Runnable
     }
     catch (Throwable e)
     {
-      if (queuedEvent.getRetryCount() >= 15)
+      if (queuedEvent.getRetryCount() > 10)
       {
         saveOnDisk(queuedEvent);
       }
-      mDestinationQueue.addEvent(queuedEvent);
+      else
+      {
+        mDestinationQueue.addEvent(queuedEvent);
+      }
       try
       {
-        Thread.sleep( 1000L );
+        // in order to wait 1 hour to retry 10 times (if queue is empty)
+        Thread.sleep( (long) Math.pow(4.5, queuedEvent.getRetryCount()) );
       }
       catch (InterruptedException ignore){
       }
@@ -145,24 +157,18 @@ public class EventSenderImpl implements EventSender, Runnable
 
   @Override
   public void saveOnDisk(QueuedEvent queuedEvent) {
-    //TODO
+    ChatLog.log.err("EventSender: failed to send event : " + queuedEvent.getEvent().getClass().getName()
+      + " to " + queuedEvent.getRecipient().resourceAddress());
   }
 
   @Override
   public void success(QueuedEvent queuedEvent) {
-    //TODO
   }
 
   @Override
   public void start()
   {
-    if ( mThread != null )
-    {
-      throw new RuntimeException("Invalid Thread state");
-    }
-    mRequestStop = false;
-    mThread = new Thread(this);
-    mThread.start();
+    mActivityManager.addActivity(this);
   }
 
   @Override
@@ -176,12 +182,6 @@ public class EventSenderImpl implements EventSender, Runnable
         throw new RuntimeException(future.cause());
       }
     }
-    if ( mThread == null )
-    {
-      throw new RuntimeException("Invalid Thread state");
-    }
     mRequestStop = true;
-    mThread.interrupt();
-    mThread = null;
   }
 }

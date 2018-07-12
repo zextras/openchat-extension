@@ -123,34 +123,37 @@ public class EventSenderImpl implements EventSender, Runnable
   {
     queuedEvent.updateRetry();
     String stanza;
-    try {
+    try
+    {
       stanza = queuedEvent.encodeToXmpp();
-    } catch (XMLStreamException e) {
+    }
+    catch (XMLStreamException e)
+    {
       ChatLog.log.err(e.getMessage());
       return;
     }
 
-    try
+    for (int i = 0; !mRequestStop && i < 10; i++)
     {
-      tryDelivery(stanza);
-      success(queuedEvent);
-    }
-    catch (Throwable e)
-    {
-      if (queuedEvent.getRetryCount() > 10)
-      {
-        saveOnDisk(queuedEvent);
-      }
-      else
-      {
-        mDestinationQueue.addEvent(queuedEvent);
-      }
       try
       {
-        // in order to wait 1 hour to retry 10 times (if queue is empty)
-        Thread.sleep( (long) Math.pow(4.5, queuedEvent.getRetryCount()) );
+        tryDelivery(stanza);
+        success(queuedEvent);
+        return;
       }
-      catch (InterruptedException ignore){
+      catch(IOException e)
+      {
+        try
+        {
+          Thread.sleep(2^i * 1000);
+        }
+        catch (InterruptedException ignore)
+        {}
+      }
+      catch(Throwable e)
+      {
+        ChatLog.log.err("Sending event " + queuedEvent.getEvent().getClass() + " to " + mHost + " error: " + Utils.exceptionToString(e));
+        return;
       }
     }
   }

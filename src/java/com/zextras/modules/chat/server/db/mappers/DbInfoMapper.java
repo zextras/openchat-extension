@@ -19,10 +19,10 @@ package com.zextras.modules.chat.server.db.mappers;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.lib.db.DbHandler;
+import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.db.builders.DbInfoBuilder;
 import com.zextras.modules.chat.server.db.providers.DbInfo;
-import com.zextras.modules.chat.server.db.sql.DbInfoSelectStatement;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
 import java.sql.*;
@@ -34,7 +34,7 @@ public class DbInfoMapper extends AbstractMapper<DbInfo>{
 
   @Inject
   public DbInfoMapper(
-    DbHandler dbHandler,
+    ChatDbHandler dbHandler,
     StatementsFactory statementsFactory
   ) {
     super(dbHandler);

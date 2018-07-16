@@ -17,19 +17,13 @@
 
 package com.zextras.modules.chat.server;
 
-import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.lib.db.DbHandler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DbHandlerStub implements DbHandler
 {
-  @Override
-  public void shutdown()
-  {
-
-  }
-
   @Override
   public Connection getConnection() throws SQLException
   {
@@ -41,4 +35,12 @@ public class DbHandlerStub implements DbHandler
   {
     return sql;
   }
+
+  @Override
+  public void start() throws ServiceStartException
+  {}
+
+  @Override
+  public void stop()
+  {}
 }

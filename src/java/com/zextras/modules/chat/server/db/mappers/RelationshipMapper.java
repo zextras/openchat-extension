@@ -19,10 +19,11 @@ package com.zextras.modules.chat.server.db.mappers;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.relationship.Relationship.RelationshipType;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.lib.db.DbHandler;
 import com.zextras.modules.chat.server.db.builders.RelationshipBuilder;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
@@ -37,7 +38,7 @@ public class RelationshipMapper extends AbstractMapper<Collection<Relationship>>
 
   @Inject
   public RelationshipMapper(
-    DbHandler dbHandler,
+    ChatDbHandler dbHandler,
     StatementsFactory statementsFactory
   )
   {

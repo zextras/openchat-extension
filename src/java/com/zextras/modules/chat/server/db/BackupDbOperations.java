@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.db;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.lib.db.DbHandler;
 import com.zextras.modules.chat.server.db.sql.GenericStatement;
 
 import java.sql.Connection;
@@ -28,11 +29,11 @@ import java.sql.SQLException;
 @Singleton
 public class BackupDbOperations
 {
-  private final DbHandler mDbHandler;
+  private final DbHandler        mDbHandler;
   private final GenericStatement CHECKPOINT_STATEMENT = new GenericStatement("CHECKPOINT");
 
   @Inject
-  public BackupDbOperations(DbHandler dbHandler)
+  public BackupDbOperations(ChatDbHandler dbHandler)
   {
     mDbHandler = dbHandler;
   }

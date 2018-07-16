@@ -18,8 +18,7 @@
 package com.zextras.modules.chat.server.db.mappers;
 
 import com.zextras.lib.log.ChatLog;
-import com.zextras.modules.chat.server.db.DbHandler;
-import com.zextras.modules.chat.server.db.MariaDbHandler;
+import com.zextras.lib.db.DbHandler;
 import com.zextras.modules.chat.server.db.sql.SqlClosure;
 import com.zextras.modules.chat.server.db.sql.SqlParameter;
 import com.zextras.modules.chat.server.db.sql.SqlStatement;

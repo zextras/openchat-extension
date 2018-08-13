@@ -169,7 +169,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
         EventId.randomUUID(),
         localServerAddress,
         mQueryid,
-        new Target(new SpecificAddress(account.getServerHostname())),
+        new Target(new SpecificAddress(account.getMailHost())),
         mWith,
         Optional.of(mSenderAddress.withoutResource().toString()),
         mStart,

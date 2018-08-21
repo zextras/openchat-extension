@@ -19,9 +19,8 @@ package com.zextras.modules.chat.server.db;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.zextras.modules.chat.server.db.mappers.DbInfoMapper;
+import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.db.providers.DbInfo;
-import com.zextras.modules.chat.server.db.sql.DbInfoSelectStatement;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import org.openzal.zal.ZimbraConnectionProvider;
 
@@ -29,32 +28,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @Singleton
-public class MariaDbHandler implements DbHandler
+public class ChatMariaDbHandler extends MariaDbHandler implements ChatDbHandler
 {
-  private final ZimbraConnectionProvider mZimbraConnectionProvider;
-
   @Inject
-  public MariaDbHandler(
-    ZimbraConnectionProvider zimbraConnectionProvider
-  )
+  public ChatMariaDbHandler(ZimbraConnectionProvider zimbraConnectionProvider)
   {
-    mZimbraConnectionProvider = zimbraConnectionProvider;
+    super(zimbraConnectionProvider);
   }
 
   @Override
-  public void shutdown()
-  {}
-
-  @Override
-  public Connection getConnection() throws SQLException
+  public DbInfo getDatabaseInfo() throws ChatDbException
   {
-    return mZimbraConnectionProvider.getConnection().getConnection();
+    throw new UnsupportedOperationException();
   }
-
-  @Override
-  public String cleanSql(String sql)
-  {
-    return sql;
-  }
-
 }

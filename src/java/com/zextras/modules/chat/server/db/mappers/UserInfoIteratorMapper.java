@@ -18,7 +18,8 @@
 package com.zextras.modules.chat.server.db.mappers;
 
 import com.google.inject.Inject;
-import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.lib.db.DbHandler;
+import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.db.builders.UserInfoBuilder;
 import com.zextras.modules.chat.server.db.providers.UserInfo;
 import com.zextras.modules.chat.server.db.sql.SqlStatement;
@@ -34,7 +35,7 @@ public class UserInfoIteratorMapper extends AbstractMapper<List<UserInfo>> {
 
   @Inject
   public UserInfoIteratorMapper(
-    DbHandler dbHandler,
+    ChatDbHandler dbHandler,
     StatementsFactory statementsFactory
   )
   {

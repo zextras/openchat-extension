@@ -5,10 +5,10 @@ import com.zextras.lib.ContainerImpl;
 import com.zextras.lib.ContainerListContainer;
 import com.zextras.lib.Optional;
 import com.google.inject.Inject;
-import com.zextras.lib.ChatDbHelper;
-import com.zextras.lib.log.ChatLog;
+import com.zextras.lib.DbHelper;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.address.SubdomainResolver;
+import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 public class ImMessageStatements
@@ -137,25 +136,25 @@ public class ImMessageStatements
       " FROM chat.MESSAGE_READ " +
       " WHERE chat.MESSAGE_READ.SENDER = ?";
 
-  private final ChatDbHelper mChatDbHelper;
+  private final DbHelper          mChatDbHelper;
   private final SubdomainResolver mSubdomainResolver;
 
   @Inject
   public ImMessageStatements(
-    ChatDbHelper chatDbHelper,
+    ChatDbHandler chatDbHandler,
     SubdomainResolver subdomainResolver
   )
   {
-    mChatDbHelper = chatDbHelper;
+    mChatDbHelper = new DbHelper(chatDbHandler);
     mSubdomainResolver = subdomainResolver;
   }
 
   public void insert(final ImMessage imMessage) throws SQLException
   {
-    mChatDbHelper.executeTransactionQuery(sql_insert, new ChatDbHelper.ParametersFactory()
+    mChatDbHelper.executeTransactionQuery(sql_insert, new DbHelper.ParametersFactory()
       {
         @Override
-        public void create(PreparedStatement statement) throws SQLException
+        public int init(PreparedStatement statement) throws SQLException
         {
           int i = 1;
           statement.setString(i++, imMessage.getId());
@@ -169,6 +168,7 @@ public class ImMessageStatements
           statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
+          return i;
         }
       }
     );
@@ -176,10 +176,10 @@ public class ImMessageStatements
 
   public void update(final ImMessage imMessage) throws SQLException
   {
-    mChatDbHelper.executeTransactionQuery(sql_update, new ChatDbHelper.ParametersFactory()
+    mChatDbHelper.executeTransactionQuery(sql_update, new DbHelper.ParametersFactory()
       {
         @Override
-        public void create(PreparedStatement statement) throws SQLException
+        public int init(PreparedStatement statement) throws SQLException
         {
           int i = 1;
           statement.setString(i++, imMessage.getId());
@@ -193,6 +193,7 @@ public class ImMessageStatements
           statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
+          return i;
         }
       }
     );
@@ -240,10 +241,10 @@ public class ImMessageStatements
     }
     sb.append(sSELECT_MESSAGE_ORDER);
 
-    mChatDbHelper.query(sb.toString(), new ChatDbHelper.ParametersFactory()
+    mChatDbHelper.query(sb.toString(), new DbHelper.ParametersFactory()
     {
       @Override
-      public void create(PreparedStatement preparedStatement) throws SQLException
+      public int init(PreparedStatement preparedStatement) throws SQLException
       {
         int i = 1;
         if (!sender.isEmpty())
@@ -265,11 +266,12 @@ public class ImMessageStatements
           preparedStatement.setLong(i++, toTime.getValue());
         }
         preparedStatement.setInt(i++, max.optValue(1000));
+        return i;
       }
-    }, new ChatDbHelper.ResultSetFactory()
+    }, new DbHelper.ResultSetFactory<Void>()
     {
       @Override
-      public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+      public Void create(ResultSet rs) throws SQLException
       {
         int i = 1;
         messages.add(new ImMessage(
@@ -285,6 +287,7 @@ public class ImMessageStatements
           rs.getString(i++),
           rs.getString(i++)
         ));
+        return null;
       }
     });
 
@@ -293,38 +296,40 @@ public class ImMessageStatements
 
   public void upsertMessageRead(final String sender,final String destination,final long timestamp,final String id) throws SQLException
   {
-    ChatDbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
+    DbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
     try
     {
       Long currentTimestamp = getLastMessageRead(connection, null, sender, destination).getLeft();
 
       if (currentTimestamp == null)
       {
-        mChatDbHelper.executeQuery(connection, sINSERT_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
+        mChatDbHelper.executeQuery(connection, sINSERT_MESSAGE_READ, new DbHelper.ParametersFactory()
         {
           @Override
-          public void create(PreparedStatement preparedStatement) throws SQLException
+          public int init(PreparedStatement preparedStatement) throws SQLException
           {
             int i = 1;
             preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
             preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
             preparedStatement.setLong(i++, timestamp);
             preparedStatement.setString(i++, id);
+            return i;
           }
         });
       }
       else if (timestamp > currentTimestamp)
       {
-        mChatDbHelper.executeQuery(connection, sUPDATE_MESSAGE_READ, new ChatDbHelper.ParametersFactory()
+        mChatDbHelper.executeQuery(connection, sUPDATE_MESSAGE_READ, new DbHelper.ParametersFactory()
         {
           @Override
-          public void create(PreparedStatement preparedStatement) throws SQLException
+          public int init(PreparedStatement preparedStatement) throws SQLException
           {
             int i = 1;
             preparedStatement.setString(i++, id);
             preparedStatement.setLong(i++, timestamp);
             preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
             preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+            return i;
           }
         });
       }
@@ -339,7 +344,7 @@ public class ImMessageStatements
 
   public Pair<Long,String> getLastMessageRead(final String sender, final String destination) throws SQLException
   {
-    ChatDbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
+    DbHelper.DbConnection connection = mChatDbHelper.beginTransaction();
     try
     {
       return getLastMessageRead(connection, 0L, sender, destination);
@@ -350,7 +355,7 @@ public class ImMessageStatements
     }
   }
 
-  public Pair<Long,String> getLastMessageRead(ChatDbHelper.DbConnection connection, Long defaultValue, final String sender, final String destination) throws SQLException
+  public Pair<Long,String> getLastMessageRead(DbHelper.DbConnection connection, Long defaultValue, final String sender, final String destination) throws SQLException
   {
     final Pair<Long,String> pair[] = new Pair[1];
     pair[0] = Pair.of(defaultValue,"");
@@ -358,24 +363,26 @@ public class ImMessageStatements
     mChatDbHelper.executeQuery(
       connection,
       sSELECT_MESSAGE_READ,
-      new ChatDbHelper.ParametersFactory()
+      new DbHelper.ParametersFactory()
       {
         @Override
-        public void create(PreparedStatement preparedStatement) throws SQLException
+        public int init(PreparedStatement preparedStatement) throws SQLException
         {
           int i = 1;
           preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
           preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+          return i;
         }
       },
-      new ChatDbHelper.ResultSetFactory()
+      new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        public Void create(ResultSet rs) throws SQLException
         {
           long timestamp = rs.getLong(1);
           String id = rs.getString(2);
           pair[0] = Pair.of(timestamp,id);
+          return null;
         }
       });
 
@@ -411,18 +418,19 @@ public class ImMessageStatements
     final ContainerListContainer list = new ContainerListContainer();
 
     mChatDbHelper.query(sSELECT_ALL_MESSAGE_READ,
-      new ChatDbHelper.ParametersFactory()
+      new DbHelper.ParametersFactory()
       {
         @Override
-        public void create(PreparedStatement preparedStatement) throws SQLException
+        public int init(PreparedStatement preparedStatement) throws SQLException
         {
           preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(ackDestination));
+          return 2;
         }
       },
-      new ChatDbHelper.ResultSetFactory()
+      new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        public Void create(ResultSet rs) throws SQLException
         {
           ContainerImpl entry = new ContainerImpl();
           entry.putString("ACK_SENDER",rs.getString(1));
@@ -430,6 +438,7 @@ public class ImMessageStatements
           entry.putLong("TIMESTAMP",rs.getLong(3));
           entry.putString("MESSAGE_ID",rs.getString(4));
           list.add(entry);
+          return null;
         }
       });
     return list;
@@ -440,22 +449,24 @@ public class ImMessageStatements
     final Set<String> set = new HashSet<String>();
 
     mChatDbHelper.query(sALL_RECIPIENTS,
-      new ChatDbHelper.ParametersFactory()
+      new DbHelper.ParametersFactory()
       {
         @Override
-        public void create(PreparedStatement preparedStatement) throws SQLException
+        public int init(PreparedStatement preparedStatement) throws SQLException
         {
           String dst = mSubdomainResolver.removeSubdomainFrom(destination);
           preparedStatement.setString(1, dst);
           preparedStatement.setString(2, dst);
+          return 3;
         }
       },
-      new ChatDbHelper.ResultSetFactory()
+      new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        public Void create(ResultSet rs) throws SQLException
         {
           set.add(mSubdomainResolver.toRoomAddress(rs.getString(1)).toString());
+          return null;
         }
       });
 
@@ -480,23 +491,25 @@ public class ImMessageStatements
   {
     final int[] count = new int[1];
     mChatDbHelper.query(sCOUNT_MESSAGE_TO_READ,
-      new ChatDbHelper.ParametersFactory()
+      new DbHelper.ParametersFactory()
       {
         @Override
-        public void create(PreparedStatement preparedStatement) throws SQLException
+        public int init(PreparedStatement preparedStatement) throws SQLException
         {
           preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(sender));
           preparedStatement.setString(2, mSubdomainResolver.removeSubdomainFrom(destination));
           preparedStatement.setLong(3, timestamp);
           preparedStatement.setLong(4, timestamp);
+          return 5;
         }
       },
-      new ChatDbHelper.ResultSetFactory()
+      new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        public Void create(ResultSet rs) throws SQLException
         {
           count[0] = rs.getInt(1);
+          return null;
         }
       });
 
@@ -507,22 +520,24 @@ public class ImMessageStatements
   {
     final int[] count = new int[1];
     mChatDbHelper.query(sCOUNT_MESSAGE_TO_READ_FROM_EVERYONE,
-      new ChatDbHelper.ParametersFactory()
+      new DbHelper.ParametersFactory()
       {
         @Override
-        public void create(PreparedStatement preparedStatement) throws SQLException
+        public int init(PreparedStatement preparedStatement) throws SQLException
         {
           preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(destination));
           preparedStatement.setLong(2, timestamp);
           preparedStatement.setLong(3, timestamp);
+          return 4;
         }
       },
-      new ChatDbHelper.ResultSetFactory()
+      new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public void create(ResultSet rs) throws SQLException, UnavailableResource, ChatDbException
+        public Void create(ResultSet rs) throws SQLException
         {
           count[0] = rs.getInt(1);
+          return null;
         }
       });
 

@@ -17,7 +17,7 @@
 
 package com.zextras.modules.chat.server.db.sql;
 
-import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.lib.db.DbHandler;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 
 import java.sql.Connection;

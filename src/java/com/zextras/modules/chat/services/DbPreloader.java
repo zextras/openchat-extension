@@ -2,9 +2,10 @@ package com.zextras.modules.chat.services;
 
 import com.google.inject.Inject;
 import com.zextras.lib.switches.Service;
+import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.relationship.Relationship;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.lib.db.DbHandler;
 import com.zextras.modules.chat.server.db.sql.SqlClosure;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatSqlException;
@@ -31,7 +32,7 @@ public class DbPreloader implements Service
 
   @Inject
   public DbPreloader(
-    DbHandler dbHandler,
+    ChatDbHandler dbHandler,
     DirectRelationshipStorage directRelationshipStorage
   )
   {

@@ -20,7 +20,8 @@ package com.zextras.modules.chat.server.db.mappers;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.zextras.modules.chat.server.db.DbHandler;
+import com.zextras.lib.db.DbHandler;
+import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.builders.UserInfoBuilder;
@@ -35,7 +36,7 @@ public class UserInfoMapper extends AbstractMapper<UserInfo> {
 
   @Inject
   public UserInfoMapper(
-    DbHandler dbHandler,
+    ChatDbHandler dbHandler,
     StatementsFactory statementsFactory
   )
   {

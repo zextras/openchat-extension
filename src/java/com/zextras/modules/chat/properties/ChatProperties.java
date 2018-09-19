@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.properties;
 
 import org.openzal.zal.DistributionList;
+import org.openzal.zal.Group;
 
 public interface ChatProperties
 {
@@ -34,6 +35,6 @@ public interface ChatProperties
   boolean allowUnencryptedPassword();
   int getChatXmppPort(String serverName);
   int getChatXmppSslPort(String serverName);
-  boolean chatAllowDlMemberAddAsFriend(DistributionList distributionList);
+  boolean chatAllowDlMemberAddAsFriend(Group distributionList);
   String getProductName();
 }

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 @Singleton
 public class DistributionListExtractor
@@ -25,6 +26,7 @@ public class DistributionListExtractor
   private final Provisioning             mProvisioning;
   private final UserDiscriminant         mUserDiscriminant;
   private       Filter<DistributionList> mAllowDlMembersFilter;
+  private final ChatProperties mChatProperties;
 
   @Inject
   public DistributionListExtractor(
@@ -36,6 +38,7 @@ public class DistributionListExtractor
     mProvisioning = provisioning;
     mUserDiscriminant = userDiscriminant;
     mAllowDlMembersFilter = new DistributionListFilter(chatProperties);
+    mChatProperties = chatProperties;
   }
 
   public Collection<Relationship> getDistributionListsRelationships(
@@ -74,26 +77,59 @@ public class DistributionListExtractor
   )
   {
     Collection<SpecificAddress> allDistributionListsBuddiesAddress = new HashSet<SpecificAddress>();
-    List<String> userAddresses = userAccount.getAllAddresses();
+    Set<String> visitedDLs = new HashSet<String>();
 
     while (distributionListsIterator.hasNext())
     {
-      DistributionList friendDistributionList = distributionListsIterator.next();
-      Collection<String> members = mProvisioning.getGroupMembers(
-        friendDistributionList.getName()
-      );
+      addBuddies(userAccount, distributionListsIterator.next(), allDistributionListsBuddiesAddress, visitedDLs);
+    }
+    return allDistributionListsBuddiesAddress;
+  }
 
-      for (String memberAddress : members)
+  private void addBuddies(
+    Account userAccount,
+    DistributionList distributionList,
+    Collection<SpecificAddress> allDistributionListsBuddiesAddress,
+    Set<String> visitedDLs
+  )
+  {
+    Collection<String> members = mProvisioning.getGroupMembers(
+      distributionList.getName()
+    );
+
+    List<String> userAddresses = userAccount.getAllAddresses();
+    for (String memberAddress : members)
+    {
+      if (mUserDiscriminant.isUser(memberAddress) && !userAddresses.contains(memberAddress))
       {
-        if (mUserDiscriminant.isUser(memberAddress) && !userAddresses.contains(memberAddress))
+        allDistributionListsBuddiesAddress.add(
+          new SpecificAddress(memberAddress).withoutResource().intern()
+        );
+      }
+      else if (!visitedDLs.contains(memberAddress) && mUserDiscriminant.isDistributionList(memberAddress))
+      {
+        DistributionList subDL = null;
+        try
         {
-          allDistributionListsBuddiesAddress.add(
-            new SpecificAddress(memberAddress).withoutResource().intern()
-          );
+          subDL = mProvisioning.getDistributionListById(memberAddress);
+        }
+        catch (Exception ignore) {}
+        if (subDL == null)
+        {
+          try
+          {
+            subDL = mProvisioning.getDistributionListByName(memberAddress);
+          }
+          catch (Exception ignore) {}
+        }
+        if (subDL != null)
+        {
+          addBuddies(userAccount, subDL, allDistributionListsBuddiesAddress, visitedDLs);
         }
       }
     }
-    return allDistributionListsBuddiesAddress;
+
+    visitedDLs.add(distributionList.getName());
   }
 
   public boolean areBuddies( SpecificAddress buddy1, SpecificAddress buddy2 )

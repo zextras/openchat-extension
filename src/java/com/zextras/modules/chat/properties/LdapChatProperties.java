@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import org.openzal.zal.Account;
 import org.openzal.zal.DistributionList;
 import org.openzal.zal.Domain;
+import org.openzal.zal.Group;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Server;
 
@@ -142,10 +143,17 @@ public class LdapChatProperties implements ChatProperties
   }
 
   @Override
-  public boolean chatAllowDlMemberAddAsFriend(DistributionList distributionList)
+  public boolean chatAllowDlMemberAddAsFriend(Group distributionList)
   {
-    String value = distributionList.getAttr("zimbraChatAllowDlMemberAddAsFriend", "false");
-    return "true".equalsIgnoreCase(value);
+    if (!distributionList.isDynamic())
+    {
+      String value = distributionList.getAttr("zimbraChatAllowDlMemberAddAsFriend", "false");
+      return "true".equalsIgnoreCase(value);
+    }
+    else
+    {
+      return false;
+    }
   }
 
   @Override

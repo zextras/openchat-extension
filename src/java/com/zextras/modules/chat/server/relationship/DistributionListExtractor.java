@@ -4,16 +4,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.AccountHelper;
 import com.zextras.lib.filters.FilteredIterator;
-import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.utils.UserDiscriminant;
-import io.openio.sds.common.Hash;
 import org.openzal.zal.Account;
 import org.openzal.zal.DistributionList;
 import org.openzal.zal.Provisioning;
-import org.openzal.zal.ProvisioningImp;
-import org.openzal.zal.Utils;
 import org.openzal.zal.exceptions.NoSuchAccountException;
 import org.openzal.zal.lib.Filter;
 
@@ -22,7 +18,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Singleton

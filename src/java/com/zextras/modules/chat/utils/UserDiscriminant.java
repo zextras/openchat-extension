@@ -19,6 +19,8 @@ package com.zextras.modules.chat.utils;
 
 import com.google.inject.Inject;
 import org.openzal.zal.Account;
+import org.openzal.zal.DistributionList;
+import org.openzal.zal.Group;
 import org.openzal.zal.Provisioning;
 
 public class UserDiscriminant
@@ -46,5 +48,24 @@ public class UserDiscriminant
     {
       return false;
     }
+  }
+
+  public boolean isDistributionList(String address)
+  {
+    DistributionList distributionList = null;
+    try
+    {
+      distributionList = mProvisioning.getDistributionListById(address);
+    }
+    catch (Exception ignore) {}
+    if (distributionList == null)
+    {
+      try
+      {
+        distributionList = mProvisioning.getDistributionListByName(address);
+      }
+      catch (Exception ignore) {}
+    }
+    return distributionList != null;
   }
 }

@@ -30,7 +30,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 public class NettyService implements Service, EventLoopGroupProvider
 {
   private static final int NUMBER_OF_THREADS = 16;
-  private EventLoopGroup mEventLoopGroup;
+  protected EventLoopGroup mEventLoopGroup;
 
   public NettyService()
   {

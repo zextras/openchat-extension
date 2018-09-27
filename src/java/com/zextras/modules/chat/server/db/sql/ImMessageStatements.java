@@ -91,24 +91,23 @@ public class ImMessageStatements
       "    AND TEXT LIKE ? ESCAPE '!'" +
       "    ORDER BY SENT_TIMESTAMP ASC" +
       "    LIMIT ? OFFSET ?";
-  //TODO: use UTF-8 encoding to compile
-  // private final static String sql_text_insensitive =
-  //   "    SELECT ID," +
-  //     "    SENT_TIMESTAMP," +
-  //     "    EDIT_TIMESTAMP," +
-  //     "    MESSAGE_TYPE," +
-  //     "    INDEX_STATUS," +
-  //     "    SENDER," +
-  //     "    DESTINATION," +
-  //     "    TEXT, " +
-  //     "    REACTIONS," +
-  //     "    TYPE_EXTRAINFO" +
-  //     "    FROM chat.MESSAGE " +
-  //     "    WHERE SENDER = ? " +
-  //     "    AND DESTINATION = ? " +
-  //     "    AND TRANSLATE( LOWER(TEXT), 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') LIKE TRANSLATE( ?, 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') ESCAPE '!'" +
-  //     "    ORDER BY SENT_TIMESTAMP ASC" +
-  //     "    LIMIT ? OFFSET ?";
+  private final static String sql_text_insensitive =
+     "    SELECT ID," +
+       "    SENT_TIMESTAMP," +
+       "    EDIT_TIMESTAMP," +
+       "    MESSAGE_TYPE," +
+       "    INDEX_STATUS," +
+       "    SENDER," +
+       "    DESTINATION," +
+       "    TEXT, " +
+       "    REACTIONS," +
+       "    TYPE_EXTRAINFO" +
+       "    FROM chat.MESSAGE " +
+       "    WHERE SENDER = ? " +
+       "    AND DESTINATION = ? " +
+       "    AND TRANSLATE( LOWER(TEXT), 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') LIKE TRANSLATE( ?, 'áçéíóúàèìòùâêîôûãõëü', 'aceiouaeiouaeiouaoeu') ESCAPE '!'" +
+       "    ORDER BY SENT_TIMESTAMP ASC" +
+       "    LIMIT ? OFFSET ?";
 
   private final static String sINSERT_MESSAGE_READ =
     "INSERT INTO chat.MESSAGE_READ (SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID) VALUES (?,?,?,?) ";

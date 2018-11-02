@@ -100,11 +100,16 @@ public class DistributionListExtractor
     List<String> userAddresses = userAccount.getAllAddresses();
     for (String memberAddress : members)
     {
-      if (mUserDiscriminant.isUser(memberAddress) && !userAddresses.contains(memberAddress))
+      Account account = mProvisioning.getAccountByName(memberAddress);
+      if (account != null)
       {
-        allDistributionListsBuddiesAddress.add(
-          new SpecificAddress(memberAddress).withoutResource().intern()
-        );
+        String realAddress = account.getName();
+        if (!userAddresses.contains(realAddress))
+        {
+          allDistributionListsBuddiesAddress.add(
+            new SpecificAddress(realAddress).withoutResource().intern()
+          );
+        }
       }
       else if (!visitedDLs.contains(memberAddress) && mUserDiscriminant.isDistributionList(memberAddress))
       {

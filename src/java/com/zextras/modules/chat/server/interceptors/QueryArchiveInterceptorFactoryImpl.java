@@ -250,10 +250,22 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
           Account account = mProvisioning.getAccountByName(recipient);
           if (account != null && mProvisioning.onLocalServer(account))
           {
-            Pair<Long, String> pair = mImMessageStatements.getLastMessageRead(with, recipient);
-            long timestamp = pair.getLeft();
-            String messageId = pair.getRight();
-            int count = mImMessageStatements.getCountMessageToRead(recipient, with, timestamp);
+            Pair<Long, String> pair1 = mImMessageStatements.getLastMessageRead(with, recipient);
+            Pair<Long, String> pair2 = mImMessageStatements.getLastMessageRead(recipient, with);
+            long timestamp1 = pair1.getLeft();
+            long timestamp2 = pair2.getLeft();
+            String messageId1 = pair1.getRight();
+            String messageId2 = pair2.getRight();
+            long timestamp = timestamp1;
+            String messageId = messageId1;
+            if (timestamp1 < timestamp2)
+            {
+              timestamp = timestamp2;
+              messageId = messageId2;
+            }
+            int count1 = mImMessageStatements.getCountMessageToRead(recipient, with, timestamp);
+            int count2 = mImMessageStatements.getCountMessageToRead(with, recipient, timestamp);
+            int count = Math.min(count1,count2);
             events.add(new EventMessageHistoryLast(
               EventId.randomUUID(),
               new SpecificAddress(recipient),

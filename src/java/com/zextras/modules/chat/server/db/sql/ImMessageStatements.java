@@ -162,8 +162,8 @@ public class ImMessageStatements
           statement.setShort(i++, TargetType.toShort(imMessage.getTargetType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getDestination()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getSender()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
           return i;
@@ -187,8 +187,8 @@ public class ImMessageStatements
           statement.setShort(i++, TargetType.toShort(imMessage.getTargetType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getTargetType(), imMessage.getDestination()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getSender()));
+          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
           return i;
@@ -271,19 +271,19 @@ public class ImMessageStatements
       @Override
       public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
       {
-        int i = 1;
+        TargetType target_type = TargetType.fromShort(rs.getShort("TARGET_TYPE"));
         messages.add(new ImMessage(
-          rs.getString(i++),
-          rs.getLong(i++),
-          rs.getLong(i++),
-          EventType.fromShort(rs.getShort(i++)),
-          TargetType.fromShort(rs.getShort(i++)),
-          rs.getShort(i++),
-          mSubdomainResolver.toRoomAddress(rs.getString(i++)).resourceAddress(),
-          mSubdomainResolver.toRoomAddress(rs.getString(i++)).resourceAddress(),
-          rs.getString(i++),
-          rs.getString(i++),
-          rs.getString(i++)
+          rs.getString("ID"),
+          rs.getLong("SENT_TIMESTAMP"),
+          rs.getLong("EDIT_TIMESTAMP"),
+          EventType.fromShort(rs.getShort("MESSAGE_TYPE")),
+          target_type,
+          rs.getShort("INDEX_STATUS"),
+          mSubdomainResolver.toRoomAddress(TargetType.Chat,rs.getString("SENDER")).resourceAddress(),
+          mSubdomainResolver.toRoomAddress(target_type,rs.getString("DESTINATION")).resourceAddress(),
+          rs.getString("TEXT"),
+          rs.getString("REACTIONS"),
+          rs.getString("TYPE_EXTRAINFO")
         ));
         return null;
       }
@@ -401,8 +401,8 @@ public class ImMessageStatements
       container.putLong("TARGET_TYPE",TargetType.toShort(message.getTargetType()));
       container.putLong("INDEX_STATUS",message.getIndexStatus());
       container.putString("TEXT",message.getText());
-      container.putString("SENDER",mSubdomainResolver.removeSubdomainFrom(message.getTargetType(), message.getSender()));
-      container.putString("DESTINATION",mSubdomainResolver.removeSubdomainFrom(message.getTargetType(), message.getDestination()));
+      container.putString("SENDER",mSubdomainResolver.removeSubdomainFrom(message.getSender()));
+      container.putString("DESTINATION",mSubdomainResolver.removeSubdomainFrom(message.getDestination()));
       container.putString("REACTIONS",message.getReactions());
       container.putString("TYPE_EXTRAINFO",message.getTypeExtrainfo());
       messages.add(container);
@@ -463,7 +463,7 @@ public class ImMessageStatements
         @Override
         public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
         {
-          set.add(mSubdomainResolver.toRoomAddress(rs.getString(1)).toString());
+          set.add(mSubdomainResolver.toRoomAddress(TargetType.Chat,rs.getString(1)).toString());
           return null;
         }
       });

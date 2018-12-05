@@ -11,8 +11,6 @@ import com.zextras.modules.chat.server.address.SubdomainResolver;
 import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.events.TargetType;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
-import com.zextras.modules.chat.server.exceptions.UnavailableResource;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Connection;
@@ -271,7 +269,7 @@ public class ImMessageStatements
     }, new DbHelper.ResultSetFactory<Void>()
     {
       @Override
-      public Void create(ResultSet rs) throws SQLException
+      public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
       {
         int i = 1;
         messages.add(new ImMessage(
@@ -377,7 +375,7 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs) throws SQLException
+        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
         {
           long timestamp = rs.getLong(1);
           String id = rs.getString(2);
@@ -430,7 +428,7 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs) throws SQLException
+        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
         {
           ContainerImpl entry = new ContainerImpl();
           entry.putString("ACK_SENDER",rs.getString(1));
@@ -463,7 +461,7 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs) throws SQLException
+        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
         {
           set.add(mSubdomainResolver.toRoomAddress(rs.getString(1)).toString());
           return null;
@@ -506,7 +504,7 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs) throws SQLException
+        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
         {
           count[0] = rs.getInt(1);
           return null;
@@ -534,7 +532,7 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs) throws SQLException
+        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
         {
           count[0] = rs.getInt(1);
           return null;

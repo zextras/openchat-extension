@@ -37,6 +37,7 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactory;
 import com.zextras.modules.chat.server.interceptors.QueryArchiveInterceptorFactoryImpl;
 import com.zextras.modules.chat.server.session.SessionManager;
+import com.zextras.modules.core.ProvisioningCache;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.ProvisioningImp;
@@ -87,7 +88,7 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
     @Assisted("end") Optional<Long> end,
     @Assisted("node") Optional<String> node,
     @Assisted("max") Optional<Integer> max,
-    Provisioning provisioning,
+    ProvisioningCache provisioning,
     AddressResolver addressResolver,
     QueryArchiveInterceptorFactory archiveInterceptorFactory,
     EventManager eventManager

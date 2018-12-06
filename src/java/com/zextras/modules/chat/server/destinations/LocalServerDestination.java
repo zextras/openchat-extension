@@ -30,6 +30,7 @@ import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventDestination;
 import com.zextras.modules.chat.server.events.EventDestinationProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
+import com.zextras.modules.core.ProvisioningCache;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
 import org.openzal.zal.Account;
@@ -50,7 +51,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
 
   @Inject
   public LocalServerDestination(
-    Provisioning provisioning,
+    ProvisioningCache provisioning,
     EventRouter eventRouter,
     DestinationQueueFactory destinationQueueFactory,
     AddressResolver addressResolver

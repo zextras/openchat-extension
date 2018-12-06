@@ -26,6 +26,7 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.*;
 import com.zextras.modules.chat.server.interceptors.EventInterceptor;
 import com.zextras.modules.chat.server.interceptors.UserEventInterceptorFactory;
+import com.zextras.modules.core.ProvisioningCache;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
@@ -44,7 +45,7 @@ public class UserEventsDestination implements EventDestination, EventDestination
 
   @Inject
   public UserEventsDestination(
-    Provisioning provisioning,
+    ProvisioningCache provisioning,
     EventInterceptorFactory userEventInterceptorFactory,
     EventRouter eventRouter,
     EventManager eventManager

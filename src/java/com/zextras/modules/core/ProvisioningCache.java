@@ -1,5 +1,7 @@
 package com.zextras.modules.core;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.zextras.lib.FixedCacheMap;
 import com.zextras.lib.FixedCacheStringTTLMap;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +46,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@Singleton
 public class ProvisioningCache implements Provisioning
 {
   private final static int                             sSIZE = 65536;
@@ -52,6 +55,7 @@ public class ProvisioningCache implements Provisioning
   private final        Clock                           mClock;
   private final        FixedCacheStringTTLMap<Account> mFixedCacheStringTTLMap;
 
+  @Inject
   public ProvisioningCache(
     Provisioning provisioning,
     Clock clock

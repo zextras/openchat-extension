@@ -29,6 +29,7 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.relationship.DirectRelationshipProvider;
 import com.zextras.modules.chat.server.relationship.RelationshipModifier;
 import com.zextras.modules.chat.server.relationship.RelationshipProvider;
+import com.zextras.modules.core.ProvisioningCache;
 import org.jetbrains.annotations.NotNull;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
@@ -57,7 +58,7 @@ public class OpenUserProvider implements UserProvider
     UserInfoMapper userInfoMapper,
     UserIdentityMapImpl userCache,
     UserModifier userModifier,
-    Provisioning provisioning,
+    ProvisioningCache provisioning,
     UserInfoIteratorMapper userInfoIteratorMapper,
     RelationshipProvider relationshipProvider,
     RelationshipModifier relationshipModifier,

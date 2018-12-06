@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.utils;
 
 import com.google.inject.Inject;
+import com.zextras.modules.core.ProvisioningCache;
 import org.openzal.zal.Account;
 import org.openzal.zal.DistributionList;
 import org.openzal.zal.Group;
@@ -28,7 +29,7 @@ public class UserDiscriminant
   final private Provisioning mProvisioning;
   
   @Inject
-  public UserDiscriminant(final Provisioning provisioning)
+  public UserDiscriminant(final ProvisioningCache provisioning)
   {
     mProvisioning = provisioning;
   }

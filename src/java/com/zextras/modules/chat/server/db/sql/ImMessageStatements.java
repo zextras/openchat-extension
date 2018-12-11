@@ -126,13 +126,9 @@ public class ImMessageStatements
     "SELECT COUNT(*) FROM chat.MESSAGE WHERE DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final static String sALL_RECIPIENTS =
-    "SELECT DISTINCT chat.MESSAGE.SENDER " +
+      "SELECT DISTINCT chat.MESSAGE.SENDER " +
       " FROM chat.MESSAGE " +
       " WHERE chat.MESSAGE.DESTINATION = ? " +
-      "UNION " +
-      "SELECT DISTINCT chat.MESSAGE.DESTINATION " +
-      " FROM chat.MESSAGE " +
-      " WHERE chat.MESSAGE.SENDER = ? " +
       " UNION " +
       "SELECT chat.MESSAGE_READ.DESTINATION " +
       " FROM chat.MESSAGE_READ " +
@@ -459,7 +455,6 @@ public class ImMessageStatements
           String dst = mSubdomainResolver.removeSubdomainFrom(destination);
           preparedStatement.setString(1, dst);
           preparedStatement.setString(2, dst);
-          preparedStatement.setString(3, dst);
           return 3;
         }
       },

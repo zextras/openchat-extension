@@ -33,6 +33,7 @@ import org.codehaus.stax2.validation.XMLValidator;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -73,6 +74,8 @@ public class RewindableXmlStreamReader implements XMLStreamReader2
   private XMLStreamReader2 getStreamReader(String xml) throws XMLStreamException
   {
     XMLInputFactory2 ifact = new WstxInputFactory();
+    ifact.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    ifact.setProperty("javax.xml.stream.isSupportingExternalEntities", false)
     XMLStreamReader2 sr = (XMLStreamReader2) ifact.createXMLStreamReader(getInputStream(xml));
     return sr;
   }

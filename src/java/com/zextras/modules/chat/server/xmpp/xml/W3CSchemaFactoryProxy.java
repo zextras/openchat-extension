@@ -23,6 +23,10 @@ import com.sun.msv.grammar.xmlschema.XMLSchemaGrammar;
 import com.sun.msv.reader.xmlschema.XMLSchemaReader;
 import org.codehaus.stax2.validation.XMLValidationSchema;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLStreamException;
 
@@ -34,6 +38,25 @@ public class W3CSchemaFactoryProxy extends W3CSchemaFactory
   protected XMLValidationSchema loadSchema(InputSource src, Object sysRef) throws XMLStreamException
   {
     SAXParserFactory saxFactory = getSaxFactory();
+    try
+    {
+      saxFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      saxFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      saxFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    }
+    catch (SAXNotRecognizedException e)
+    {
+      throw new RuntimeException(e);
+    }
+    catch (SAXNotSupportedException e)
+    {
+      throw new RuntimeException(e);
+    }
+    catch (ParserConfigurationException e)
+    {
+      throw new RuntimeException(e);
+    }
+
     XMLSchemaGrammar grammar = XMLSchemaReader.parse(src, saxFactory, mParsingController);
     if (grammar == null)
     {

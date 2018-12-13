@@ -75,7 +75,7 @@ public class RewindableXmlStreamReader implements XMLStreamReader2
   {
     XMLInputFactory2 ifact = new WstxInputFactory();
     ifact.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    ifact.setProperty("javax.xml.stream.isSupportingExternalEntities", false)
+    ifact.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
     XMLStreamReader2 sr = (XMLStreamReader2) ifact.createXMLStreamReader(getInputStream(xml));
     return sr;
   }

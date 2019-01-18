@@ -81,6 +81,7 @@ import com.zextras.modules.chat.server.xmpp.XmppHandlerFactory;
 import com.zextras.modules.chat.server.xmpp.XmppHandlerFactoryImpl;
 import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoderFactory;
 import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoderFactoryImpl;
+import com.zextras.modules.core.ProvisioningCache;
 import org.openzal.zal.MailboxManager;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.ZimbraConnectionProvider;
@@ -108,7 +109,10 @@ public class OpenChatModule extends AbstractModule
   {
     bind(Zimbra.class).toInstance(mZimbra);
     bind(MailboxManager.class).toInstance(mZimbra.getMailboxManager());
-    bind(Provisioning.class).toInstance(mZimbra.getProvisioning());
+    bind(Provisioning.class).toInstance(new ProvisioningCache(
+      mZimbra.getProvisioning(),
+      new ActualClock()
+    ));
     bind(ZimbraDatabase.ConnectionProvider.class).to(ZimbraConnectionProvider.class);
     bind(ChatDbHandler.class).to(ChatMariaDbHandler.class);
     bind(Clock.class).to(ActualClock.class);

@@ -7,6 +7,7 @@ import com.zextras.lib.filters.FilteredIterator;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.utils.UserDiscriminant;
+import com.zextras.modules.core.ProvisioningCache;
 import org.openzal.zal.Account;
 import org.openzal.zal.DistributionList;
 import org.openzal.zal.Provisioning;
@@ -30,7 +31,7 @@ public class DistributionListExtractor
 
   @Inject
   public DistributionListExtractor(
-    Provisioning provisioning,
+    ProvisioningCache provisioning,
     UserDiscriminant userDiscriminant,
     ChatProperties chatProperties
   )

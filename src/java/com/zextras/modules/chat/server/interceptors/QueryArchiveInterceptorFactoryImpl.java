@@ -41,6 +41,7 @@ import com.zextras.modules.chat.server.events.TargetType;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.history.HistoryMessageBuilder;
+import com.zextras.modules.core.ProvisioningCache;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
@@ -67,7 +68,7 @@ public class QueryArchiveInterceptorFactoryImpl extends StubEventInterceptorFact
 
   @Inject
   public QueryArchiveInterceptorFactoryImpl(
-    Provisioning provisioning,
+    ProvisioningCache provisioning,
     ChatProperties chatProperties,
     ImMessageStatements imMessageStatements,
     HistoryMessageBuilder imMessageBuilder,

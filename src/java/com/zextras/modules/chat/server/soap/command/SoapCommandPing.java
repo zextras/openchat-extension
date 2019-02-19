@@ -18,17 +18,16 @@
 package com.zextras.modules.chat.server.soap.command;
 
 import com.zextras.lib.activities.ActivityManager;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
+import com.zextras.modules.chat.server.listener.PingQueueListener;
+import com.zextras.modules.chat.server.listener.PingWebSocketQueueListener;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.SoapStartPing;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
-import com.zextras.modules.chat.server.listener.PingEventQueueListener;
+import com.zextras.modules.chat.server.listener.PingSoapQueueListener;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactoryImpl;
-import org.openzal.zal.Continuation;
 import org.openzal.zal.soap.SoapResponse;
 import org.openzal.zal.soap.ZimbraContext;
 
@@ -42,6 +41,7 @@ public class SoapCommandPing extends SoapCommand
   private final SoapEncoderFactory mSoapEncoderFactory;
   private final ZimbraContext      mZimbraContext;
   private final ActivityManager    mActivityManager;
+  private final boolean            mIsWebSocket;
 
   public SoapCommandPing(
     SoapResponse soapResponse,
@@ -49,7 +49,8 @@ public class SoapCommandPing extends SoapCommand
     SpecificAddress senderAddress,
     Map<String, String> parameters,
     ZimbraContext zimbraContext,
-    ActivityManager activityManager
+    ActivityManager activityManager,
+    boolean isWebSocket
   )
   {
     super(
@@ -60,6 +61,7 @@ public class SoapCommandPing extends SoapCommand
     mSoapEncoderFactory = soapEncoderFactory;
     mZimbraContext = zimbraContext;
     mActivityManager = activityManager;
+    mIsWebSocket = isWebSocket;
   }
 
   @Override
@@ -71,24 +73,28 @@ public class SoapCommandPing extends SoapCommand
       throw new MissingParameterException("Missing parameters to create " + getClass().getName());
     }
 
-    String successfullySentEvents;
     //Retrocompatibility condition
-    successfullySentEvents = mParameterMap.containsKey(SESSION_SUCCESSFULLY_SENT_EVENTS) ? mParameterMap.get(SESSION_SUCCESSFULLY_SENT_EVENTS) : "-1";
+    int successfullySentEvents = Integer.parseInt(mParameterMap.containsKey(SESSION_SUCCESSFULLY_SENT_EVENTS) ? mParameterMap.get(SESSION_SUCCESSFULLY_SENT_EVENTS) : "-1");
 
-    final SessionUUID sessionId = SessionUUID.fromString(mParameterMap.get(SESSION_ID));
-
-    Continuation continuation = mZimbraContext.getContinuation();
-    PingEventQueueListener queueListener = new PingEventQueueListener(
-      mActivityManager,
-      mSenderAddress,
-      continuation,
-      Integer.parseInt(successfullySentEvents)
-    );
+    PingQueueListener queueListener;
+    if(mIsWebSocket)
+    {
+      queueListener = new PingWebSocketQueueListener(mSenderAddress, successfullySentEvents);
+    }
+    else
+    {
+      queueListener = new PingSoapQueueListener(
+        mActivityManager,
+        mSenderAddress,
+        mZimbraContext.getContinuation(),
+        successfullySentEvents
+      );
+    }
 
     ChatOperation pingOperation = new SoapStartPing(
       mSoapResponse,
       mSoapEncoderFactory,
-      sessionId,
+      SessionUUID.fromString(mParameterMap.get(SESSION_ID)),
       queueListener,
       mSenderAddress
     );

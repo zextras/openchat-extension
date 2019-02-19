@@ -234,7 +234,8 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
     final Parser soapParser = mSoapParserFactory.create(
       senderAddress,
       zimbraContext,
-      mSoapResponse
+      mSoapResponse,
+      false
     );
     return soapParser.parse();
   }

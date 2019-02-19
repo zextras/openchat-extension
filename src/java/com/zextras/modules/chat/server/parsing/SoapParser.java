@@ -58,7 +58,8 @@ public class SoapParser implements Parser
   public final static String ACTION_RENAME_GROUP          = "rename_group";
   public final static String ACTION_QUERY_ARCHIVE         = "query_archive";
 
-  final         Provisioning       mProvisioning;
+  private final boolean mIsWebSocket;
+  final Provisioning mProvisioning;
   final         SoapSessionFactory mSoapSessionFactory;
   final         ZimbraContext      mZimbraContext;
   final         SoapResponse       mSoapResponse;
@@ -78,6 +79,7 @@ public class SoapParser implements Parser
     @Assisted SpecificAddress senderAddress,
     @Assisted ZimbraContext zimbraContext,
     @Assisted SoapResponse soapResponse,
+    @Assisted boolean isWebSocket,
     Provisioning provisioning,
     SoapEncoderFactory soapEncoderFactory,
     SoapSessionFactory soapSessionFactory,
@@ -89,6 +91,7 @@ public class SoapParser implements Parser
     LastMessageInfoOperationFactory lastMessageInfoOperationFactory
   )
   {
+    mIsWebSocket = isWebSocket;
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mActivityManager = activityManager;
@@ -159,7 +162,7 @@ public class SoapParser implements Parser
     {
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandPing(mSoapResponse, mSoapEncoderFactory, mSenderAddress, commandParameters, mZimbraContext, mActivityManager); }
+      { return new SoapCommandPing(mSoapResponse, mSoapEncoderFactory, mSenderAddress, commandParameters, mZimbraContext, mActivityManager, mIsWebSocket); }
     });
     setupCommand(ACTION_REMOVE_FRIEND, new CommandCreator()
     {

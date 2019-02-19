@@ -17,10 +17,9 @@
 
 package com.zextras.modules.chat.server.soap;
 
+import com.zextras.modules.chat.server.listener.PingQueueListener;
 import com.zextras.modules.chat.server.operations.SoapStartPing;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactoryImpl;
-import com.zextras.modules.chat.server.listener.PingEventQueueListener;
 import org.openzal.zal.Continuation;
 import org.openzal.zal.soap.SoapResponse;
 
@@ -45,7 +44,7 @@ public class ContinuationHandlerSoap implements ChatSoapRequestHandler
   public void handleRequest()
   {
     SoapStartPing startPing = (SoapStartPing) mContinuation.getObject();
-    PingEventQueueListener queueListener = startPing.getQueueListener();
+    PingQueueListener queueListener = startPing.getQueueListener();
     queueListener.encodeEvents(mResponse, mSoapEncoderFactory);
   }
 }

@@ -26,6 +26,7 @@ public interface ParserFactory
   Parser create(
     SpecificAddress senderAddress,
     ZimbraContext zimbraContext,
-    SoapResponse soapResponse
+    SoapResponse soapResponse,
+    boolean isWebSocket
   );
 }

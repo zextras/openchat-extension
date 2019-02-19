@@ -17,58 +17,38 @@
 
 package com.zextras.modules.chat.server.listener;
 
-import java.lang.Runnable;
-import com.zextras.lib.activities.ActivityManager;
-import com.zextras.lib.activities.ActivityTimer;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.encoding.Encoder;
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventInterpreter;
 import com.zextras.modules.chat.server.events.EventQueue;
-import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
-import com.zextras.modules.chat.server.events.Event;
-import org.openzal.zal.Continuation;
 import org.openzal.zal.soap.SoapResponse;
 
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class PingEventQueueListener implements EventQueueListener
+public class PingWebSocketQueueListener implements PingQueueListener
 {
-  private final Continuation    mContinuation;
   private final SpecificAddress mAddress;
   private final ReentrantLock   mLock;
-  private final ActivityManager mActivityManager;
-  private final int mSuccessfullySentEvents;
-  private       boolean         mCanBeResumed;
+  private final int             mSuccessfullySentEvents;
   private       boolean         mAlreadyReplied;
   private       boolean         mDetached;
   private       EventQueue      mEventQueue;
-  private       ActivityTimer   mTimeoutTimer;
 
-  public PingEventQueueListener(
-    ActivityManager activityManager,
+  public PingWebSocketQueueListener(
     SpecificAddress address,
-    Continuation continuation,
     int successFullySentEvents
   )
   {
-    mActivityManager = activityManager;
     mLock = new ReentrantLock();
     mAddress = address;
-    mContinuation = continuation;
     mSuccessfullySentEvents = successFullySentEvents;
     mAlreadyReplied = false;
     mDetached = false;
-    mCanBeResumed = false;
-    mTimeoutTimer = null;
-  }
-
-  public boolean alreadyReplied()
-  {
-    return mAlreadyReplied;
   }
 
   @Override
@@ -82,7 +62,9 @@ public class PingEventQueueListener implements EventQueueListener
   {
     mEventQueue = new EventQueue();
     mDetached = true;
-    resumeContinuationAndRemoveListener();
+    // check needed in case of double ping to avoid
+    // removal of another valid listener
+    mEventQueue.removeListenerIfEqual(this);
   }
 
   @Override
@@ -90,96 +72,49 @@ public class PingEventQueueListener implements EventQueueListener
   {
   }
 
+  @Override
   public void onEventQueued(EventQueue eventQueue)
   {
     mEventQueue = eventQueue;
-    if( mEventQueue.hasNewEvents(mSuccessfullySentEvents) )
+    if(mEventQueue.hasNewEvents(mSuccessfullySentEvents))
     {
       mAlreadyReplied = true;
-      resumeContinuationAndRemoveListener();
+      // check needed in case of double ping to avoid
+      // removal of another valid listener
+      mEventQueue.removeListenerIfEqual(this);
     }
   }
 
+  @Override
   public void suspendContinuation(
     Object continuationObject,
     long timeoutInMs
   )
   {
-    mLock.lock();
-    try
-    {
-      if( mCanBeResumed ) {
-        throw new RuntimeException("Cannot suspend already suspended request");
-      }
-
-      mContinuation.setObject(continuationObject);
-      mTimeoutTimer = mActivityManager.scheduleActivity(
-        new Runnable()
-        {
-          @Override
-          public void run()
-          {
-            mEventQueue.removeListenerIfEqual(PingEventQueueListener.this);
-            mEventQueue = new EventQueue();
-            resumeContinuationAndRemoveListener();
-          }
-        },
-        timeoutInMs
-      );
-
-      mCanBeResumed = true;
-      mContinuation.suspend();
-    }
-    finally
-    {
-      mLock.unlock();
-    }
+    mEventQueue.removeListenerIfEqual(PingWebSocketQueueListener.this);
+    mEventQueue = new EventQueue();
   }
 
-  private void resumeContinuationAndRemoveListener()
+  @Override
+  public void onEventPopped(EventQueue eventQueue, Event poppedEvent)
   {
-// check needed in case of double ping to avoid
-// removal of another valid listener
-    mEventQueue.removeListenerIfEqual(this);
-
-    mLock.lock();
-    try
-    {
-      if(mCanBeResumed && mContinuation.isSuspended())
-      {
-        mTimeoutTimer.cancel();
-        mTimeoutTimer = null;
-        mActivityManager.scheduleActivity(
-          new Runnable()
-          {
-            @Override
-            public void run()
-            {
-              mContinuation.resume();
-            }
-          },
-          250L
-        );
-        mCanBeResumed = false;
-      }
-    }
-    finally
-    {
-      mLock.unlock();
-    }
   }
 
   @Override
-  public void onEventPopped(EventQueue eventQueue, Event poppedEvent) {
-  }
-
-  @Override
-  public void onQueueFlushed(EventQueue eventQueue) {
+  public void onQueueFlushed(EventQueue eventQueue)
+  {
     mEventQueue.removeListener();
   }
 
   @Override
-  public void onEventRemoved(EventQueue eventQueue, Event event) {
+  public void onEventRemoved(EventQueue eventQueue, Event event)
+  {
+  }
+
+  @Override
+  public boolean alreadyReplied()
+  {
+    return mAlreadyReplied;
   }
 
   public void encodeEvents(SoapResponse response, EventInterpreter<Encoder> encoderFactory)
@@ -187,12 +122,12 @@ public class PingEventQueueListener implements EventQueueListener
     mLock.lock();
     try
     {
-      if (mEventQueue == null)
+      if(mEventQueue == null)
       {
         throw new RuntimeException("EventQueue is null");
       }
 
-      if (mDetached)
+      if(mDetached)
       {
         response.setValue("error", new ConcurrentPingException().toJSON().toString());
       }
@@ -202,14 +137,15 @@ public class PingEventQueueListener implements EventQueueListener
         mEventQueue.popSuccessfullySentEvents(mSuccessfullySentEvents);
 
         ChatSoapResponse chatSoapResponse = new ChatSoapResponse();
-        for (Event event : mEventQueue.peekAllEvents(200))
+        for(Event event : mEventQueue.peekAllEvents(200))
         {
           try
           {
             SoapEncoder encoder = (SoapEncoder) event.interpret(encoderFactory);
             encoder.encode(chatSoapResponse, mAddress);
           }
-          catch (ChatException e) {
+          catch(ChatException e)
+          {
             throw new RuntimeException(e);
           }
         }
@@ -224,12 +160,13 @@ public class PingEventQueueListener implements EventQueueListener
   }
 
   @Override
-  public String toString() {
-    return "PingEventQueueListener{" +
-        ", mAddress=" + mAddress +
-        ", mAlreadyReplied=" + mAlreadyReplied +
-        ", mEventQueue=" + mEventQueue +
-        ", HashCode=" + hashCode() +
-        '}';
+  public String toString()
+  {
+    return "PingWebSocketQueueListener{" +
+      ", mAddress=" + mAddress +
+      ", mAlreadyReplied=" + mAlreadyReplied +
+      ", mEventQueue=" + mEventQueue +
+      ", HashCode=" + hashCode() +
+      '}';
   }
 }

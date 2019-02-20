@@ -19,16 +19,38 @@ package com.zextras.modules.chat.server.parsing;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.zextras.modules.chat.properties.ChatProperties;
+import com.zextras.lib.Optional;
 import com.zextras.lib.activities.ActivityManager;
+import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.exceptions.ParserException;
+import com.zextras.modules.chat.server.listener.PingQueueListener;
+import com.zextras.modules.chat.server.listener.PingSoapQueueListener;
+import com.zextras.modules.chat.server.listener.PingWebSocketQueueListener;
 import com.zextras.modules.chat.server.operations.LastMessageInfoOperationFactory;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
+import com.zextras.modules.chat.server.soap.command.SoapCommand;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendAccept;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendAdd;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendBlock;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendRename;
+import com.zextras.modules.chat.server.soap.command.SoapCommandMessageReceived;
+import com.zextras.modules.chat.server.soap.command.SoapCommandPing;
+import com.zextras.modules.chat.server.soap.command.SoapCommandQueryArchive;
+import com.zextras.modules.chat.server.soap.command.SoapCommandRegister;
+import com.zextras.modules.chat.server.soap.command.SoapCommandRemoveFriend;
+import com.zextras.modules.chat.server.soap.command.SoapCommandRenameGroup;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSendMessage;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSendWriting;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSetAutoAway;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSetStatus;
+import com.zextras.modules.chat.server.soap.command.SoapCommandUnblockUser;
+import com.zextras.modules.chat.server.soap.command.SoapCommandUnregister;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import com.zextras.modules.chat.server.soap.command.*;
-import com.zextras.modules.chat.server.exceptions.ParserException;
+import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.lib.Clock;
 import org.openzal.zal.soap.SoapResponse;
@@ -58,10 +80,10 @@ public class SoapParser implements Parser
   public final static String ACTION_RENAME_GROUP          = "rename_group";
   public final static String ACTION_QUERY_ARCHIVE         = "query_archive";
 
-  private final boolean mIsWebSocket;
+  private final Map<String, String> mParameterMap;
   final Provisioning mProvisioning;
   final         SoapSessionFactory mSoapSessionFactory;
-  final         ZimbraContext      mZimbraContext;
+  final         Optional<ZimbraContext>      mZimbraContext;
   final         SoapResponse       mSoapResponse;
   private final Clock mClock;
   private final QueryArchiveFactory mQueryArchiveFactory;
@@ -73,13 +95,15 @@ public class SoapParser implements Parser
   final         SpecificAddress             mSenderAddress;
   final         SoapEncoderFactory          mSoapEncoderFactory;
   private final Map<String, CommandCreator> mCommandCreatorMap;
+  private final Optional<Channel> mChannel;
 
   @Inject
   public SoapParser(
-    @Assisted SpecificAddress senderAddress,
-    @Assisted ZimbraContext zimbraContext,
-    @Assisted SoapResponse soapResponse,
-    @Assisted boolean isWebSocket,
+    @Assisted("senderAddress") SpecificAddress senderAddress,
+    @Assisted("zimbraContext") Optional<ZimbraContext> zimbraContext,
+    @Assisted("channel") Optional<Channel> channel,
+    @Assisted("parameterMap") Map<String, String> parameterMap,
+    @Assisted("soapResponse") SoapResponse soapResponse,
     Provisioning provisioning,
     SoapEncoderFactory soapEncoderFactory,
     SoapSessionFactory soapSessionFactory,
@@ -91,10 +115,11 @@ public class SoapParser implements Parser
     LastMessageInfoOperationFactory lastMessageInfoOperationFactory
   )
   {
-    mIsWebSocket = isWebSocket;
+    mParameterMap = parameterMap;
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mActivityManager = activityManager;
+    mChannel = channel;
     mSenderAddress = senderAddress;
     mSoapEncoderFactory = soapEncoderFactory;
     mSoapSessionFactory = soapSessionFactory;
@@ -127,6 +152,7 @@ public class SoapParser implements Parser
       public SoapCommand create(Map<String, String> commandParameters)
       { return new SoapCommandFriendBlock(mSenderAddress, commandParameters); }
     } );
+
     setupCommand(ACTION_LOGIN, new CommandCreator()
     {
       @Override
@@ -139,7 +165,7 @@ public class SoapParser implements Parser
           commandParameters,
           mSoapSessionFactory,
           mProvisioning,
-          mZimbraContext,
+          mZimbraContext.getValue(),
           mChatProperties,
           mLastMessageInfoOperationFactory
         );
@@ -162,7 +188,18 @@ public class SoapParser implements Parser
     {
       @Override
       public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandPing(mSoapResponse, mSoapEncoderFactory, mSenderAddress, commandParameters, mZimbraContext, mActivityManager, mIsWebSocket); }
+      {
+        return new SoapCommandPing(
+          mSoapResponse,
+          mSoapEncoderFactory,
+          mSenderAddress,
+          commandParameters,
+          mActivityManager,
+          mZimbraContext,
+          mChannel,
+          mParameterMap
+        );
+      }
     });
     setupCommand(ACTION_REMOVE_FRIEND, new CommandCreator()
     {
@@ -235,10 +272,8 @@ public class SoapParser implements Parser
   public SoapCommand parse()
     throws ParserException
   {
-    final String evAction;
-
-    evAction = mZimbraContext.getParameter("action", "");
-    if( evAction.isEmpty() ) {
+    final String evAction = mParameterMap.get("action");
+    if( StringUtils.isBlank(evAction) ) {
       throw new ParserException("Missing attribute [action] from request");
     }
 
@@ -248,8 +283,6 @@ public class SoapParser implements Parser
     }
 
     CommandCreator creatorCreator = mCommandCreatorMap.get(evAction);
-    final Map<String, String> commandParameters = mZimbraContext.getParameterMap();
-
-    return creatorCreator.create(commandParameters);
+    return creatorCreator.create(mParameterMap);
   }
 }

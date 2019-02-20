@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.soap;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 //import com.zextras.modules.chat.ZxChatZimlet;
 import com.zextras.lib.Error.ErrorCode;
@@ -26,6 +27,7 @@ import com.zextras.lib.Error.ZxError;
 import com.zextras.lib.log.SeverityLevel;
 import com.zextras.modules.chat.server.parsing.ParserFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
+import io.netty.channel.Channel;
 import org.openzal.zal.Account;
 import org.openzal.zal.ContinuationThrowable;
 import org.openzal.zal.lib.Filter;
@@ -233,9 +235,10 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
 
     final Parser soapParser = mSoapParserFactory.create(
       senderAddress,
-      zimbraContext,
-      mSoapResponse,
-      false
+      Optional.of(zimbraContext),
+      Optional.<Channel>empty(),
+      zimbraContext.getParameterMap(),
+      mSoapResponse
     );
     return soapParser.parse();
   }

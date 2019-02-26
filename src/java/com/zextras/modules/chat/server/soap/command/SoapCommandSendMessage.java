@@ -84,7 +84,6 @@ public class SoapCommandSendMessage extends SoapCommand
       @Override
       public void encode(ChatSoapResponse response, SpecificAddress target) {
         JSONObject message = new JSONObject();
-        message.put("type", ClientEventType.MESSAGE_SENT);
         message.put(REQUEST_ID,mParameterMap.get(REQUEST_ID));
         message.put("message_id",messageId.toString());
         message.put("message_date",timestamp);

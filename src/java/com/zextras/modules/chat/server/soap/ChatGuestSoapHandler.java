@@ -21,18 +21,18 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
+import org.openzal.zal.Account;
 import org.openzal.zal.ContinuationThrowable;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
-import org.openzal.zal.Account;
 import org.openzal.zal.soap.SoapHandler;
 import org.openzal.zal.soap.SoapResponse;
 import org.openzal.zal.soap.ZimbraContext;
 import org.openzal.zal.soap.ZimbraExceptionContainer;
 
-
+//zmsoap -t account -m user1@example.com -p assext  ZxChatRequest/action=query_archive ../with=user2@example.com ../session_id=687c6492-9027-416c-8172-2d668154d2d1 | recode html..text
 @Singleton
-public class ChatSoapHandler implements SoapHandler
+public class ChatGuestSoapHandler implements SoapHandler
 {
   private final SoapHandlerCreatorFactory mSoapHandlerCreatorFactory;
   private final Provisioning              mProvisioning;
@@ -40,7 +40,7 @@ public class ChatSoapHandler implements SoapHandler
   //private final ReportManager             mReportManager;
 
   @Inject
-  public ChatSoapHandler(
+  public ChatGuestSoapHandler(
     SoapHandlerCreatorFactory soapHandlerCreatorFactory,
     Provisioning provisioning
     //GenericReportBuilder genericReportBuilder,
@@ -55,7 +55,7 @@ public class ChatSoapHandler implements SoapHandler
 
   public String getLoggerName()
   {
-    return "Chat Soap Handler";
+    return "Chat Guest Soap Handler";
   }
 
   @Override
@@ -67,11 +67,8 @@ public class ChatSoapHandler implements SoapHandler
   {
     try
     {
-      String targetAccountId = context.getTargetAccountId();
-      Account account = mProvisioning.getAccountById(targetAccountId);
-
       final SoapHandlerCreator handlerCreator = mSoapHandlerCreatorFactory.create(
-        Optional.of(account),
+        Optional.<Account>empty(),
         soapResponse,
         context
       );
@@ -100,6 +97,6 @@ public class ChatSoapHandler implements SoapHandler
   @Override
   public boolean needsAuthentication(ZimbraContext context)
   {
-    return true;
+    return false;
   }
 }

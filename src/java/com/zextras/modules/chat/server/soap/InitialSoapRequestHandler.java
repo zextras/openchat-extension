@@ -60,8 +60,7 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
 {
   private final EventManager       mEventManager;
   private final SessionManager     mSessionManager;
-  private final Account            mAccount;
-  private final SoapEncoderFactory mSoapEncoderFactory;
+  private final Optional<Account>  mAccount;
   private final ZimbraContext      mZimbraContext;
   //private final ZxChatZimlet       mChatZimlet;
   private final ParserFactory      mSoapParserFactory;
@@ -71,9 +70,8 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
   public InitialSoapRequestHandler(
     EventManager eventManager,
     SessionManager sessionManager,
-    SoapEncoderFactory soapEncoderFactory,
     ParserFactory soapParserFactory,
-    @Assisted Account account,
+    @Assisted Optional<Account> account,
     @Assisted ZimbraContext zimbraContext,
     //@Assisted ZxChatZimlet chatZimlet,
     @Assisted SoapResponse soapResponse
@@ -82,7 +80,6 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
     mEventManager = eventManager;
     mSessionManager = sessionManager;
     mAccount = account;
-    mSoapEncoderFactory = soapEncoderFactory;
     mZimbraContext = zimbraContext;
     //mChatZimlet = chatZimlet;
     mSoapParserFactory = soapParserFactory;
@@ -112,7 +109,7 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
   public void handleRequest()
   {
     // Check if the auth token comes from the same account of the session
-    if (!mZimbraContext.getAuthenticatedAccontId().equals(mAccount.getId()))
+    if (mAccount.hasValue() && !mZimbraContext.getAuthenticatedAccontId().equals(mAccount.getValue().getId()))
     {
       sendShutdown();
       return;
@@ -122,7 +119,7 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
     List<ChatOperation> operations;
     try
     {
-      soapCommand = createCommand(mAccount.getName(), mZimbraContext);
+      soapCommand = createCommand(mAccount, mZimbraContext);
       operations = soapCommand.createOperationList();
     }
     catch (NoSuchAccountChatException ex)
@@ -167,13 +164,13 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
     }
     catch (NoSuchSessionInPingException ex)
     {
-      ChatLog.log.info("No session found for " + mAccount.getName() + ", requesting registration");
+      ChatLog.log.info("No session found for " + mAccount.getValue().getName() + ", requesting registration");
       sendRegistrationRequired();
       return;
     }
     catch (NoSuchSessionException ex)
     {
-      ChatLog.log.info("ZeXtras Chat session appears to be expired, starting new session for " + mAccount.getName()); //#ZextrasRef
+      ChatLog.log.info("ZeXtras Chat session appears to be expired, starting new session for " + mAccount.getValue().getName()); //#ZextrasRef
       ChatLog.log.crit("Exception: " + Utils.exceptionToString(ex));
       mSoapResponse.setValue("error", ex.toJSON().toString());
       return;
@@ -215,7 +212,7 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
 
   private void sendShutdown()
   {
-    ChatLog.log.info("Sending shutdown to " + mAccount.getName());
+    ChatLog.log.info("Sending shutdown to " + mAccount.getValue().getName());
     JSONArray responseArray = new JSONArray();
     JSONObject response = new JSONObject();
     response.put("type", ClientEventType.TYPE_SHUTDOWN);
@@ -225,16 +222,13 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
   }
 
   private SoapCommand createCommand(
-    String accountAddress,
+    Optional<Account> accountAddress,
     ZimbraContext zimbraContext
   )
     throws ParserException
   {
-    assert (accountAddress != null);
-    final SpecificAddress senderAddress = new SpecificAddress(accountAddress, "soap");
-
     final Parser soapParser = mSoapParserFactory.create(
-      senderAddress,
+      mAccount.hasValue() ? Optional.of(new SpecificAddress(accountAddress.getValue().getName(), "soap")) : Optional.<SpecificAddress>empty(),
       Optional.of(zimbraContext),
       Optional.<Channel>empty(),
       zimbraContext.getParameterMap(),

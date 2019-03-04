@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.soap;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.log.CurrentLogContext;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
@@ -31,7 +32,7 @@ import org.openzal.zal.soap.ZimbraContext;
 public class SoapHandlerCreator
 {
   private final SoapResponse                     mResponse;
-  private final Account                          mAccount;
+  private final Optional<Account>                mAccount;
   private final SoapEncoderFactory               mSoapEncoderFactory;
   private final ZimbraContext                    mZimbraContext;
   //private final ZxChatZimlet                     mChatZimlet;
@@ -42,7 +43,7 @@ public class SoapHandlerCreator
     SoapEncoderFactory soapEncoderFactory,
     InitialSoapRequestHandlerFactory initialSoapRequestHandlerFactory,
     //ZxChatZimlet chatZimlet,
-    @Assisted Account account,
+    @Assisted Optional<Account> account,
     @Assisted SoapResponse soapResponse,
     @Assisted ZimbraContext zimbraSoapContext
   )
@@ -64,16 +65,16 @@ public class SoapHandlerCreator
 
     // Debug feature to check client cookie coherence, DO NOT REMOVE!
     String myusername = mZimbraContext.getParameter("myusername", null);
-    if (myusername != null && !mAccount.getName().equals(myusername))
+    if (myusername != null && mAccount.hasValue() && !mAccount.getValue().getName().equals(myusername))
     {
-      CurrentLogContext.begin().setAccount(mAccount).freeze();
+      CurrentLogContext.begin().setAccount(mAccount.getValue()).freeze();
       try
       {
         ChatLog.log.warn(
           "Bad client cookie/status, it's convinced to be " +
             myusername +
             " but it's " +
-            mAccount.getName()
+            mAccount.getValue().getName()
         );
         return new NullAccountHandlerSoap(mResponse);
       }

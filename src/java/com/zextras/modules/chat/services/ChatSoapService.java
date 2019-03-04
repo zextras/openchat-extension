@@ -20,36 +20,43 @@ package com.zextras.modules.chat.services;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.switches.Service;
+import com.zextras.modules.chat.server.soap.ChatGuestSoapHandler;
 import com.zextras.modules.chat.server.soap.ChatSoapHandler;
 import org.openzal.zal.soap.QName;
 import org.openzal.zal.soap.SoapHandler;
 import org.openzal.zal.soap.SoapService;
 import org.openzal.zal.soap.SoapServiceManager;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Singleton
 public class ChatSoapService implements Service, SoapService
 {
-  public static final String ServiceName         = "SoapServlet";
-  public static final QName CHAT_CLIENT_REQUEST = new QName("ZxChatRequest", "urn:zimbraAccount");
+  private static final String ServiceName               = "SoapServlet";
+  private static final QName  CHAT_CLIENT_REQUEST       = new QName("ZxChatRequest", "urn:zimbraAccount");
+  private static final QName  CHAT_CLIENT_GUEST_REQUEST = new QName("ZxChatGuestRequest", "urn:zimbraAccount");
 
   private final Map<QName, SoapHandler> mHandlerMap;
-  private final SoapServiceManager  mSoapServiceManager;
+  private final SoapServiceManager      mSoapServiceManager;
 
   @Inject
   public ChatSoapService(
     SoapServiceManager soapServiceManager,
-    ChatSoapHandler chatSoapHandler
+    ChatSoapHandler chatSoapHandler,
+    ChatGuestSoapHandler chatGuestSoapHandler
   )
   {
     mSoapServiceManager = soapServiceManager;
-    mHandlerMap = Collections.<QName, SoapHandler>singletonMap(CHAT_CLIENT_REQUEST, chatSoapHandler);
+
+    mHandlerMap = new HashMap<>();
+    mHandlerMap.put(CHAT_CLIENT_REQUEST, chatSoapHandler);
+    mHandlerMap.put(CHAT_CLIENT_GUEST_REQUEST, chatGuestSoapHandler);
   }
 
   @Override
-  public void start() throws ServiceStartException
+  public void start()
+    throws ServiceStartException
   {
     mSoapServiceManager.register(this);
   }

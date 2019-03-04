@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.soap;
 
 //import com.zextras.modules.chat.ZxChatZimlet;
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.parsing.ParserFactory;
 import org.openzal.zal.Account;
 import org.openzal.zal.soap.SoapResponse;
@@ -26,7 +27,7 @@ import org.openzal.zal.soap.ZimbraContext;
 public interface InitialSoapRequestHandlerFactory
 {
   public InitialSoapRequestHandler create(
-    Account account,
+    Optional<Account> account,
     ZimbraContext zimbraContext,
     //ZxChatZimlet chatZimlet,
     SoapResponse soapResponse

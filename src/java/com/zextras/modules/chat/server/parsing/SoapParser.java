@@ -51,7 +51,6 @@ import com.zextras.modules.chat.server.soap.command.SoapCommandUnregister;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
-import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.lib.Clock;
 import org.openzal.zal.soap.SoapResponse;
@@ -81,8 +80,6 @@ public class SoapParser implements Parser
   public final static String ACTION_RENAME_GROUP          = "rename_group";
   public final static String ACTION_QUERY_ARCHIVE         = "query_archive";
 
-
-  private final Optional<SpecificAddress> mSender;
   private final Map<String, String> mParameterMap;
   final Provisioning mProvisioning;
   final         SoapSessionFactory mSoapSessionFactory;
@@ -95,9 +92,11 @@ public class SoapParser implements Parser
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
+  private final Optional<SpecificAddress> mSender;
   final         SoapEncoderFactory          mSoapEncoderFactory;
   private final Map<String, CommandCreator> mCommandCreatorMap;
   private final Optional<Channel> mChannel;
+
   @Inject
   public SoapParser(
     @Assisted("senderAddress") Optional<SpecificAddress> sender,
@@ -116,12 +115,12 @@ public class SoapParser implements Parser
     LastMessageInfoOperationFactory lastMessageInfoOperationFactory
   )
   {
-    mSender = sender;
     mParameterMap = parameterMap;
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mActivityManager = activityManager;
     mChannel = channel;
+    mSender = sender;
     mSoapEncoderFactory = soapEncoderFactory;
     mSoapSessionFactory = soapSessionFactory;
     mZimbraContext = zimbraContext;

@@ -23,7 +23,9 @@ import com.zextras.modules.chat.server.User;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventQueue;
+import com.zextras.modules.chat.server.filters.EventFilter;
 import com.zextras.modules.chat.server.session.SessionUUID;
+import com.zextras.modules.chat.server.session.SoapEventFilter;
 import org.openzal.zal.lib.Filter;
 import org.openzal.zal.lib.Version;
 
@@ -33,6 +35,6 @@ public interface SoapSessionFactory {
                             User user,
                             SpecificAddress address,
                             Version clientVersion,
-                            Filter<Event> outFilter
+                            EventFilter soapEventFilter
     );
 }

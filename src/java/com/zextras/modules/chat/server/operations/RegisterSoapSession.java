@@ -32,6 +32,7 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
+import com.zextras.modules.chat.server.session.SoapEventFilter;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.soap.SoapSession;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
@@ -48,7 +49,7 @@ public class RegisterSoapSession implements ChatOperation
   private       SoapSessionFactory mSoapSessionFactory;
   private final String             mClientVersion;
   private final boolean            mSilentErrorReportingEnabled;
-  private final Filter<Event> mOutFilter;
+  private final SoapEventFilter mSoapEventFilter;
   private final SessionUUID mNewSessionId;
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
@@ -62,7 +63,7 @@ public class RegisterSoapSession implements ChatOperation
     SoapSessionFactory soapSessionFactory,
     String clientVersion,
     boolean silentErrorReportingEnabled,
-    Filter<Event> outFilter
+    SoapEventFilter soapEventFilter
   )
   {
     mNewSessionId = newSessionId;
@@ -72,7 +73,7 @@ public class RegisterSoapSession implements ChatOperation
     mSoapSessionFactory = soapSessionFactory;
     mClientVersion = clientVersion;
     mSilentErrorReportingEnabled = silentErrorReportingEnabled;
-    mOutFilter = outFilter;
+    mSoapEventFilter = soapEventFilter;
   }
 
   public SessionUUID getNewSessionId()
@@ -101,7 +102,7 @@ public class RegisterSoapSession implements ChatOperation
       user,
       mSenderAddress,
       version,
-      mOutFilter
+      mSoapEventFilter
     );
 
     sessionManager.addSession(newSession);

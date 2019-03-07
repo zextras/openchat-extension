@@ -34,10 +34,9 @@ import org.openzal.zal.lib.Version;
 
 public class SoapSession extends BaseSession
 {
-  public final static long EXPIRE_TIME_IN_MILLIS = 50000L;
+  public final static long EXPIRE_TIME_IN_MILLIS = 60000L*60L*2L;
 
   private       long        mExpireTime;
-  private final Filter<Event> mOutFilter;
   private final Clock mClock;
   private final EventFilter mEventFilter;
   private final Version mClientVersion;
@@ -50,14 +49,12 @@ public class SoapSession extends BaseSession
     @Assisted User user,
     @Assisted SpecificAddress address,
     @Assisted Version clientVersion,
-    @Assisted Filter<Event> outFilter,
-    Clock clock,
-    SoapEventFilter soapEventFilter
+    @Assisted EventFilter soapEventFilter,
+    Clock clock
   )
   {
     super(id, eventQueue, user, new SpecificAddress(address.toString(), id.toString()));
     mClientVersion = clientVersion;
-    mOutFilter = outFilter;
     mClock = clock;
     mExpireTime = mClock.now() + EXPIRE_TIME_IN_MILLIS;
     mEventFilter = soapEventFilter;
@@ -79,7 +76,7 @@ public class SoapSession extends BaseSession
   @Override
   public Filter<Event> getOutFilter()
   {
-    return mOutFilter;
+    return new FilterPassAll<>();
   }
 
   @Override

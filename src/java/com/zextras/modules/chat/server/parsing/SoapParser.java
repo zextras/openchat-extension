@@ -30,6 +30,7 @@ import com.zextras.modules.chat.server.listener.PingSoapQueueListener;
 import com.zextras.modules.chat.server.listener.PingWebSocketQueueListener;
 import com.zextras.modules.chat.server.operations.LastMessageInfoOperationFactory;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
+import com.zextras.modules.chat.server.session.SoapEventFilter;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.command.SoapCommand;
 import com.zextras.modules.chat.server.soap.command.SoapCommandFriendAccept;
@@ -89,6 +90,7 @@ public class SoapParser implements Parser
   private final QueryArchiveFactory mQueryArchiveFactory;
   private final UserCapabilitiesProvider mUserCapabilitiesProvider;
   private final LastMessageInfoOperationFactory mLastMessageInfoOperationFactory;
+  private final SoapEventFilter mSoapEventFilter;
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
@@ -112,7 +114,8 @@ public class SoapParser implements Parser
     Clock clock,
     QueryArchiveFactory queryArchiveFactory,
     UserCapabilitiesProvider userCapabilitiesProvider,
-    LastMessageInfoOperationFactory lastMessageInfoOperationFactory
+    LastMessageInfoOperationFactory lastMessageInfoOperationFactory,
+    SoapEventFilter soapEventFilter
   )
   {
     mParameterMap = parameterMap;
@@ -129,6 +132,7 @@ public class SoapParser implements Parser
     mQueryArchiveFactory = queryArchiveFactory;
     mUserCapabilitiesProvider = userCapabilitiesProvider;
     mLastMessageInfoOperationFactory = lastMessageInfoOperationFactory;
+    mSoapEventFilter = soapEventFilter;
     mCommandCreatorMap = new HashMap<String, CommandCreator>(32);
     setupCommands();
   }
@@ -176,25 +180,8 @@ public class SoapParser implements Parser
             mProvisioning,
             mZimbraContext.getValue(),
             mChatProperties,
-            mLastMessageInfoOperationFactory
-          );
-        }
-      });
-      setupCommand(ACTION_LOGIN, new CommandCreator()
-      {
-        @Override
-        public SoapCommand create(Map<String, String> commandParameters)
-        {
-          return new SoapCommandRegister(
-            mSoapResponse,
-            mSoapEncoderFactory,
-            mSenderAddress,
-            commandParameters,
-            mSoapSessionFactory,
-            mProvisioning,
-            mZimbraContext.getValue(),
-            mChatProperties,
-            mLastMessageInfoOperationFactory
+            mLastMessageInfoOperationFactory,
+            mSoapEventFilter
           );
         }
       });

@@ -60,8 +60,10 @@ public abstract class SoapCommand
   public final static String WITH       = "with";
   public final static String MAX        = "max";
 
-  protected static final String MEETING_ID   = "meeting_id";
-  public static final    String MEETING_LINK = "meeting_link";
+  public static final String MEETING_ID       = "meeting_id";
+  public static final String MEETING_PASSWORD = "meeting_password";
+  public static final String MEETING_LINK     = "meeting_link";
+  public static final String MEETING_JID      = "meeting_jid";
 
   protected final SpecificAddress     mSenderAddress;
   protected final Map<String, String> mParameterMap;

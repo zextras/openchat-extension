@@ -6,34 +6,7 @@ import com.zextras.lib.FixedCacheMap;
 import com.zextras.lib.FixedCacheStringTTLMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.openzal.zal.Account;
-import org.openzal.zal.CacheEntry;
-import org.openzal.zal.CacheEntryType;
-import org.openzal.zal.CalendarResource;
-import org.openzal.zal.ChangePasswordListener;
-import org.openzal.zal.Config;
-import org.openzal.zal.Cos;
-import org.openzal.zal.DistributionList;
-import org.openzal.zal.Domain;
-import org.openzal.zal.Entry;
-import org.openzal.zal.GlobalGrant;
-import org.openzal.zal.GrantedBy;
-import org.openzal.zal.Grants;
-import org.openzal.zal.Group;
-import org.openzal.zal.LdapVisitor;
-import org.openzal.zal.OperationContext;
-import org.openzal.zal.Protocol;
-import org.openzal.zal.Provisioning;
-import org.openzal.zal.ProvisioningKey;
-import org.openzal.zal.RightModifier;
-import org.openzal.zal.Server;
-import org.openzal.zal.SimpleVisitor;
-import org.openzal.zal.Targetby;
-import org.openzal.zal.TwoFactorAuthChangeListener;
-import org.openzal.zal.UCService;
-import org.openzal.zal.XMPPComponent;
-import org.openzal.zal.ZimbraId;
-import org.openzal.zal.Zimlet;
+import org.openzal.zal.*;
 import org.openzal.zal.exceptions.NoSuchAccountException;
 import org.openzal.zal.exceptions.NoSuchGrantException;
 import org.openzal.zal.exceptions.UnableToFindDistributionListException;
@@ -536,6 +509,48 @@ public class ProvisioningCache implements Provisioning
     throws ZimbraException
   {
     return mProvisioning.createAccount(dstAccount, newPassword, attrs);
+  }
+
+  @Override
+  public Account restoreAccount(String emailAddress, String password, Map<String, Object> attrs, Map<String, Object> origAttrs)
+  {
+    return mProvisioning.restoreAccount(emailAddress, password, attrs, origAttrs);
+  }
+
+  @Override
+  public DataSource restoreDataSource(Account account, DataSourceType dsType, String dsName, Map<String, Object> dataSourceAttrs)
+  {
+    return mProvisioning.restoreDataSource(account, dsType, dsName, dataSourceAttrs);
+  }
+
+  @Override
+  public Identity restoreIdentity(Account account, String identityName, Map<String, Object> identityAttrs)
+  {
+    return mProvisioning.restoreIdentity(account, identityName, identityAttrs);
+  }
+
+  @Override
+  public Signature restoreSignature(Account account, String signatureName, Map<String, Object> signatureAttrs)
+  {
+    return mProvisioning.restoreSignature(account, signatureName, signatureAttrs);
+  }
+
+  @Override
+  public void restoreCos(Map<String, Object> attributes)
+  {
+    mProvisioning.restoreCos(attributes);
+  }
+
+  @Override
+  public void restoreDomain(Map<String, Object> attributes)
+  {
+    mProvisioning.restoreDomain(attributes);
+  }
+
+  @Override
+  public void restoreDistributionList(String name, Map<String, Object> attributes)
+  {
+    mProvisioning.restoreDistributionList(name, attributes);
   }
 
   @Override

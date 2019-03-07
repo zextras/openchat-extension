@@ -18,6 +18,7 @@
 package com.zextras.modules.chat.server.soap.command;
 
 import com.zextras.lib.Optional;
+import com.zextras.lib.filters.FilterPassAll;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.Error.DelegatedOrResourcesNotAllowedToChatError;
 import com.zextras.modules.chat.server.events.Event;
@@ -93,7 +94,7 @@ public class SoapCommandRegister extends SoapCommand
       mSoapSessionFactory,
       clientVersion,
       silentErrorReportingEnabled,
-      Optional.<Filter<Event>>empty()
+      new FilterPassAll<Event>()
     );
   }
 

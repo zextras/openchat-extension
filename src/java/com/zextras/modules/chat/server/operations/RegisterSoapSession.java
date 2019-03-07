@@ -48,7 +48,7 @@ public class RegisterSoapSession implements ChatOperation
   private       SoapSessionFactory mSoapSessionFactory;
   private final String             mClientVersion;
   private final boolean            mSilentErrorReportingEnabled;
-  private final Optional<Filter<Event>> mOutFilter;
+  private final Filter<Event> mOutFilter;
   private final SessionUUID mNewSessionId;
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
@@ -62,7 +62,7 @@ public class RegisterSoapSession implements ChatOperation
     SoapSessionFactory soapSessionFactory,
     String clientVersion,
     boolean silentErrorReportingEnabled,
-    Optional<Filter<Event>> outFilter
+    Filter<Event> outFilter
   )
   {
     mNewSessionId = newSessionId;

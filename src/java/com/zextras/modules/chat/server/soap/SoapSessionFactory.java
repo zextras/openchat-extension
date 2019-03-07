@@ -33,6 +33,6 @@ public interface SoapSessionFactory {
                             User user,
                             SpecificAddress address,
                             Version clientVersion,
-                            Optional<Filter<Event>> outFilter
+                            Filter<Event> outFilter
     );
 }

@@ -37,7 +37,7 @@ public class SoapSession extends BaseSession
   public final static long EXPIRE_TIME_IN_MILLIS = 50000L;
 
   private       long        mExpireTime;
-  private final Optional<Filter<Event>> mOutFilter;
+  private final Filter<Event> mOutFilter;
   private final Clock mClock;
   private final EventFilter mEventFilter;
   private final Version mClientVersion;
@@ -50,7 +50,7 @@ public class SoapSession extends BaseSession
     @Assisted User user,
     @Assisted SpecificAddress address,
     @Assisted Version clientVersion,
-    @Assisted Optional<Filter<Event>> outFilter,
+    @Assisted Filter<Event> outFilter,
     Clock clock,
     SoapEventFilter soapEventFilter
   )
@@ -79,11 +79,7 @@ public class SoapSession extends BaseSession
   @Override
   public Filter<Event> getOutFilter()
   {
-    if(mOutFilter.hasValue())
-    {
-      return mOutFilter.getValue();
-    }
-    return new FilterPassAll<Event>();
+    return mOutFilter;
   }
 
   @Override

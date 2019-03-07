@@ -36,6 +36,7 @@ import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
 import com.zextras.modules.chat.server.exceptions.NoSuchSessionException;
 import com.zextras.modules.chat.server.exceptions.NoSuchSessionInPingException;
 import com.zextras.modules.chat.server.exceptions.ParserException;
+import com.zextras.modules.chat.server.exceptions.TooManyUsersInInstantMeetingError;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.parsing.Parser;
 import com.zextras.modules.chat.server.parsing.ParserFactory;
@@ -139,6 +140,12 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
     {
       ChatLog.log.info(ex.getMessage());
       mSoapResponse.setValue("error", ex.toJSON().toString());
+      return;
+    }
+    catch( TooManyUsersInInstantMeetingError err )
+    {
+      ChatLog.log.info(err.getMessage());
+      mSoapResponse.setValue("error", err.toJSON().toString());
       return;
     }
     catch (Exception e)

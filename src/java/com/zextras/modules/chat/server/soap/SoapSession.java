@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.soap;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.zextras.lib.Optional;
 import org.openzal.zal.lib.Clock;
 import org.openzal.zal.lib.Filter;
 import com.zextras.lib.filters.FilterPassAll;
@@ -36,7 +37,8 @@ public class SoapSession extends BaseSession
   public final static long EXPIRE_TIME_IN_MILLIS = 50000L;
 
   private       long        mExpireTime;
-  private final Clock       mClock;
+  private final Optional<Filter<Event>> mOutFilter;
+  private final Clock mClock;
   private final EventFilter mEventFilter;
   private final Version mClientVersion;
   private       Version mNotifiedVersion;
@@ -48,12 +50,14 @@ public class SoapSession extends BaseSession
     @Assisted User user,
     @Assisted SpecificAddress address,
     @Assisted Version clientVersion,
+    @Assisted Optional<Filter<Event>> outFilter,
     Clock clock,
     SoapEventFilter soapEventFilter
   )
   {
     super(id, eventQueue, user, new SpecificAddress(address.toString(), id.toString()));
     mClientVersion = clientVersion;
+    mOutFilter = outFilter;
     mClock = clock;
     mExpireTime = mClock.now() + EXPIRE_TIME_IN_MILLIS;
     mEventFilter = soapEventFilter;
@@ -75,6 +79,10 @@ public class SoapSession extends BaseSession
   @Override
   public Filter<Event> getOutFilter()
   {
+    if(mOutFilter.hasValue())
+    {
+      return mOutFilter.getValue();
+    }
     return new FilterPassAll<Event>();
   }
 

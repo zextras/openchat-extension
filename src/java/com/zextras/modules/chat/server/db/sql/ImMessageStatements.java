@@ -5,7 +5,8 @@ import com.zextras.lib.ContainerImpl;
 import com.zextras.lib.ContainerListContainer;
 import com.zextras.lib.Optional;
 import com.google.inject.Inject;
-import com.zextras.lib.DbHelper;
+import com.zextras.lib.db.DbHelper;
+import com.zextras.lib.db.ResultSetHelper;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.address.SubdomainResolver;
 import com.zextras.modules.chat.server.db.ChatDbHandler;
@@ -15,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,10 +120,10 @@ public class ImMessageStatements
     "SELECT SENDER,DESTINATION,TIMESTAMP,MESSAGE_ID FROM chat.MESSAGE_READ WHERE DESTINATION = ?";
 
   private final static String sCOUNT_MESSAGE_TO_READ =
-    "SELECT COUNT(*) FROM chat.MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
+    "SELECT COUNT(*) AS count_message FROM chat.MESSAGE WHERE SENDER = ? AND DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final static String sCOUNT_MESSAGE_TO_READ_FROM_EVERYONE =
-    "SELECT COUNT(*) FROM chat.MESSAGE WHERE DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
+    "SELECT COUNT(*) AS count_message FROM chat.MESSAGE WHERE DESTINATION = ? AND (SENT_TIMESTAMP > ? OR EDIT_TIMESTAMP > ?) ";
 
   private final static String sALL_RECIPIENTS =
       "SELECT DISTINCT chat.MESSAGE.SENDER " +
@@ -269,16 +269,16 @@ public class ImMessageStatements
     }, new DbHelper.ResultSetFactory<Void>()
     {
       @Override
-      public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
+      public Void create(ResultSetHelper rs, DbHelper.DbConnection connection) throws SQLException
       {
-        TargetType target_type = TargetType.fromShort(rs.getShort("TARGET_TYPE"));
+        TargetType target_type = TargetType.fromShort(rs.optShort("TARGET_TYPE",(short)0));
         messages.add(new ImMessage(
           rs.getString("ID"),
-          rs.getLong("SENT_TIMESTAMP"),
-          rs.getLong("EDIT_TIMESTAMP"),
-          EventType.fromShort(rs.getShort("MESSAGE_TYPE")),
+          rs.optLong("SENT_TIMESTAMP",0),
+          rs.optLong("EDIT_TIMESTAMP",0),
+          EventType.fromShort(rs.optShort("MESSAGE_TYPE",(short)0)),
           target_type,
-          rs.getShort("INDEX_STATUS"),
+          rs.optShort("INDEX_STATUS",(short)0),
           mSubdomainResolver.toRoomAddress(TargetType.Chat,rs.getString("SENDER")).resourceAddress(),
           mSubdomainResolver.toRoomAddress(target_type,rs.getString("DESTINATION")).resourceAddress(),
           rs.getString("TEXT"),
@@ -375,10 +375,10 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
+        public Void create(ResultSetHelper rs, DbHelper.DbConnection connection) throws SQLException
         {
-          long timestamp = rs.getLong(1);
-          String id = rs.getString(2);
+          long timestamp = rs.optLong("TIMESTAMP",0L);
+          String id = rs.getString("MESSAGE_ID");
           pair[0] = Pair.of(timestamp,id);
           return null;
         }
@@ -428,13 +428,13 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
+        public Void create(ResultSetHelper rs, DbHelper.DbConnection connection) throws SQLException
         {
           ContainerImpl entry = new ContainerImpl();
-          entry.putString("ACK_SENDER",rs.getString(1));
-          entry.putString("ACK_DESTINATION",rs.getString(2));
-          entry.putLong("TIMESTAMP",rs.getLong(3));
-          entry.putString("MESSAGE_ID",rs.getString(4));
+          entry.putString("ACK_SENDER",rs.getString("SENDER"));
+          entry.putString("ACK_DESTINATION",rs.getString("DESTINATION"));
+          entry.putLong("TIMESTAMP",rs.optLong("TIMESTAMP",0L));
+          entry.putString("MESSAGE_ID",rs.getString("MESSAGE_ID"));
           list.add(entry);
           return null;
         }
@@ -461,9 +461,9 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
+        public Void create(ResultSetHelper rs, DbHelper.DbConnection connection) throws SQLException
         {
-          set.add(mSubdomainResolver.toRoomAddress(TargetType.Chat,rs.getString(1)).toString());
+          set.add(mSubdomainResolver.toRoomAddress(TargetType.Chat,rs.getString("chat.MESSAGE.SENDER")).toString());
           return null;
         }
       });
@@ -504,9 +504,9 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
+        public Void create(ResultSetHelper rs, DbHelper.DbConnection connection) throws SQLException
         {
-          count[0] = rs.getInt(1);
+          count[0] = rs.optInt("count_message",0);
           return null;
         }
       });
@@ -532,9 +532,9 @@ public class ImMessageStatements
       new DbHelper.ResultSetFactory<Void>()
       {
         @Override
-        public Void create(ResultSet rs, DbHelper.DbConnection connection) throws SQLException
+        public Void create(ResultSetHelper rs, DbHelper.DbConnection connection) throws SQLException
         {
-          count[0] = rs.getInt(1);
+          count[0] = rs.optInt("count_message",0);
           return null;
         }
       });

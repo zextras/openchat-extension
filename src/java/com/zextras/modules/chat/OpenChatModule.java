@@ -81,6 +81,8 @@ import com.zextras.modules.chat.server.xmpp.XmppHandlerFactory;
 import com.zextras.modules.chat.server.xmpp.XmppHandlerFactoryImpl;
 import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoderFactory;
 import com.zextras.modules.chat.server.xmpp.encoders.XmppEncoderFactoryImpl;
+import com.zextras.modules.chat.services.ChatSoapService;
+import com.zextras.modules.chat.services.ChatSoapServiceImp;
 import com.zextras.modules.core.ProvisioningCache;
 import org.openzal.zal.MailboxManager;
 import org.openzal.zal.Provisioning;
@@ -151,5 +153,6 @@ public class OpenChatModule extends AbstractModule
       .implement(Parser.class,SoapParser.class)
       .build(ParserFactory.class));
     bind(RoomServerHostSetProvider.class).to(StubRoomServerHostSetProvider.class);
+    bind(ChatSoapService.class).to(ChatSoapServiceImp.class);
   }
 }

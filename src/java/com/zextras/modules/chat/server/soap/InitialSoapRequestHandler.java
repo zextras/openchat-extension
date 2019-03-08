@@ -19,49 +19,46 @@ package com.zextras.modules.chat.server.soap;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.zextras.lib.log.ChatLog;
-//import com.zextras.modules.chat.ZxChatZimlet;
 import com.zextras.lib.Error.ErrorCode;
 import com.zextras.lib.Error.ZxError;
-import com.zextras.lib.log.SeverityLevel;
-import com.zextras.modules.chat.server.parsing.ParserFactory;
-import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import org.openzal.zal.Account;
-import org.openzal.zal.ContinuationThrowable;
-import org.openzal.zal.lib.Filter;
+import com.zextras.lib.Optional;
 import com.zextras.lib.filters.FilterPassAll;
 import com.zextras.lib.json.JSONArray;
 import com.zextras.lib.json.JSONObject;
-import com.zextras.modules.chat.server.events.EventManager;
-import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
-import com.zextras.modules.chat.server.exceptions.NoSuchSessionInPingException;
-//import com.zextras.modules.chat.server.operations.CheckClientVersion;
-import com.zextras.modules.chat.server.session.Session;
-import com.zextras.modules.chat.server.session.SessionManager;
-import com.zextras.modules.chat.server.session.SessionUUID;
+import com.zextras.lib.log.ChatLog;
+import com.zextras.lib.log.SeverityLevel;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.client_contstants.ClientEventType;
 import com.zextras.modules.chat.server.events.Event;
-import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.events.EventId;
+import com.zextras.modules.chat.server.events.EventManager;
+import com.zextras.modules.chat.server.exceptions.NoSuchAccountChatException;
 import com.zextras.modules.chat.server.exceptions.NoSuchSessionException;
-import com.zextras.modules.chat.server.soap.command.SoapCommand;
+import com.zextras.modules.chat.server.exceptions.NoSuchSessionInPingException;
 import com.zextras.modules.chat.server.exceptions.ParserException;
+import com.zextras.modules.chat.server.exceptions.TooManyUsersInInstantMeetingError;
+import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.parsing.Parser;
+import com.zextras.modules.chat.server.parsing.ParserFactory;
+import com.zextras.modules.chat.server.session.Session;
+import com.zextras.modules.chat.server.session.SessionManager;
+import com.zextras.modules.chat.server.session.SessionUUID;
+import com.zextras.modules.chat.server.soap.command.SoapCommand;
+import io.netty.channel.Channel;
+import org.openzal.zal.Account;
+import org.openzal.zal.ContinuationThrowable;
 import org.openzal.zal.Utils;
+import org.openzal.zal.lib.Filter;
 import org.openzal.zal.soap.SoapResponse;
 import org.openzal.zal.soap.ZimbraContext;
 
 import java.util.List;
-
 public class InitialSoapRequestHandler implements ChatSoapRequestHandler
 {
   private final EventManager       mEventManager;
   private final SessionManager     mSessionManager;
-  private final Account            mAccount;
-  private final SoapEncoderFactory mSoapEncoderFactory;
+  private final Optional<Account>  mAccount;
   private final ZimbraContext      mZimbraContext;
-  //private final ZxChatZimlet       mChatZimlet;
   private final ParserFactory      mSoapParserFactory;
   private final SoapResponse       mSoapResponse;
 
@@ -69,20 +66,16 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
   public InitialSoapRequestHandler(
     EventManager eventManager,
     SessionManager sessionManager,
-    SoapEncoderFactory soapEncoderFactory,
     ParserFactory soapParserFactory,
-    @Assisted Account account,
+    @Assisted Optional<Account> account,
     @Assisted ZimbraContext zimbraContext,
-    //@Assisted ZxChatZimlet chatZimlet,
     @Assisted SoapResponse soapResponse
   )
   {
     mEventManager = eventManager;
     mSessionManager = sessionManager;
     mAccount = account;
-    mSoapEncoderFactory = soapEncoderFactory;
     mZimbraContext = zimbraContext;
-    //mChatZimlet = chatZimlet;
     mSoapParserFactory = soapParserFactory;
     mSoapResponse = soapResponse;
   }
@@ -110,7 +103,7 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
   public void handleRequest()
   {
     // Check if the auth token comes from the same account of the session
-    if (!mZimbraContext.getAuthenticatedAccontId().equals(mAccount.getId()))
+    if (mAccount.hasValue() && !mZimbraContext.getAuthenticatedAccontId().equals(mAccount.getValue().getId()))
     {
       sendShutdown();
       return;
@@ -120,13 +113,39 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
     List<ChatOperation> operations;
     try
     {
-      soapCommand = createCommand(mAccount.getName(), mZimbraContext);
+      String sessionId = mZimbraContext.getParameter("session_id", "");
+      Optional<SpecificAddress> address = Optional.empty();
+      if(mAccount.hasValue())
+      {
+        address = Optional.of(new SpecificAddress(mAccount.getValue().getName(), "soap"));
+      }
+      else if(!sessionId.isEmpty())
+      {
+        try
+        {
+          Session session = mSessionManager.getSessionById(SessionUUID.fromString(sessionId));
+          address = Optional.of(session.getMainAddress());
+        }
+        catch(NoSuchSessionException ignore)
+        {}
+      }
+
+
+      soapCommand = createCommand(
+        address,
+        mZimbraContext);
       operations = soapCommand.createOperationList();
     }
     catch (NoSuchAccountChatException ex)
     {
       ChatLog.log.info(ex.getMessage());
       mSoapResponse.setValue("error", ex.toJSON().toString());
+      return;
+    }
+    catch( TooManyUsersInInstantMeetingError err )
+    {
+      ChatLog.log.info(err.getMessage());
+      mSoapResponse.setValue("error", err.toJSON().toString());
       return;
     }
     catch (Exception e)
@@ -165,13 +184,13 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
     }
     catch (NoSuchSessionInPingException ex)
     {
-      ChatLog.log.info("No session found for " + mAccount.getName() + ", requesting registration");
+      ChatLog.log.info("No session found for " + mAccount.getValue().getName() + ", requesting registration");
       sendRegistrationRequired();
       return;
     }
     catch (NoSuchSessionException ex)
     {
-      ChatLog.log.info("ZeXtras Chat session appears to be expired, starting new session for " + mAccount.getName()); //#ZextrasRef
+      ChatLog.log.info("ZeXtras Chat session appears to be expired, starting new session for " + mAccount.getValue().getName()); //#ZextrasRef
       ChatLog.log.crit("Exception: " + Utils.exceptionToString(ex));
       mSoapResponse.setValue("error", ex.toJSON().toString());
       return;
@@ -213,7 +232,7 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
 
   private void sendShutdown()
   {
-    ChatLog.log.info("Sending shutdown to " + mAccount.getName());
+    ChatLog.log.info("Sending shutdown to " + mAccount.getValue().getName());
     JSONArray responseArray = new JSONArray();
     JSONObject response = new JSONObject();
     response.put("type", ClientEventType.TYPE_SHUTDOWN);
@@ -223,17 +242,16 @@ public class InitialSoapRequestHandler implements ChatSoapRequestHandler
   }
 
   private SoapCommand createCommand(
-    String accountAddress,
+    Optional<SpecificAddress> accountAddress,
     ZimbraContext zimbraContext
   )
     throws ParserException
   {
-    assert (accountAddress != null);
-    final SpecificAddress senderAddress = new SpecificAddress(accountAddress, "soap");
-
     final Parser soapParser = mSoapParserFactory.create(
-      senderAddress,
-      zimbraContext,
+      accountAddress,
+      Optional.of(zimbraContext),
+      Optional.<Channel>empty(),
+      zimbraContext.getParameterMap(),
       mSoapResponse
     );
     return soapParser.parse();

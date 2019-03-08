@@ -39,5 +39,4 @@ public class ClientEventType
   public static final int HISTORY               = 49;
   public static final int HISTORY_LAST          = 50;
   public static final int LAST_MESSAGE_INFO     = 55;
-
 }

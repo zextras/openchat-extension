@@ -17,15 +17,23 @@
 
 package com.zextras.modules.chat.server.parsing;
 
+import com.google.inject.assistedinject.Assisted;
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import io.netty.channel.Channel;
+import org.openzal.zal.Account;
 import org.openzal.zal.soap.SoapResponse;
 import org.openzal.zal.soap.ZimbraContext;
+
+import java.util.Map;
 
 public interface ParserFactory
 {
   Parser create(
-    SpecificAddress senderAddress,
-    ZimbraContext zimbraContext,
-    SoapResponse soapResponse
+    @Assisted("senderAddress") Optional<SpecificAddress> senderAddress,
+    @Assisted("zimbraContext") Optional<ZimbraContext> zimbraContext,
+    @Assisted("channel") Optional<Channel> channel,
+    @Assisted("parameterMap") Map<String, String> parameterMap,
+    @Assisted("soapResponse") SoapResponse soapResponse
   );
 }

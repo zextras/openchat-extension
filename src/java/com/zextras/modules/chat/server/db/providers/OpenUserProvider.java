@@ -78,14 +78,14 @@ public class OpenUserProvider implements UserProvider
   }
 
   @Override
-  public InternalUser getUser(SpecificAddress address)
+  public User getUser(SpecificAddress address)
           throws ChatDbException
   {
     return getUser(address,false);
   }
 
   @Override
-  public InternalUser getUser(SpecificAddress address,boolean skipLocalHostCheck)
+  public User getUser(SpecificAddress address,boolean skipLocalHostCheck)
     throws ChatDbException
   {
     SpecificAddress accountName = getAccountAddress(address, skipLocalHostCheck);

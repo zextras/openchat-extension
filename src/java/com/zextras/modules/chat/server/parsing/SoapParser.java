@@ -19,16 +19,39 @@ package com.zextras.modules.chat.server.parsing;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.zextras.modules.chat.properties.ChatProperties;
+import com.zextras.lib.Optional;
 import com.zextras.lib.activities.ActivityManager;
+import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.modules.chat.server.UserCapabilitiesProvider;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.exceptions.ParserException;
+import com.zextras.modules.chat.server.listener.PingQueueListener;
+import com.zextras.modules.chat.server.listener.PingSoapQueueListener;
+import com.zextras.modules.chat.server.listener.PingWebSocketQueueListener;
 import com.zextras.modules.chat.server.operations.LastMessageInfoOperationFactory;
 import com.zextras.modules.chat.server.operations.QueryArchiveFactory;
+import com.zextras.modules.chat.server.session.SoapEventFilter;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
+import com.zextras.modules.chat.server.soap.command.SoapCommand;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendAccept;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendAdd;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendBlock;
+import com.zextras.modules.chat.server.soap.command.SoapCommandFriendRename;
+import com.zextras.modules.chat.server.soap.command.SoapCommandMessageReceived;
+import com.zextras.modules.chat.server.soap.command.SoapCommandPing;
+import com.zextras.modules.chat.server.soap.command.SoapCommandQueryArchive;
+import com.zextras.modules.chat.server.soap.command.SoapCommandRegister;
+import com.zextras.modules.chat.server.soap.command.SoapCommandRemoveFriend;
+import com.zextras.modules.chat.server.soap.command.SoapCommandRenameGroup;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSendMessage;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSendWriting;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSetAutoAway;
+import com.zextras.modules.chat.server.soap.command.SoapCommandSetStatus;
+import com.zextras.modules.chat.server.soap.command.SoapCommandUnblockUser;
+import com.zextras.modules.chat.server.soap.command.SoapCommandUnregister;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import com.zextras.modules.chat.server.soap.command.*;
-import com.zextras.modules.chat.server.exceptions.ParserException;
+import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.lib.Clock;
 import org.openzal.zal.soap.SoapResponse;
@@ -58,26 +81,31 @@ public class SoapParser implements Parser
   public final static String ACTION_RENAME_GROUP          = "rename_group";
   public final static String ACTION_QUERY_ARCHIVE         = "query_archive";
 
-  final         Provisioning       mProvisioning;
+  private final Map<String, String> mParameterMap;
+  final Provisioning mProvisioning;
   final         SoapSessionFactory mSoapSessionFactory;
-  final         ZimbraContext      mZimbraContext;
+  final         Optional<ZimbraContext>      mZimbraContext;
   final         SoapResponse       mSoapResponse;
   private final Clock mClock;
   private final QueryArchiveFactory mQueryArchiveFactory;
   private final UserCapabilitiesProvider mUserCapabilitiesProvider;
   private final LastMessageInfoOperationFactory mLastMessageInfoOperationFactory;
+  private final SoapEventFilter mSoapEventFilter;
   final         ChatProperties     mChatProperties;
   private final ActivityManager    mActivityManager;
 
-  final         SpecificAddress             mSenderAddress;
+  private final Optional<SpecificAddress> mSender;
   final         SoapEncoderFactory          mSoapEncoderFactory;
   private final Map<String, CommandCreator> mCommandCreatorMap;
+  private final Optional<Channel> mChannel;
 
   @Inject
   public SoapParser(
-    @Assisted SpecificAddress senderAddress,
-    @Assisted ZimbraContext zimbraContext,
-    @Assisted SoapResponse soapResponse,
+    @Assisted("senderAddress") Optional<SpecificAddress> sender,
+    @Assisted("zimbraContext") Optional<ZimbraContext> zimbraContext,
+    @Assisted("channel") Optional<Channel> channel,
+    @Assisted("parameterMap") Map<String, String> parameterMap,
+    @Assisted("soapResponse") SoapResponse soapResponse,
     Provisioning provisioning,
     SoapEncoderFactory soapEncoderFactory,
     SoapSessionFactory soapSessionFactory,
@@ -86,13 +114,16 @@ public class SoapParser implements Parser
     Clock clock,
     QueryArchiveFactory queryArchiveFactory,
     UserCapabilitiesProvider userCapabilitiesProvider,
-    LastMessageInfoOperationFactory lastMessageInfoOperationFactory
+    LastMessageInfoOperationFactory lastMessageInfoOperationFactory,
+    SoapEventFilter soapEventFilter
   )
   {
+    mParameterMap = parameterMap;
     mProvisioning = provisioning;
     mChatProperties = chatProperties;
     mActivityManager = activityManager;
-    mSenderAddress = senderAddress;
+    mChannel = channel;
+    mSender = sender;
     mSoapEncoderFactory = soapEncoderFactory;
     mSoapSessionFactory = soapSessionFactory;
     mZimbraContext = zimbraContext;
@@ -101,6 +132,7 @@ public class SoapParser implements Parser
     mQueryArchiveFactory = queryArchiveFactory;
     mUserCapabilitiesProvider = userCapabilitiesProvider;
     mLastMessageInfoOperationFactory = lastMessageInfoOperationFactory;
+    mSoapEventFilter = soapEventFilter;
     mCommandCreatorMap = new HashMap<String, CommandCreator>(32);
     setupCommands();
   }
@@ -112,130 +144,161 @@ public class SoapParser implements Parser
 
   private void setupCommands()
   {
-    setupCommand(ACTION_ADD_FRIEND, new CommandCreator()
+    if(mSender.hasValue())
     {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandFriendAdd(mSenderAddress, commandParameters, mProvisioning, mUserCapabilitiesProvider); }
-    } );
-    setupCommand(ACTION_BLOCK_FRIEND, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandFriendBlock(mSenderAddress, commandParameters); }
-    } );
-    setupCommand(ACTION_LOGIN, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
+      final SpecificAddress mSenderAddress = mSender.getValue();
+      setupCommand(ACTION_ADD_FRIEND, new CommandCreator()
       {
-        return new SoapCommandRegister(
-          mSoapResponse,
-          mSoapEncoderFactory,
-          mSenderAddress,
-          commandParameters,
-          mSoapSessionFactory,
-          mProvisioning,
-          mZimbraContext,
-          mChatProperties,
-          mLastMessageInfoOperationFactory
-        );
-      }
-    });
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        {
+          return new SoapCommandFriendAdd(
+            mSenderAddress,
+            commandParameters,
+            mProvisioning,
+            mUserCapabilitiesProvider
+          );
+        }
+      });
+      setupCommand(ACTION_BLOCK_FRIEND, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandFriendBlock(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_LOGIN, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        {
+          return new SoapCommandRegister(
+            mSoapResponse,
+            mSoapEncoderFactory,
+            mSenderAddress,
+            commandParameters,
+            mSoapSessionFactory,
+            mProvisioning,
+            mZimbraContext.getValue(),
+            mChatProperties,
+            mLastMessageInfoOperationFactory,
+            mSoapEventFilter
+          );
+        }
+      });
 
-    setupCommand(ACTION_SET_AUTO_AWAY, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandSetAutoAway(mSenderAddress,commandParameters); }
-    });
-    setupCommand(ACTION_LOGOUT, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandUnregister(mSenderAddress,commandParameters); }
-    });
-    setupCommand(ACTION_PING, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandPing(mSoapResponse, mSoapEncoderFactory, mSenderAddress, commandParameters, mZimbraContext, mActivityManager); }
-    });
-    setupCommand(ACTION_REMOVE_FRIEND, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandRemoveFriend(mSenderAddress,commandParameters); }
-    });
-    setupCommand(ACTION_SEND_MESSAGE, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandSendMessage(mSoapResponse,mSenderAddress,commandParameters,mClock); }
-    });
-    setupCommand(ACTION_PING_WRITING, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandSendWriting(mSenderAddress,commandParameters); }
-    });
-    setupCommand(ACTION_SET_STATUS, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandSetStatus(mSenderAddress,commandParameters, mClock); }
-    });
-    setupCommand(ACTION_UNBLOCK_FRIEND, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandUnblockUser(mSenderAddress,commandParameters); }
-    });
-    setupCommand(ACTION_MESSAGE_RECEIVED, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandMessageReceived(mSenderAddress,commandParameters); }
-    });
-    setupCommand(ACTION_ACCEPT_FRIEND, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandFriendAccept( mSenderAddress,commandParameters, mProvisioning); }
-    });
-    setupCommand(ACTION_RENAME_FRIEND, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandFriendRename( mSenderAddress,commandParameters, mProvisioning, mUserCapabilitiesProvider); }
-    });
-    setupCommand(ACTION_RENAME_GROUP, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandRenameGroup( mSenderAddress,commandParameters); }
-    });
-    setupCommand(ACTION_QUERY_ARCHIVE, new CommandCreator()
-    {
-      @Override
-      public SoapCommand create(Map<String, String> commandParameters)
-      { return new SoapCommandQueryArchive(
-        mQueryArchiveFactory,
-        mSoapResponse,
-        mSenderAddress,
-        commandParameters);
-      }
-    });
+
+      setupCommand(ACTION_SET_AUTO_AWAY, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandSetAutoAway(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_LOGOUT, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandUnregister(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_PING, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        {
+          return new SoapCommandPing(
+            mSoapResponse,
+            mSoapEncoderFactory,
+            mSenderAddress,
+            commandParameters,
+            mActivityManager,
+            mZimbraContext,
+            mChannel,
+            mParameterMap
+          );
+        }
+      });
+      setupCommand(ACTION_REMOVE_FRIEND, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandRemoveFriend(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_SEND_MESSAGE, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandSendMessage(mSoapResponse, mSenderAddress, commandParameters, mClock); }
+      });
+      setupCommand(ACTION_PING_WRITING, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandSendWriting(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_SET_STATUS, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandSetStatus(mSenderAddress, commandParameters, mClock); }
+      });
+      setupCommand(ACTION_UNBLOCK_FRIEND, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandUnblockUser(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_MESSAGE_RECEIVED, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandMessageReceived(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_ACCEPT_FRIEND, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandFriendAccept(mSenderAddress, commandParameters, mProvisioning); }
+      });
+      setupCommand(ACTION_RENAME_FRIEND, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        {
+          return new SoapCommandFriendRename(
+            mSenderAddress,
+            commandParameters,
+            mProvisioning,
+            mUserCapabilitiesProvider
+          );
+        }
+      });
+      setupCommand(ACTION_RENAME_GROUP, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        { return new SoapCommandRenameGroup(mSenderAddress, commandParameters); }
+      });
+      setupCommand(ACTION_QUERY_ARCHIVE, new CommandCreator()
+      {
+        @Override
+        public SoapCommand create(Map<String, String> commandParameters)
+        {
+          return new SoapCommandQueryArchive(
+            mQueryArchiveFactory,
+            mSoapResponse,
+            mSenderAddress,
+            commandParameters
+          );
+        }
+      });
+    }
   }
 
   @Override
   public SoapCommand parse()
     throws ParserException
   {
-    final String evAction;
-
-    evAction = mZimbraContext.getParameter("action", "");
-    if( evAction.isEmpty() ) {
+    final String evAction = mParameterMap.get("action");
+    if( StringUtils.isBlank(evAction) ) {
       throw new ParserException("Missing attribute [action] from request");
     }
 
@@ -245,8 +308,6 @@ public class SoapParser implements Parser
     }
 
     CommandCreator creatorCreator = mCommandCreatorMap.get(evAction);
-    final Map<String, String> commandParameters = mZimbraContext.getParameterMap();
-
-    return creatorCreator.create(commandParameters);
+    return creatorCreator.create(mParameterMap);
   }
 }

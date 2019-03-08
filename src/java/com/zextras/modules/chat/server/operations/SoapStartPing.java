@@ -26,12 +26,11 @@ import com.zextras.modules.chat.server.exceptions.ChatDbException;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.NoSuchSessionException;
 import com.zextras.modules.chat.server.exceptions.NoSuchSessionInPingException;
-import com.zextras.modules.chat.server.listener.PingEventQueueListener;
+import com.zextras.modules.chat.server.listener.PingQueueListener;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.soap.SoapSession;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
-import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactoryImpl;
 import org.openzal.zal.soap.SoapResponse;
 
 import java.util.Collections;
@@ -43,14 +42,14 @@ public class SoapStartPing implements ChatOperation
   private final SoapResponse           mSoapResponse;
   private final SoapEncoderFactory     mSoapEncoderFactory;
   private final SessionUUID            mSessionId;
-  private final PingEventQueueListener mQueueListener;
+  private final PingQueueListener      mQueueListener;
   private final SpecificAddress        mSenderAddress;
 
   public SoapStartPing(
     SoapResponse soapResponse,
     SoapEncoderFactory soapEncoderFactory,
     SessionUUID sessionId,
-    PingEventQueueListener queueListener,
+    PingQueueListener queueListener,
     SpecificAddress senderAddress
   )
   {
@@ -107,7 +106,7 @@ public class SoapStartPing implements ChatOperation
     return mSessionId;
   }
 
-  public PingEventQueueListener getQueueListener()
+  public PingQueueListener getQueueListener()
   {
     return mQueueListener;
   }

@@ -2,7 +2,7 @@ package com.zextras.modules.chat.server.events;
 
 public enum TargetType
 {
-  Chat, GroupChat, Space, Channel;
+  Chat, GroupChat, Space, Channel, InstantMeeting;
 
   public static TargetType fromString(String typeString)
   {
@@ -21,6 +21,11 @@ public enum TargetType
       return Channel;
     }
 
+    if (InstantMeeting.name().equalsIgnoreCase(typeString))
+    {
+      return InstantMeeting;
+    }
+
     return Chat;
   }
 
@@ -31,6 +36,7 @@ public enum TargetType
       case 1: return GroupChat;
       case 2: return Space;
       case 3: return Channel;
+      case 4: return InstantMeeting;
       default: return Chat;
     }
   }
@@ -42,6 +48,7 @@ public enum TargetType
       case GroupChat: return 1;
       case Space: return 2;
       case Channel: return 3;
+      case InstantMeeting: return 4;
       default: return 0;
     }
   }

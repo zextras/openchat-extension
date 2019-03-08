@@ -17,25 +17,23 @@
 
 package com.zextras.modules.chat.server.listener;
 
-import java.lang.Runnable;
 import com.zextras.lib.activities.ActivityManager;
 import com.zextras.lib.activities.ActivityTimer;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.encoding.Encoder;
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventInterpreter;
 import com.zextras.modules.chat.server.events.EventQueue;
-import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
-import com.zextras.modules.chat.server.events.Event;
 import org.openzal.zal.Continuation;
 import org.openzal.zal.soap.SoapResponse;
 
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class PingEventQueueListener implements EventQueueListener
+public class PingSoapQueueListener implements PingQueueListener
 {
   private final Continuation    mContinuation;
   private final SpecificAddress mAddress;
@@ -48,7 +46,7 @@ public class PingEventQueueListener implements EventQueueListener
   private       EventQueue      mEventQueue;
   private       ActivityTimer   mTimeoutTimer;
 
-  public PingEventQueueListener(
+  public PingSoapQueueListener(
     ActivityManager activityManager,
     SpecificAddress address,
     Continuation continuation,
@@ -119,7 +117,7 @@ public class PingEventQueueListener implements EventQueueListener
           @Override
           public void run()
           {
-            mEventQueue.removeListenerIfEqual(PingEventQueueListener.this);
+            mEventQueue.removeListenerIfEqual(PingSoapQueueListener.this);
             mEventQueue = new EventQueue();
             resumeContinuationAndRemoveListener();
           }
@@ -225,7 +223,7 @@ public class PingEventQueueListener implements EventQueueListener
 
   @Override
   public String toString() {
-    return "PingEventQueueListener{" +
+    return "PingSoapQueueListener{" +
         ", mAddress=" + mAddress +
         ", mAlreadyReplied=" + mAlreadyReplied +
         ", mEventQueue=" + mEventQueue +

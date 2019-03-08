@@ -15,18 +15,26 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.zextras.modules.chat.server.soap;
+package com.zextras.modules.chat.server.exceptions;
 
-import com.zextras.lib.Optional;
-import org.openzal.zal.Account;
-import org.openzal.zal.soap.SoapResponse;
-import org.openzal.zal.soap.ZimbraContext;
+import com.zextras.lib.Error.ErrorCode;
 
-public interface SoapHandlerCreatorFactory
+public class TooManyUsersInInstantMeetingError extends ChatException
 {
-  public SoapHandlerCreator create(
-    Optional<Account> account,
-    SoapResponse soapResponse,
-    ZimbraContext zimbraSoapContext
-  );
+  public TooManyUsersInInstantMeetingError(String roomAddress)
+  {
+    super(new ErrorCode()
+    {
+      public String getCodeString()
+      {
+        return "TOO_MANY_USERS_IN_INSTANT_MEETING";
+      }
+
+      public String getMessage()
+      {
+        return "{roomAddress} contains too many users, cannot join.";
+      }
+    });
+    setDetail("roomAddress", roomAddress);
+  }
 }

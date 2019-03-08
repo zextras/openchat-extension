@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.soap;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.lib.Optional;
 import com.zextras.lib.log.ChatLog;
 import org.openzal.zal.ContinuationThrowable;
 import org.openzal.zal.Provisioning;
@@ -70,7 +71,7 @@ public class ChatSoapHandler implements SoapHandler
       Account account = mProvisioning.getAccountById(targetAccountId);
 
       final SoapHandlerCreator handlerCreator = mSoapHandlerCreatorFactory.create(
-        account,
+        Optional.of(account),
         soapResponse,
         context
       );

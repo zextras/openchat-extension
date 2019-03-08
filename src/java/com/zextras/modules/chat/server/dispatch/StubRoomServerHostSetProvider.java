@@ -21,12 +21,24 @@ public class StubRoomServerHostSetProvider implements RoomServerHostSetProvider
   {
   }
 
-  public Set<String> get()
+  public Set<String> getRoomServers()
   {
     return Collections.EMPTY_SET;
   }
 
-  public Set<SpecificAddress> getAddresses()
+  @Override
+  public Set<String> getAllServers()
+  {
+    return Collections.EMPTY_SET;
+  }
+
+  public Set<SpecificAddress> getRoomServersAddresses()
+  {
+    return Collections.EMPTY_SET;
+  }
+
+  @Override
+  public Set<SpecificAddress> getAllServersAddresses()
   {
     return Collections.EMPTY_SET;
   }

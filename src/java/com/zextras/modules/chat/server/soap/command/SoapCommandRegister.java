@@ -17,8 +17,11 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
+import com.zextras.lib.Optional;
+import com.zextras.lib.filters.FilterPassAll;
 import com.zextras.modules.chat.properties.ChatProperties;
 import com.zextras.lib.Error.DelegatedOrResourcesNotAllowedToChatError;
+import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventQueueFactory;
 import com.zextras.modules.chat.server.operations.ChatOperation;
 import com.zextras.modules.chat.server.operations.NotifyFriendsStatus;
@@ -26,6 +29,7 @@ import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.operations.*;
+import com.zextras.modules.chat.server.session.SoapEventFilter;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
@@ -33,6 +37,7 @@ import com.zextras.modules.chat.server.exceptions.MissingParameterException;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.exceptions.ZimbraException;
+import org.openzal.zal.lib.Filter;
 import org.openzal.zal.soap.SoapResponse;
 import org.openzal.zal.soap.ZimbraContext;
 
@@ -47,6 +52,7 @@ public class SoapCommandRegister extends SoapCommand
   private final SoapEncoderFactory              mSoapEncoderFactory;
   private final ChatProperties                  mChatProperties;
   private final LastMessageInfoOperationFactory mLastMessageInfoFactory;
+  private final SoapEventFilter mSoapEventFilter;
   private       SoapSessionFactory              mSoapSessionFactory;
   private final Provisioning                    mProvisioning;
   private final ZimbraContext                   mZimbraContext;
@@ -60,7 +66,8 @@ public class SoapCommandRegister extends SoapCommand
     Provisioning provisioning,
     ZimbraContext zimbraContext,
     ChatProperties chatProperties,
-    LastMessageInfoOperationFactory lastMessageInfoOperationFactory
+    LastMessageInfoOperationFactory lastMessageInfoOperationFactory,
+    SoapEventFilter soapEventFilter
     )
   {
     super(
@@ -74,6 +81,7 @@ public class SoapCommandRegister extends SoapCommand
     mZimbraContext = zimbraContext;
     mChatProperties = chatProperties;
     mLastMessageInfoFactory = lastMessageInfoOperationFactory;
+    mSoapEventFilter = soapEventFilter;
   }
 
   public ChatOperation createRegisterSoapSession(
@@ -89,7 +97,8 @@ public class SoapCommandRegister extends SoapCommand
       mSenderAddress,
       mSoapSessionFactory,
       clientVersion,
-      silentErrorReportingEnabled
+      silentErrorReportingEnabled,
+      mSoapEventFilter
     );
   }
 

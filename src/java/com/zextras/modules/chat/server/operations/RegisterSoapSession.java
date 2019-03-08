@@ -17,6 +17,7 @@
 
 package com.zextras.modules.chat.server.operations;
 
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.*;
 import com.zextras.modules.chat.server.address.AnyMultichatServerAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
@@ -31,10 +32,12 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.response.ChatSoapResponse;
 import com.zextras.modules.chat.server.session.SessionManager;
 import com.zextras.modules.chat.server.session.SessionUUID;
+import com.zextras.modules.chat.server.session.SoapEventFilter;
 import com.zextras.modules.chat.server.soap.SoapEncoder;
 import com.zextras.modules.chat.server.soap.SoapSession;
 import com.zextras.modules.chat.server.soap.SoapSessionFactory;
 import com.zextras.modules.chat.server.soap.encoders.SoapEncoderFactory;
+import org.openzal.zal.lib.Filter;
 import org.openzal.zal.lib.Version;
 import org.openzal.zal.soap.SoapResponse;
 
@@ -46,6 +49,7 @@ public class RegisterSoapSession implements ChatOperation
   private       SoapSessionFactory mSoapSessionFactory;
   private final String             mClientVersion;
   private final boolean            mSilentErrorReportingEnabled;
+  private final SoapEventFilter mSoapEventFilter;
   private final SessionUUID mNewSessionId;
   private final SoapResponse       mSoapResponse;
   private final SoapEncoderFactory mSoapEncoderFactory;
@@ -58,7 +62,8 @@ public class RegisterSoapSession implements ChatOperation
     SpecificAddress senderAddress,
     SoapSessionFactory soapSessionFactory,
     String clientVersion,
-    boolean silentErrorReportingEnabled
+    boolean silentErrorReportingEnabled,
+    SoapEventFilter soapEventFilter
   )
   {
     mNewSessionId = newSessionId;
@@ -68,6 +73,7 @@ public class RegisterSoapSession implements ChatOperation
     mSoapSessionFactory = soapSessionFactory;
     mClientVersion = clientVersion;
     mSilentErrorReportingEnabled = silentErrorReportingEnabled;
+    mSoapEventFilter = soapEventFilter;
   }
 
   public SessionUUID getNewSessionId()
@@ -95,7 +101,8 @@ public class RegisterSoapSession implements ChatOperation
       new EventQueue(),
       user,
       mSenderAddress,
-      version
+      version,
+      mSoapEventFilter
     );
 
     sessionManager.addSession(newSession);

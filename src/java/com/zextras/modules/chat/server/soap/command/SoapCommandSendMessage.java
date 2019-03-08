@@ -19,6 +19,7 @@ package com.zextras.modules.chat.server.soap.command;
 
 import com.zextras.lib.json.JSONObject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
+import com.zextras.modules.chat.server.client_contstants.ClientEventType;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventId;
 import com.zextras.modules.chat.server.operations.ChatOperation;
@@ -83,6 +84,7 @@ public class SoapCommandSendMessage extends SoapCommand
       @Override
       public void encode(ChatSoapResponse response, SpecificAddress target) {
         JSONObject message = new JSONObject();
+        message.put(REQUEST_ID,mParameterMap.get(REQUEST_ID));
         message.put("message_id",messageId.toString());
         message.put("message_date",timestamp);
         response.addResponse(message);

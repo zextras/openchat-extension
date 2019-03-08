@@ -23,13 +23,13 @@ import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventRouter;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
-public class AnyRoomServerDispatcher implements Dispatcher
+public class AnyServerDispatcher implements Dispatcher
 {
   private final EventRouter               mEventRouter;
   private final RoomServerHostSetProvider mRoomServerHostSetProvider;
 
   @Inject
-  public AnyRoomServerDispatcher(
+  public AnyServerDispatcher(
     EventRouter sessionManager,
     RoomServerHostSetProvider roomServerHostSetProvider
   )
@@ -41,7 +41,7 @@ public class AnyRoomServerDispatcher implements Dispatcher
   @Override
   public void dispatch(Event event) throws ChatException
   {
-    for( SpecificAddress server :  mRoomServerHostSetProvider.getRoomServersAddresses() )
+    for( SpecificAddress server :  mRoomServerHostSetProvider.getAllServersAddresses() )
     {
       mEventRouter.deliverEvent( server, event );
     }

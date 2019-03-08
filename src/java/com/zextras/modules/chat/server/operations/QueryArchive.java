@@ -295,4 +295,9 @@ public class QueryArchive implements ChatOperation, QueryArchiveInterceptorFacto
       mLock.unlock();
     }
   }
+
+  public String getQueryId()
+  {
+    return mQueryid;
+  }
 }

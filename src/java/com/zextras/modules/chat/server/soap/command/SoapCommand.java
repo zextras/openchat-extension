@@ -17,13 +17,13 @@
 
 package com.zextras.modules.chat.server.soap.command;
 
-import com.zextras.modules.chat.server.exceptions.ChatException;
-import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.address.SpecificAddressFromSession;
-import com.zextras.modules.chat.server.operations.ChatOperation;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.InvalidParameterException;
 import com.zextras.modules.chat.server.exceptions.MissingParameterException;
+import com.zextras.modules.chat.server.operations.ChatOperation;
+import com.zextras.modules.chat.server.session.SessionUUID;
 
 import java.util.List;
 import java.util.Map;
@@ -37,27 +37,33 @@ public abstract class SoapCommand
   /**
    * Same as TARGET_ADDRESS
    */
-  protected final static String TO                               = "to";
-  protected final static String TARGET_USERNAME                  = "target_username";
-  protected final static String TARGET_GROUP                     = "target_group";
-  protected final static String TARGET_NEW_GROUP                 = "new_group";
-  public    final static String MESSAGE                          = "message";
+  protected final static String TO               = "to";
+  protected final static String TARGET_USERNAME  = "target_username";
+  protected final static String TARGET_GROUP     = "target_group";
+  protected final static String TARGET_NEW_GROUP = "new_group";
+  public    final static String MESSAGE          = "message";
   protected final static String MESSAGE_ID                       = "message_id";
+  protected final static String REQUEST_ID                       = "request_id";
   protected final static String SESSION_ID                       = "session_id";
   public final static    String STATUS_ID                        = "status_id";
   protected final static String VALUE                            = "value";
-  protected final static String SESSION_SUCCESSFULLY_SENT_EVENTS = "received_events";
+  public final static    String SESSION_SUCCESSFULLY_SENT_EVENTS = "received_events";
   public static final    String TOPIC                            = "topic";
   public static final    String MEETINGS                         = "meetings";
 
   public static final String DOMAIN = "domain";
   public static final String NAME   = "name";
 
-  public final static String NODE                             = "node";
-  public final static String START                            = "start";
-  public final static String END                              = "end";
-  public final static String WITH                             = "with";
-  public final static String MAX                              = "max";
+  public final static String NODE       = "node";
+  public final static String START      = "start";
+  public final static String END        = "end";
+  public final static String WITH       = "with";
+  public final static String MAX        = "max";
+
+  public static final String MEETING_ID       = "meeting_id";
+  public static final String MEETING_PASSWORD = "meeting_password";
+  public static final String MEETING_LINK     = "meeting_link";
+  public static final String MEETING_JID      = "meeting_jid";
 
   protected final SpecificAddress     mSenderAddress;
   protected final Map<String, String> mParameterMap;

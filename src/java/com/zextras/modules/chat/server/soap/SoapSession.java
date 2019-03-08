@@ -34,7 +34,7 @@ import org.openzal.zal.lib.Version;
 
 public class SoapSession extends BaseSession
 {
-  public final static long EXPIRE_TIME_IN_MILLIS = 60000L*60L*2L;
+  public final static long EXPIRE_TIME_IN_MILLIS = 50000L;
 
   private       long        mExpireTime;
   private final Clock mClock;

@@ -512,9 +512,9 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  public Account restoreAccount(String emailAddress, String password, Map<String, Object> attrs, Map<String, Object> origAttrs)
+  public void restoreAccount(String emailAddress, Map<String, Object> attrs)
   {
-    return mProvisioning.restoreAccount(emailAddress, password, attrs, origAttrs);
+    mProvisioning.restoreAccount(emailAddress, attrs);
   }
 
   @Override

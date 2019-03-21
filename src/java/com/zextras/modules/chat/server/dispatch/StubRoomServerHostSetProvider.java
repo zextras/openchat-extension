@@ -13,7 +13,7 @@ import java.util.Set;
  */
 
 @Singleton
-public class StubRoomServerHostSetProvider implements RoomServerHostSetProvider
+public class StubRoomServerHostSetProvider implements ServerHostSetProvider
 {
   @Inject
   public StubRoomServerHostSetProvider(

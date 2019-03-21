@@ -25,7 +25,6 @@ import com.zextras.modules.chat.server.DestinationQueue;
 import com.zextras.modules.chat.server.Priority;
 import com.zextras.modules.chat.server.address.AddressResolver;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventDestination;
 import com.zextras.modules.chat.server.events.EventDestinationProvider;

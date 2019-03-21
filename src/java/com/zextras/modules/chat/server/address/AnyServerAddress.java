@@ -1,10 +1,9 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
-import com.zextras.modules.chat.server.dispatch.AnyRoomServerDispatcher;
 import com.zextras.modules.chat.server.dispatch.AnyServerDispatcher;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
-import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
+import com.zextras.modules.chat.server.dispatch.ServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
 import com.zextras.modules.chat.server.session.SessionUUID;
 
@@ -16,7 +15,7 @@ public class AnyServerAddress implements ChatAddress
   public Dispatcher createDispatcher(
     EventRouter eventRouter,
     UserProvider openUserProvider,
-    RoomServerHostSetProvider roomServerHostSetProvider
+    ServerHostSetProvider roomServerHostSetProvider
   )
   {
     return new AnyServerDispatcher(

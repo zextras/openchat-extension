@@ -26,7 +26,7 @@ import com.zextras.lib.filters.FilteredIterator;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
-import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
+import com.zextras.modules.chat.server.dispatch.ServerHostSetProvider;
 import org.openzal.zal.lib.Filter;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.chat.server.exceptions.ChatDbException;
@@ -41,17 +41,17 @@ import java.util.List;
 @Singleton
 public class EventManager implements Service
 {
-  private final UserProvider              mOpenUserProvider;
-  private final SessionManager            mSessionManager;
-  private final EventRouter               mEventRouter;
-  private final RoomServerHostSetProvider mRoomServerHostSetProvider;
+  private final UserProvider          mOpenUserProvider;
+  private final SessionManager        mSessionManager;
+  private final EventRouter           mEventRouter;
+  private final ServerHostSetProvider mRoomServerHostSetProvider;
 
   @Inject
   public EventManager(
     UserProvider openUserProvider,
     SessionManager sessionManager,
     EventRouter eventRouter,
-    RoomServerHostSetProvider roomServerHostSetProvider
+    ServerHostSetProvider roomServerHostSetProvider
   )
   {
     mOpenUserProvider = openUserProvider;

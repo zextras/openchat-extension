@@ -17,23 +17,33 @@
 
 package com.zextras.modules.chat.server.dispatch;
 
-import com.zextras.modules.chat.server.events.EventRouter;
+import com.google.inject.Inject;
+import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
-import com.zextras.modules.chat.server.exceptions.ChatDbException;
+import com.zextras.modules.chat.server.events.EventRouter;
 import com.zextras.modules.chat.server.exceptions.ChatException;
 
-public class AnyDispatcher implements Dispatcher
+public class AnyServerDispatcher implements Dispatcher
 {
-  private final EventRouter mEventRouter;
+  private final EventRouter           mEventRouter;
+  private final ServerHostSetProvider mRoomServerHostSetProvider;
 
-  public AnyDispatcher(EventRouter sessionManager)
+  @Inject
+  public AnyServerDispatcher(
+    EventRouter sessionManager,
+    ServerHostSetProvider roomServerHostSetProvider
+  )
   {
     mEventRouter = sessionManager;
+    mRoomServerHostSetProvider = roomServerHostSetProvider;
   }
 
   @Override
-  public void dispatch(Event event) throws ChatException, ChatDbException
+  public void dispatch(Event event) throws ChatException
   {
-    //mEventRouter.deliverToAnyone(event);
+    for( SpecificAddress server :  mRoomServerHostSetProvider.getAllServersAddresses() )
+    {
+      mEventRouter.deliverEvent( server, event );
+    }
   }
 }

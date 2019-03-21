@@ -13,7 +13,7 @@ import java.util.Set;
  */
 
 @Singleton
-public class StubRoomServerHostSetProvider implements RoomServerHostSetProvider
+public class StubRoomServerHostSetProvider implements ServerHostSetProvider
 {
   @Inject
   public StubRoomServerHostSetProvider(
@@ -21,14 +21,28 @@ public class StubRoomServerHostSetProvider implements RoomServerHostSetProvider
   {
   }
 
-  public Set<String> get()
+  @Override
+  public Set<String> getRoomServers()
   {
-    return Collections.EMPTY_SET;
+    return Collections.emptySet();
   }
 
-  public Set<SpecificAddress> getAddresses()
+  @Override
+  public Set<String> getAllServers()
   {
-    return Collections.EMPTY_SET;
+    return Collections.emptySet();
+  }
+
+  @Override
+  public Set<SpecificAddress> getRoomServersAddresses()
+  {
+    return Collections.emptySet();
+  }
+
+  @Override
+  public Set<SpecificAddress> getAllServersAddresses()
+  {
+    return Collections.emptySet();
   }
 
   public boolean isValidChatServer(SpecificAddress address)

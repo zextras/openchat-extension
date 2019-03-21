@@ -18,7 +18,7 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
-import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
+import com.zextras.modules.chat.server.dispatch.ServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
@@ -29,7 +29,7 @@ public class NoneAddress implements ChatAddress
   public static final NoneAddress sInstance = new NoneAddress();
 
   @Override
-  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider, RoomServerHostSetProvider roomServerHostSetProvider)
+  public Dispatcher createDispatcher(EventRouter eventRouter, UserProvider openUserProvider, ServerHostSetProvider roomServerHostSetProvider)
   {
     return NoneDispatcher.sNoneDispatcher;
   }

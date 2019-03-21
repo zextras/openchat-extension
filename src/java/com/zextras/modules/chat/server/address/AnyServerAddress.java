@@ -1,15 +1,15 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.db.providers.UserProvider;
-import com.zextras.modules.chat.server.dispatch.AnyRoomServerDispatcher;
+import com.zextras.modules.chat.server.dispatch.AnyServerDispatcher;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
 import com.zextras.modules.chat.server.dispatch.ServerHostSetProvider;
 import com.zextras.modules.chat.server.events.EventRouter;
 import com.zextras.modules.chat.server.session.SessionUUID;
 
-public class AnyMultichatServerAddress implements ChatAddress
+public class AnyServerAddress implements ChatAddress
 {
-  public static final AnyMultichatServerAddress sInstance = new AnyMultichatServerAddress();
+  public static final AnyServerAddress sInstance = new AnyServerAddress();
 
   @Override
   public Dispatcher createDispatcher(
@@ -18,7 +18,7 @@ public class AnyMultichatServerAddress implements ChatAddress
     ServerHostSetProvider roomServerHostSetProvider
   )
   {
-    return new AnyRoomServerDispatcher(
+    return new AnyServerDispatcher(
       eventRouter,
       roomServerHostSetProvider
     );

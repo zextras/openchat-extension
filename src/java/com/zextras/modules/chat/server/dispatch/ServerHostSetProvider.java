@@ -5,10 +5,12 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 
 import java.util.Set;
 
-public interface RoomServerHostSetProvider
+public interface ServerHostSetProvider
 {
-  Set<String> get();
-  Set<SpecificAddress> getAddresses();
+  Set<String> getRoomServers();
+  Set<String> getAllServers();
+  Set<SpecificAddress> getRoomServersAddresses();
+  Set<SpecificAddress> getAllServersAddresses();
   boolean isValidChatServer(SpecificAddress address);
   SpecificAddress selectNextServer() throws ZxError;
 }

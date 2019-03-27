@@ -25,13 +25,13 @@ import com.zextras.modules.chat.server.exceptions.ChatException;
 
 public class AnyRoomServerDispatcher implements Dispatcher
 {
-  private final EventRouter               mEventRouter;
-  private final RoomServerHostSetProvider mRoomServerHostSetProvider;
+  private final EventRouter           mEventRouter;
+  private final ServerHostSetProvider mRoomServerHostSetProvider;
 
   @Inject
   public AnyRoomServerDispatcher(
     EventRouter sessionManager,
-    RoomServerHostSetProvider roomServerHostSetProvider
+    ServerHostSetProvider roomServerHostSetProvider
   )
   {
     mEventRouter = sessionManager;

@@ -5,7 +5,7 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 
 import java.util.Set;
 
-public interface RoomServerHostSetProvider
+public interface ServerHostSetProvider
 {
   Set<String> getRoomServers();
   Set<String> getAllServers();

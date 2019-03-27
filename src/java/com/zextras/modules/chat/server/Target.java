@@ -20,7 +20,7 @@ package com.zextras.modules.chat.server;
 import com.zextras.modules.chat.server.address.ChatAddress;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.db.providers.UserProvider;
-import com.zextras.modules.chat.server.dispatch.RoomServerHostSetProvider;
+import com.zextras.modules.chat.server.dispatch.ServerHostSetProvider;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventRouter;
 import com.zextras.modules.chat.server.exceptions.ChatException;
@@ -45,7 +45,7 @@ public class Target
     mAddresses = addresses;
   }
 
-  public void dispatch(EventRouter eventRouter, UserProvider openUserProvider, RoomServerHostSetProvider roomServerHostSetProvider, Event event)
+  public void dispatch(EventRouter eventRouter, UserProvider openUserProvider, ServerHostSetProvider roomServerHostSetProvider, Event event)
     throws ChatException
   {
     for (ChatAddress address : mAddresses)

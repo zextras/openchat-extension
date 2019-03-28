@@ -1,11 +1,13 @@
 package com.zextras.modules.chat.server.dispatch;
 
 import com.google.inject.Singleton;
+import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Set;
+import org.openzal.zal.lib.Version;
 
 /**
  * This class provide a set of mailbox which hosts a room service
@@ -50,7 +52,7 @@ public class StubRoomServerHostSetProvider implements ServerHostSetProvider
     return false;
   }
 
-  public SpecificAddress selectNextServer()
+  public SpecificAddress selectNextServer(Optional<Version> minZextrasVersion, Optional<Version> minChatVersion)
   {
     return new SpecificAddress("localhost");
   }

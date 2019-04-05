@@ -15,7 +15,7 @@ public class SubdomainResolver
 
   public String removeSubdomainFrom(String room)
   {
-    return room.replace("@__room.", "@.");
+    return room.replace("@__room.", "@");
   }
 
   public SpecificAddress toRoomAddress(TargetType eventType, String room)
@@ -25,7 +25,7 @@ public class SubdomainResolver
       String[] strings = room.split("@");
       if (strings.length >= 2)
       {
-        return new SpecificAddress(strings[0] + "@__room" + strings[1]);
+        return new SpecificAddress(strings[0] + "@__room." + strings[1]);
       }
     }
     return new SpecificAddress(room);

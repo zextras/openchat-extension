@@ -19,7 +19,7 @@ package com.zextras.modules.chat.server.events;
 
 import com.zextras.modules.chat.server.exceptions.EmptyQueueException;
 import com.zextras.modules.chat.server.listener.EventQueueListener;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;

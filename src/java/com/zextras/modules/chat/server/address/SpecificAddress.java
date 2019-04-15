@@ -23,7 +23,7 @@ import com.zextras.modules.chat.server.events.EventRouter;
 import com.zextras.modules.chat.server.session.SessionUUID;
 import com.zextras.modules.chat.server.dispatch.Dispatcher;
 import com.zextras.modules.chat.server.dispatch.SpecificDispatcher;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class SpecificAddress implements ChatAddress
 {
@@ -119,7 +119,7 @@ public class SpecificAddress implements ChatAddress
     }
   }
 
-  @NotNull
+  @Nonnull
   public String getDomain()
   {
     int idx = mAddress.indexOf('@');

@@ -22,7 +22,7 @@ import com.zextras.lib.log.ChatLog;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.openzal.zal.Utils;
 
 import javax.xml.stream.XMLStreamConstants;
@@ -267,49 +267,49 @@ public class IQQueryXmppParser extends XmppParser
     }
   }
 
-  @NotNull
+  @Nonnull
   public String getId()
   {
     return mId;
   }
 
-  @NotNull
+  @Nonnull
   public String getTo()
   {
     return mTo;
   }
 
-  @NotNull
+  @Nonnull
   public Optional<String> getWith()
   {
     return mWith;
   }
 
-  @NotNull
+  @Nonnull
   public String getQueryId()
   {
     return mQueryId;
   }
 
-  @NotNull
+  @Nonnull
   public Optional<String> getNode()
   {
     return mNode;
   }
 
-  @NotNull
+  @Nonnull
   public Optional<Long> getStart()
   {
     return mStart;
   }
 
-  @NotNull
+  @Nonnull
   public Optional<Long> getEnd()
   {
     return mEnd;
   }
 
-  @NotNull
+  @Nonnull
   public SpecificAddress getSender()
   {
     return new SpecificAddress(mSender);

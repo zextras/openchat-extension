@@ -32,7 +32,7 @@ import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryEncoder;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.stax2.XMLStreamReader2;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -333,37 +333,37 @@ public class MessageHistoryParser extends XmppParser
     }
   }
 
-  @NotNull
+  @Nonnull
   public String getId()
   {
     return mId;
   }
 
-  @NotNull
+  @Nonnull
   public String getTo()
   {
     return mTo;
   }
 
-  @NotNull
+  @Nonnull
   public String getSender()
   {
     return mSender;
   }
 
-  @NotNull
+  @Nonnull
   public String getQueryId()
   {
     return mQueryId;
   }
 
-  @NotNull
+  @Nonnull
   public String getMessageId()
   {
     return mMessageId;
   }
 
-  @NotNull
+  @Nonnull
   public String getMessageStamp()
   {
     return mMessageStamp;
@@ -379,7 +379,7 @@ public class MessageHistoryParser extends XmppParser
     return mEvent;
   }
 
-  @NotNull
+  @Nonnull
   public String getBody()
   {
     return mBody;

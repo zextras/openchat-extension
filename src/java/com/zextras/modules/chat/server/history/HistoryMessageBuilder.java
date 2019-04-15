@@ -21,7 +21,7 @@ import com.zextras.lib.Optional;
 import com.zextras.modules.chat.server.ImMessage;
 import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public interface HistoryMessageBuilder
 {

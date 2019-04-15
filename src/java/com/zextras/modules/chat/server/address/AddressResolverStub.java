@@ -1,12 +1,12 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AddressResolverStub implements AddressResolver
 {
-  @NotNull
+  @Nonnull
   @Override
   public String resolveAddress(SpecificAddress address) throws UnavailableResource
   {

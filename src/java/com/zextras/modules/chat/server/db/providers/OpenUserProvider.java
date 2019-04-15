@@ -30,7 +30,7 @@ import com.zextras.modules.chat.server.relationship.DirectRelationshipProvider;
 import com.zextras.modules.chat.server.relationship.RelationshipModifier;
 import com.zextras.modules.chat.server.relationship.RelationshipProvider;
 import com.zextras.modules.core.ProvisioningCache;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.openzal.zal.Account;
 import org.openzal.zal.Provisioning;
 import org.openzal.zal.Utils;
@@ -124,7 +124,7 @@ public class OpenUserProvider implements UserProvider
     return new SpecificAddress(account.getName());
   }
 
-  @NotNull
+  @Nonnull
   public InternalUser buildUser(SpecificAddress accountName) throws ChatDbException
   {
     UserInfo userInfo = mUserInfoMapper.get(accountName);
@@ -139,7 +139,7 @@ public class OpenUserProvider implements UserProvider
     return buildUser(userInfo, eventQueue);
   }
 
-  @NotNull
+  @Nonnull
   private InternalUser buildUser(UserInfo userInfo, EventQueue eventQueue) throws ChatDbException
   {
 

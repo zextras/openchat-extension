@@ -21,7 +21,7 @@ import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.xmpp.encoders.EventMessageHistoryLastEncoder;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
 import org.codehaus.stax2.XMLStreamReader2;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -194,49 +194,49 @@ public class MessageHistoryLastParser extends XmppParser
     }
   }
 
-  @NotNull
+  @Nonnull
   public String getId()
   {
     return mId;
   }
 
-  @NotNull
+  @Nonnull
   public String getSender()
   {
     return mSender;
   }
 
-  @NotNull
+  @Nonnull
   public String getTo()
   {
     return mTo;
   }
 
-  @NotNull
+  @Nonnull
   public String getQueryId()
   {
     return mQueryId;
   }
 
-  @NotNull
+  @Nonnull
   public String getFirst()
   {
     return mFirst;
   }
 
-  @NotNull
+  @Nonnull
   public String getLast()
   {
     return mLast;
   }
 
-  @NotNull
+  @Nonnull
   public long getTimestamp()
   {
     return Long.valueOf(mTimestamp);
   }
 
-  @NotNull
+  @Nonnull
   public String getCount()
   {
     return mCount;

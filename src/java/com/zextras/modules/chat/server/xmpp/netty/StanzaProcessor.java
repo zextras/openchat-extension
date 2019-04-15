@@ -36,7 +36,7 @@ import com.zextras.modules.chat.server.xmpp.StanzaHandler;
 import com.zextras.modules.chat.server.xmpp.XmppSession;
 import com.zextras.modules.chat.server.xmpp.encoders.ProxyAuthRequestEncoder;
 import com.zextras.modules.chat.server.xmpp.xml.SchemaProvider;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.openzal.zal.Account;
 import org.openzal.zal.Utils;
 import io.netty.buffer.ByteBuf;

@@ -1,8 +1,8 @@
 package com.zextras.modules.chat.server.address;
 
 import com.zextras.modules.chat.server.exceptions.UnavailableResource;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface AddressResolver
 {
@@ -11,7 +11,7 @@ public interface AddressResolver
    * @return the server address
    * @throws UnavailableResource when the address cannot be resolved
    */
-  @NotNull
+  @Nonnull
   String resolveAddress(SpecificAddress address) throws UnavailableResource;
 
   /**

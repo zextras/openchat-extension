@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.zextras.lib.FixedCacheMap;
 import com.zextras.lib.FixedCacheStringTTLMap;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.openzal.zal.*;
 import org.openzal.zal.exceptions.NoSuchAccountException;
 import org.openzal.zal.exceptions.NoSuchGrantException;
@@ -60,7 +60,7 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Account assertAccountByName(String accountStr)
     throws NoSuchAccountException
   {
@@ -74,7 +74,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public boolean isValidUid(
-    @NotNull
+    @Nonnull
       String uid
   )
   {
@@ -82,7 +82,7 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Account getZimbraUser()
     throws ZimbraException
   {
@@ -113,7 +113,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void visitAllAccounts(
-    @NotNull
+    @Nonnull
       SimpleVisitor<Account> visitor
   )
     throws ZimbraException
@@ -123,7 +123,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void visitAllLocalAccountsNoDefaults(
-    @NotNull
+    @Nonnull
       SimpleVisitor<Account> visitor
   )
     throws ZimbraException
@@ -133,9 +133,9 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void visitAllAccounts(
-    @NotNull
+    @Nonnull
       SimpleVisitor<Account> visitor,
-    @NotNull
+    @Nonnull
       Filter<Account> filterAccounts
   )
     throws ZimbraException
@@ -145,9 +145,9 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void visitAllLocalAccountsSlow(
-    @NotNull
+    @Nonnull
       SimpleVisitor<Account> visitor,
-    @NotNull
+    @Nonnull
       Filter<Account> filterAccounts
   )
     throws ZimbraException
@@ -163,7 +163,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void visitAllDomains(
-    @NotNull
+    @Nonnull
       SimpleVisitor<Domain> visitor
   )
     throws ZimbraException
@@ -173,9 +173,9 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void visitDomain(
-    @NotNull
+    @Nonnull
       SimpleVisitor<Account> visitor,
-    @NotNull
+    @Nonnull
       Domain domain
   )
     throws ZimbraException
@@ -192,10 +192,10 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void authAccount(
-    @NotNull
+    @Nonnull
       Account account,
     String password,
-    @NotNull
+    @Nonnull
       Protocol protocol,
     Map<String, Object> context
   )
@@ -219,7 +219,7 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Server getLocalServer()
     throws ZimbraException
   {
@@ -242,7 +242,7 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Zimlet getZimlet(String zimletName)
     throws ZimbraException
   {
@@ -251,7 +251,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void modifyAttrs(
-    @NotNull
+    @Nonnull
       Entry entry,
     Map<String, Object> attrs
   )
@@ -270,7 +270,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public List<DistributionList> getAllDistributionLists(
-    @NotNull
+    @Nonnull
       Domain domain
   )
     throws ZimbraException
@@ -311,7 +311,7 @@ public class ProvisioningCache implements Provisioning
   @Override
   @Nullable
   public DistributionList get(
-    @NotNull
+    @Nonnull
       ProvisioningKey.ByDistributionList id,
     String dlStr
   )
@@ -323,7 +323,7 @@ public class ProvisioningCache implements Provisioning
   @Override
   @Nullable
   public Account get(
-    @NotNull
+    @Nonnull
       ProvisioningKey.ByAccount by,
     String target
   )
@@ -333,7 +333,7 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Account assertAccountById(String accountStr)
     throws NoSuchAccountException
   {
@@ -350,7 +350,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public List<Account> getAllAccounts(
-    @NotNull
+    @Nonnull
       Domain domain
   )
     throws ZimbraException
@@ -374,7 +374,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public List<CalendarResource> getAllCalendarResources(
-    @NotNull
+    @Nonnull
       Domain domain
   )
     throws ZimbraException
@@ -405,7 +405,7 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Config getConfig()
     throws ZimbraException
   {
@@ -563,7 +563,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void modifyIdentity(
-    @NotNull
+    @Nonnull
       Account newAccount,
     String identityName,
     Map<String, Object> newAttrs
@@ -576,11 +576,11 @@ public class ProvisioningCache implements Provisioning
   @Override
   public void grantRight(
     String targetType,
-    @NotNull
+    @Nonnull
       Targetby targetBy,
     String target,
     String granteeType,
-    @NotNull
+    @Nonnull
       GrantedBy granteeBy,
     String grantee,
     String right
@@ -596,7 +596,7 @@ public class ProvisioningCache implements Provisioning
     Targetby targetBy,
     String target,
     String granteeType,
-    @NotNull
+    @Nonnull
       GrantedBy granteeBy,
     String grantee,
     String right
@@ -612,7 +612,7 @@ public class ProvisioningCache implements Provisioning
     Targetby targetBy,
     String target,
     String granteeType,
-    @NotNull
+    @Nonnull
       GrantedBy granteeBy,
     String grantee,
     String right,
@@ -661,7 +661,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public <T> T toZimbra(
-    @NotNull
+    @Nonnull
       Class<T> cls
   )
   {
@@ -671,7 +671,7 @@ public class ProvisioningCache implements Provisioning
   @Override
   @Nullable
   public Domain getDomain(
-    @NotNull
+    @Nonnull
       Account account
   )
     throws ZimbraException
@@ -681,7 +681,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public void flushCache(
-    @NotNull
+    @Nonnull
       CacheEntryType cacheEntryType,
     @Nullable
       Collection<CacheEntry> cacheEntries
@@ -693,7 +693,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public CountAccountResult countAccount(
-    @NotNull
+    @Nonnull
       Domain domain
   )
     throws ZimbraException
@@ -703,9 +703,9 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public long getAccountsOnCos(
-    @NotNull
+    @Nonnull
       Domain domain,
-    @NotNull
+    @Nonnull
       Cos cos
   )
   {
@@ -714,9 +714,9 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public long getMaxAccountsOnCos(
-    @NotNull
+    @Nonnull
       Domain domain,
-    @NotNull
+    @Nonnull
       Cos cos
   )
   {
@@ -726,7 +726,7 @@ public class ProvisioningCache implements Provisioning
   @Override
   @Nullable
   public Server getServer(
-    @NotNull
+    @Nonnull
       Account acct
   )
     throws ZimbraException
@@ -752,7 +752,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public boolean onLocalServer(
-    @NotNull
+    @Nonnull
       Account userAccount
   )
     throws ZimbraException
@@ -770,7 +770,7 @@ public class ProvisioningCache implements Provisioning
 
   @Override
   public long getEffectiveQuota(
-    @NotNull
+    @Nonnull
       Account account
   )
   {
@@ -816,7 +816,7 @@ public class ProvisioningCache implements Provisioning
   @Override
   @Nullable
   public Grants getGrants(
-    @NotNull
+    @Nonnull
       TargetType targetType,
     Targetby name,
     String targetName,
@@ -829,7 +829,7 @@ public class ProvisioningCache implements Provisioning
   @Override
   public String getGranteeName(
     String grantee_id,
-    @NotNull
+    @Nonnull
       String grantee_type
   )
     throws ZimbraException
@@ -838,9 +838,9 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public GalSearchResult galSearch(
-    @NotNull
+    @Nonnull
       Account account,
     String query,
     int skip,
@@ -851,28 +851,28 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Domain assertDomainById(String domainId)
   {
     return mProvisioning.assertDomainById(domainId);
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Domain assertDomainByName(String domainId)
   {
     return mProvisioning.assertDomainByName(domainId);
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Zimlet assertZimlet(String com_zextras_zextras)
   {
     return mProvisioning.assertZimlet(com_zextras_zextras);
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public DistributionList assertDistributionListById(String targetId)
   {
     return mProvisioning.assertDistributionListById(targetId);
@@ -885,21 +885,21 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public void deleteAccountById(String id)
   {
     mProvisioning.deleteAccountById(id);
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public void deleteDomainById(String id)
   {
     mProvisioning.deleteDomainById(id);
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public void deleteCosById(String id)
   {
     mProvisioning.deleteCosById(id);

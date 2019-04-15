@@ -2,7 +2,7 @@ package com.zextras.modules.chat.server.relationship;
 
 import com.google.inject.Inject;
 import com.zextras.modules.chat.server.address.SpecificAddress;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;

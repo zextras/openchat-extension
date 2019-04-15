@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.zextras.utils.FastBase64;
 import io.netty.util.internal.ThreadLocalRandom;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.UUID;
 
@@ -48,7 +48,7 @@ public class EventId implements Comparable<EventId>
     );
   }
 
-  public static EventId fromString( @NotNull String s) {
+  public static EventId fromString( @Nonnull String s) {
     if( s.isEmpty() ) {
       throw new RuntimeException("Invalid empty id");
     }
@@ -56,7 +56,7 @@ public class EventId implements Comparable<EventId>
   }
 
   @Override
-  public int compareTo(@NotNull EventId uid) {
+  public int compareTo(@Nonnull EventId uid) {
     return mId.compareTo(uid.mId);
   }
 

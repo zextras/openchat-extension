@@ -132,6 +132,16 @@ public class ProvisioningCache implements Provisioning
   }
 
   @Override
+  public void visitAllLocalAccounts(
+    @Nonnull
+      SimpleVisitor<Account> visitor
+  )
+    throws ZimbraException
+  {
+    mProvisioning.visitAllAccounts(visitor);
+  }
+
+  @Override
   public void visitAllAccounts(
     @Nonnull
       SimpleVisitor<Account> visitor,

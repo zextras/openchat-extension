@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import com.zextras.lib.db.DbHelper;
 import com.zextras.lib.db.ResultSetHelper;
 import com.zextras.modules.chat.server.ImMessage;
-import com.zextras.modules.chat.server.address.SubdomainResolver;
+import com.zextras.modules.chat.server.address.ChatDbAddressConverter;
 import com.zextras.modules.chat.server.db.ChatDbHandler;
 import com.zextras.modules.chat.server.events.EventType;
 import com.zextras.modules.chat.server.events.TargetType;
@@ -134,17 +134,17 @@ public class ImMessageStatements
       " FROM chat.MESSAGE_READ " +
       " WHERE chat.MESSAGE_READ.SENDER = ?";
 
-  private final DbHelper          mChatDbHelper;
-  private final SubdomainResolver mSubdomainResolver;
+  private final DbHelper               mChatDbHelper;
+  private final ChatDbAddressConverter mChatDbAddressConverter;
 
   @Inject
   public ImMessageStatements(
     ChatDbHandler chatDbHandler,
-    SubdomainResolver subdomainResolver
+    ChatDbAddressConverter chatDbAddressConverter
   )
   {
     mChatDbHelper = new DbHelper(chatDbHandler);
-    mSubdomainResolver = subdomainResolver;
+    mChatDbAddressConverter = chatDbAddressConverter;
   }
 
   public void insert(final ImMessage imMessage) throws SQLException
@@ -162,8 +162,8 @@ public class ImMessageStatements
           statement.setShort(i++, TargetType.toShort(imMessage.getTargetType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getDestination()));
+          statement.setString(i++, mChatDbAddressConverter.toDb(imMessage.getSender()));
+          statement.setString(i++, mChatDbAddressConverter.toDb(imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
           return i;
@@ -187,8 +187,8 @@ public class ImMessageStatements
           statement.setShort(i++, TargetType.toShort(imMessage.getTargetType()));
           statement.setShort(i++, imMessage.getIndexStatus());
           statement.setString(i++, imMessage.getText());
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getSender()));
-          statement.setString(i++, mSubdomainResolver.removeSubdomainFrom(imMessage.getDestination()));
+          statement.setString(i++, mChatDbAddressConverter.toDb(imMessage.getSender()));
+          statement.setString(i++, mChatDbAddressConverter.toDb(imMessage.getDestination()));
           statement.setString(i++, imMessage.getReactions());
           statement.setString(i++, imMessage.getTypeExtrainfo());
           return i;
@@ -247,11 +247,11 @@ public class ImMessageStatements
         int i = 1;
         if (!sender.isEmpty())
         {
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
+          preparedStatement.setString(i++, mChatDbAddressConverter.toDb(sender));
         }
         if (!destination.isEmpty())
         {
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+          preparedStatement.setString(i++, mChatDbAddressConverter.toDb(destination));
         }
         if (fromTime.hasValue())
         {
@@ -279,8 +279,8 @@ public class ImMessageStatements
           EventType.fromShort(rs.optShort("MESSAGE_TYPE",(short)0)),
           target_type,
           rs.optShort("INDEX_STATUS",(short)0),
-          mSubdomainResolver.toRoomAddress(TargetType.Chat,rs.getString("SENDER")).resourceAddress(),
-          mSubdomainResolver.toRoomAddress(target_type,rs.getString("DESTINATION")).resourceAddress(),
+          mChatDbAddressConverter.fromDb(TargetType.Chat, rs.getString("SENDER")).resourceAddress(),
+          mChatDbAddressConverter.fromDb(target_type, rs.getString("DESTINATION")).resourceAddress(),
           rs.getString("TEXT"),
           rs.getString("REACTIONS"),
           rs.getString("TYPE_EXTRAINFO")
@@ -307,8 +307,8 @@ public class ImMessageStatements
           public int init(PreparedStatement preparedStatement) throws SQLException
           {
             int i = 1;
-            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
-            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+            preparedStatement.setString(i++, mChatDbAddressConverter.toDb(sender));
+            preparedStatement.setString(i++, mChatDbAddressConverter.toDb(destination));
             preparedStatement.setLong(i++, timestamp);
             preparedStatement.setString(i++, id);
             return i;
@@ -325,8 +325,8 @@ public class ImMessageStatements
             int i = 1;
             preparedStatement.setString(i++, id);
             preparedStatement.setLong(i++, timestamp);
-            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
-            preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+            preparedStatement.setString(i++, mChatDbAddressConverter.toDb(sender));
+            preparedStatement.setString(i++, mChatDbAddressConverter.toDb(destination));
             return i;
           }
         });
@@ -367,8 +367,8 @@ public class ImMessageStatements
         public int init(PreparedStatement preparedStatement) throws SQLException
         {
           int i = 1;
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(sender));
-          preparedStatement.setString(i++, mSubdomainResolver.removeSubdomainFrom(destination));
+          preparedStatement.setString(i++, mChatDbAddressConverter.toDb(sender));
+          preparedStatement.setString(i++, mChatDbAddressConverter.toDb(destination));
           return i;
         }
       },
@@ -401,8 +401,8 @@ public class ImMessageStatements
       container.putLong("TARGET_TYPE",TargetType.toShort(message.getTargetType()));
       container.putLong("INDEX_STATUS",message.getIndexStatus());
       container.putString("TEXT",message.getText());
-      container.putString("SENDER",mSubdomainResolver.removeSubdomainFrom(message.getSender()));
-      container.putString("DESTINATION",mSubdomainResolver.removeSubdomainFrom(message.getDestination()));
+      container.putString("SENDER", mChatDbAddressConverter.toDb(message.getSender()));
+      container.putString("DESTINATION", mChatDbAddressConverter.toDb(message.getDestination()));
       container.putString("REACTIONS",message.getReactions());
       container.putString("TYPE_EXTRAINFO",message.getTypeExtrainfo());
       messages.add(container);
@@ -421,7 +421,7 @@ public class ImMessageStatements
         @Override
         public int init(PreparedStatement preparedStatement) throws SQLException
         {
-          preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(ackDestination));
+          preparedStatement.setString(1, mChatDbAddressConverter.toDb(ackDestination));
           return 2;
         }
       },
@@ -452,7 +452,7 @@ public class ImMessageStatements
         @Override
         public int init(PreparedStatement preparedStatement) throws SQLException
         {
-          String dst = mSubdomainResolver.removeSubdomainFrom(destination);
+          String dst = mChatDbAddressConverter.toDb(destination);
           preparedStatement.setString(1, dst);
           preparedStatement.setString(2, dst);
           return 3;
@@ -463,7 +463,7 @@ public class ImMessageStatements
         @Override
         public Void create(ResultSetHelper rs, DbHelper.DbConnection connection) throws SQLException
         {
-          set.add(mSubdomainResolver.toRoomAddress(TargetType.Chat,rs.getString("chat.MESSAGE.SENDER")).toString());
+          set.add(mChatDbAddressConverter.fromDb(TargetType.Chat, rs.getString("chat.MESSAGE.SENDER")).toString());
           return null;
         }
       });
@@ -494,8 +494,8 @@ public class ImMessageStatements
         @Override
         public int init(PreparedStatement preparedStatement) throws SQLException
         {
-          preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(sender));
-          preparedStatement.setString(2, mSubdomainResolver.removeSubdomainFrom(destination));
+          preparedStatement.setString(1, mChatDbAddressConverter.toDb(sender));
+          preparedStatement.setString(2, mChatDbAddressConverter.toDb(destination));
           preparedStatement.setLong(3, timestamp);
           preparedStatement.setLong(4, timestamp);
           return 5;
@@ -523,7 +523,7 @@ public class ImMessageStatements
         @Override
         public int init(PreparedStatement preparedStatement) throws SQLException
         {
-          preparedStatement.setString(1, mSubdomainResolver.removeSubdomainFrom(destination));
+          preparedStatement.setString(1, mChatDbAddressConverter.toDb(destination));
           preparedStatement.setLong(2, timestamp);
           preparedStatement.setLong(3, timestamp);
           return 4;

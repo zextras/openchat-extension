@@ -2,7 +2,11 @@ package com.zextras.modules.chat.server.events;
 
 public enum EventType
 {
-  Message, SharedFile, ConversationCreated,
+  Message,
+  SharedFile,
+  ConversationCreated,
+  ConversationMemberJoined,
+  ConversationMemberLeft
   ;
 
   public static EventType fromShort(short typeString)
@@ -12,6 +16,8 @@ public enum EventType
       case 0: return Message;
       case 1: return SharedFile;
       case 2: return ConversationCreated;
+      case 3: return ConversationMemberJoined;
+      case 4: return ConversationMemberLeft;
       default: throw new RuntimeException("invalid: "+typeString);
     }
   }
@@ -23,6 +29,8 @@ public enum EventType
       case Message: return 0;
       case SharedFile: return 1;
       case ConversationCreated: return 2;
+      case ConversationMemberJoined: return 3;
+      case ConversationMemberLeft: return 4;
       default: throw new RuntimeException("invalid: "+type);
     }
   }

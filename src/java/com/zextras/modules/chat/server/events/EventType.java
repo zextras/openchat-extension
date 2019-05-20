@@ -6,7 +6,8 @@ public enum EventType
   SharedFile,
   ConversationCreated,
   ConversationMemberJoined,
-  ConversationMemberLeft
+  ConversationMemberLeft,
+  ConversationNameChanged
   ;
 
   public static EventType fromShort(short typeString)
@@ -18,6 +19,7 @@ public enum EventType
       case 2: return ConversationCreated;
       case 3: return ConversationMemberJoined;
       case 4: return ConversationMemberLeft;
+      case 5: return ConversationNameChanged;
       default: throw new RuntimeException("invalid: "+typeString);
     }
   }
@@ -31,6 +33,7 @@ public enum EventType
       case ConversationCreated: return 2;
       case ConversationMemberJoined: return 3;
       case ConversationMemberLeft: return 4;
+      case ConversationNameChanged: return 5;
       default: throw new RuntimeException("invalid: "+type);
     }
   }

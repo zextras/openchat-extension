@@ -8,7 +8,8 @@ public enum EventType
   ConversationMemberJoined,
   ConversationMemberLeft,
   ConversationNameChanged,
-  ConversationTopicChanged
+  ConversationTopicChanged,
+  ConversationPictureChanged
   ;
 
   public static EventType fromShort(short typeString)
@@ -22,6 +23,7 @@ public enum EventType
       case 4: return ConversationMemberLeft;
       case 5: return ConversationNameChanged;
       case 6: return ConversationTopicChanged;
+      case 7: return ConversationPictureChanged;
       default: throw new RuntimeException("invalid: "+typeString);
     }
   }
@@ -37,6 +39,7 @@ public enum EventType
       case ConversationMemberLeft: return 4;
       case ConversationNameChanged: return 5;
       case ConversationTopicChanged: return 6;
+      case ConversationPictureChanged: return 7;
       default: throw new RuntimeException("invalid: "+type);
     }
   }

@@ -37,12 +37,6 @@ public class DbHandlerStub implements DbHandler
   }
 
   @Override
-  public String getClusterSchemaName()
-  {
-    return "";
-  }
-
-  @Override
   public void start() throws ServiceStartException
   {}
 

@@ -23,6 +23,7 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.codehaus.stax2.validation.XMLValidationSchema;
 
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -61,6 +62,8 @@ public abstract class XmppParser
   {
     XMLInputFactory2 ifact = new WstxInputFactory();
     ifact.setProperty("javax.xml.stream.isCoalescing", true);
+    ifact.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    ifact.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
     XMLStreamReader2 sr = (XMLStreamReader2) ifact.createXMLStreamReader(mXmlInput);
     return sr;
   }

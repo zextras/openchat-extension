@@ -6,6 +6,8 @@ import com.zextras.lib.FixedCacheMap;
 import com.zextras.lib.FixedCacheStringTTLMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import java.util.HashMap;
 import org.openzal.zal.*;
 import org.openzal.zal.exceptions.NoSuchAccountException;
 import org.openzal.zal.exceptions.NoSuchGrantException;
@@ -519,6 +521,15 @@ public class ProvisioningCache implements Provisioning
     throws ZimbraException
   {
     return mProvisioning.createAccount(dstAccount, newPassword, attrs);
+  }
+
+  @Override
+  public Account createFakeAccount(
+    Map<String, Object> attrs
+  )
+    throws ZimbraException
+  {
+    return new Account("dummy_account","", attrs, new HashMap(), mProvisioning);
   }
 
   @Override

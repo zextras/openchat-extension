@@ -19,12 +19,12 @@ package com.zextras.modules.chat.server;
 
 import com.google.inject.Inject;
 import com.zextras.lib.ZimbraSSLContextProvider;
+import com.zextras.modules.core.services.NettyService;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslHandler;
@@ -35,15 +35,18 @@ import java.io.IOException;
 
 public class LocalXmppConnectionProviderImpl implements LocalXmppConnectionProvider
 {
+  private final NettyService             mNettyService;
   private final ZimbraSSLContextProvider mZimbraSSLContextProvider;
-  private final SSLCipher mSslCipher;
+  private final SSLCipher                mSslCipher;
 
   @Inject
   public LocalXmppConnectionProviderImpl(
+    NettyService nettyService,
     ZimbraSSLContextProvider zimbraSSLContextProvider,
     SSLCipher sslCipher
   )
   {
+    mNettyService = nettyService;
     mZimbraSSLContextProvider = zimbraSSLContextProvider;
     mSslCipher = sslCipher;
   }
@@ -60,16 +63,13 @@ public class LocalXmppConnectionProviderImpl implements LocalXmppConnectionProvi
         sslEngine.setUseClientMode(true);
         mSslCipher.setCiphers(sslContext,sslEngine);
         SslHandler sslHandler = new SslHandler(sslEngine);
-        socketChannel.pipeline().addFirst(
-          "ssl",
-          sslHandler
-        );
+        socketChannel.pipeline().addFirst("ssl", sslHandler);
         socketChannel.pipeline().addLast("handler", channelHandler);
       }
     };
     ChannelFuture channelFuture = new Bootstrap()
       .channel(NioSocketChannel.class)
-      .group(new NioEventLoopGroup())
+      .group(mNettyService.getEventLoopGroup())
       .handler(handler)
       .connect(host, port);
 

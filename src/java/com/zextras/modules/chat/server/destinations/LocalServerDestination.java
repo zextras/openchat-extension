@@ -19,6 +19,11 @@ package com.zextras.modules.chat.server.destinations;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.zextras.lib.FixedCacheMap;
+import com.zextras.lib.FixedCacheStringTTLMap;
+import com.zextras.lib.SoapClientHelper;
+import com.zextras.lib.json.JSONException;
+import com.zextras.lib.json.JSONObject;
 import com.zextras.lib.log.ChatLog;
 import com.zextras.lib.switches.Service;
 import com.zextras.modules.chat.server.DestinationQueue;
@@ -28,13 +33,31 @@ import com.zextras.modules.chat.server.address.SpecificAddress;
 import com.zextras.modules.chat.server.events.Event;
 import com.zextras.modules.chat.server.events.EventDestination;
 import com.zextras.modules.chat.server.events.EventDestinationProvider;
+import com.zextras.modules.chat.server.events.EventIQQuery;
+import com.zextras.modules.chat.server.events.EventInterpreterAdapter;
+import com.zextras.modules.chat.server.events.EventLastMessageInfo;
+import com.zextras.modules.chat.server.events.EventMessageHistory;
+import com.zextras.modules.chat.server.events.EventMessageHistoryLast;
 import com.zextras.modules.chat.server.events.EventRouter;
+import com.zextras.modules.chat.server.events.EventSharedFile;
+import com.zextras.modules.chat.server.exceptions.ChatException;
 import com.zextras.modules.core.ProvisioningCache;
-import org.openzal.zal.Provisioning;
-import org.openzal.zal.Utils;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.openzal.zal.Account;
-
-import java.util.*;
+import org.openzal.zal.OperationContext;
+import org.openzal.zal.Provisioning;
+import org.openzal.zal.Server;
+import org.openzal.zal.Utils;
+import org.openzal.zal.XMLElement;
+import org.openzal.zal.lib.Clock;
+import org.openzal.zal.lib.Version;
+import org.openzal.zal.soap.SoapElement;
+import org.openzal.zal.soap.SoapTransport;
 
 @Singleton
 public class LocalServerDestination implements EventDestination, EventDestinationProvider, Service
@@ -47,13 +70,16 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
   private final DestinationQueueFactory       mDestinationQueueFactory;
   private final AddressResolver               mAddressResolver;
   private final EventRouter                   mEventRouter;
+  private final FilterNoMatchChatVersion      mFilterNoMatchChatVersion;
 
   @Inject
   public LocalServerDestination(
     ProvisioningCache provisioning,
     EventRouter eventRouter,
     DestinationQueueFactory destinationQueueFactory,
-    AddressResolver addressResolver
+    AddressResolver addressResolver,
+    SoapClientHelper soapClientHelper,
+    Clock clock
   )
   {
     mProvisioning = provisioning;
@@ -61,6 +87,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
     mAddressResolver = addressResolver;
     mDestinationQueues = new HashMap<String, DestinationQueue>();
     mEventRouter = eventRouter;
+    mFilterNoMatchChatVersion = new FilterNoMatchChatVersion(provisioning,clock,soapClientHelper);
   }
 
   @Override
@@ -90,7 +117,10 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
         }
       }
 
-      if( host == null || host.equals(mProvisioning.getLocalServer().getServerHostname()) ) {
+      if( host == null ||
+          host.equals(mProvisioning.getLocalServer().getServerHostname()) ||
+          mFilterNoMatchChatVersion.isFiltered(host,event))
+      {
         return false;
       }
 
@@ -138,6 +168,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
         ChatLog.log.err(e.getMessage());
       }
     }
+    mFilterNoMatchChatVersion.disconnectAll();
   }
 
   public void start()
@@ -146,6 +177,107 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
     Set<String> queues = mDestinationQueues.keySet();
     for (String queue : queues) {
       mDestinationQueues.get(queue).start();
+    }
+  }
+
+  private class FilterNoMatchChatVersion extends EventInterpreterAdapter<Boolean>
+  {
+    private final static int                             sSIZE = 10;
+    private final static long                            sTTL  = 15L * 60L * 1000L;
+    private final        Provisioning                    mProvisioning;
+    private final        SoapClientHelper                mSoapClientHelper;
+    private final        FixedCacheStringTTLMap<Version> mChatVersions;
+
+    public FilterNoMatchChatVersion(
+      Provisioning provisioning,
+      Clock clock,
+      SoapClientHelper soapClientHelper
+    )
+    {
+      super(false);
+      mProvisioning = provisioning;
+      mSoapClientHelper = soapClientHelper;
+      mChatVersions = new FixedCacheStringTTLMap<>(
+        sSIZE,
+        new FixedCacheMap.Getter<String, Version>() {
+          @Override
+          public Version get(String host)
+          {
+            OperationContext context = new OperationContext(mProvisioning.getZimbraUser(),true);
+            Server server = mProvisioning.getServerByName(host);
+            if (server != null)
+            {
+              SoapTransport soapTransport = mSoapClientHelper.openAdmin(context, server);
+              XMLElement request = new XMLElement(""
+                + "<zextras xmlns=\"urn:zimbraAdmin\">"
+                + "  <module>ZxChat</module>"
+                + "  <action>getServerStatus</action>"
+                + "</zextras>");
+              try
+              {
+                SoapElement response = soapTransport.invokeWithoutSession(request);
+                String content = response.getAttribute("content");
+                JSONObject jsonObject = JSONObject.fromString(content);
+                return new Version(jsonObject.getJSONObject("response").getString("chat_server_version"));
+              }
+              catch( IOException | JSONException e )
+              {
+                ChatLog.log.err(Utils.exceptionToString(e));
+              }
+            }
+            return null;
+          }
+        },
+        clock,
+        sTTL,
+        false
+      );
+    }
+
+    public void disconnectAll()
+    {
+      mChatVersions.clear();
+    }
+
+    public boolean isFiltered(String host,Event event) throws ChatException
+    {
+      Boolean filtered = event.interpret(this);
+      if (filtered)
+      {
+        Version remoteChatVersion = mChatVersions.get(host);
+        return !remoteChatVersion.isAtLeast(2, 3);
+      }
+      return false;
+    }
+
+    @Override
+    public Boolean interpret(EventIQQuery event) throws ChatException
+    {
+      return true;
+    }
+
+    @Override
+    public Boolean interpret(EventMessageHistory event) throws ChatException
+    {
+      return true;
+    }
+
+    @Override
+    public Boolean interpret(EventMessageHistoryLast event) throws ChatException
+    {
+      return true;
+    }
+
+    @Override
+    public Boolean interpret(EventSharedFile event) throws ChatException
+    {
+      return true;
+    }
+
+    @Override
+    public Boolean interpret(EventLastMessageInfo event) throws ChatException
+    {
+      return true;
     }
   }
 }

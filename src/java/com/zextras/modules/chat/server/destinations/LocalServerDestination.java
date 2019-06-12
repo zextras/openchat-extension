@@ -230,7 +230,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
         },
         clock,
         sTTL,
-        false
+        true
       );
     }
 

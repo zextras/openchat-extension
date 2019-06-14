@@ -12,7 +12,8 @@ public enum EventType
   ConversationPictureChanged,
   MeetingStarted,
   MeetingEnded,
-  ConversationMemberKicked
+  ConversationMemberKicked,
+  ConversationDeleted
   ;
 
   public static EventType fromShort(short typeString)
@@ -30,6 +31,7 @@ public enum EventType
       case 8: return MeetingStarted;
       case 9: return MeetingEnded;
       case 10: return ConversationMemberKicked;
+      case 11: return ConversationDeleted;
       default: throw new RuntimeException("invalid: "+typeString);
     }
   }
@@ -49,6 +51,7 @@ public enum EventType
       case MeetingStarted: return 8;
       case MeetingEnded: return 9;
       case ConversationMemberKicked: return 10;
+      case ConversationDeleted: return 11;
       default: throw new RuntimeException("invalid: "+type);
     }
   }

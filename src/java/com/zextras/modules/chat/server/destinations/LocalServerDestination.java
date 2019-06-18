@@ -245,7 +245,7 @@ public class LocalServerDestination implements EventDestination, EventDestinatio
       if (filtered)
       {
         Version remoteChatVersion = mChatVersions.get(host);
-        return !remoteChatVersion.isAtLeast(2, 3);
+        return (remoteChatVersion == null) || (!remoteChatVersion.isAtLeast(2, 3));
       }
       return false;
     }

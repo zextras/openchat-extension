@@ -9,8 +9,8 @@
   </loadfile>
 
   <property name="zal-zimbra-version" value="dev-last"/>
-  <property name="zal-version" value="2.1"/>
-  <property name="required-zal-version" value="2.1.0"/>
+  <property name="zal-version" value="2.7"/>
+  <property name="required-zal-version" value="2.7.0"/>
 
   <property name="extensionlib" value="extensionlib"/>
 
@@ -88,7 +88,7 @@
       </manifest>
       <fileset dir="${build}" />
       <fileset dir="${extensionlib}/build" />
-      <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.6.7.jar" />
+      <zipgroupfileset dir="${lib}/" includes="jackson-annotations-2.8.11.jar" />
       <zipgroupfileset dir="${lib}/" includes="annotations-13.0.jar" />
       <zipgroupfileset dir="${lib}/" includes="commons-codec-1.10.jar" />
       <zipgroupfileset dir="${lib}/" includes="commons-io-2.4.jar" />
@@ -102,8 +102,8 @@
       <zipgroupfileset dir="${lib}/" includes="httpclient-cache-4.5.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="httpcore-4.4.3.jar" />
       <zipgroupfileset dir="${lib}/" includes="httpmime-4.5.1.jar" />
-      <zipgroupfileset dir="${lib}/" includes="jackson-core-2.6.7.jar" />
-      <zipgroupfileset dir="${lib}/" includes="jackson-databind-2.6.7.jar" />
+      <zipgroupfileset dir="${lib}/" includes="jackson-core-2.8.11.jar" />
+      <zipgroupfileset dir="${lib}/" includes="jackson-databind-2.8.11.jar" />
       <zipgroupfileset dir="${lib}/" includes="java-inject.jar" />
       <zipgroupfileset dir="${lib}/" includes="jsr305-2.0.1.jar" />
       <zipgroupfileset dir="${lib}/" includes="msv-core-2010.2.jar" />
@@ -280,24 +280,24 @@
      </else>
    </if>
     <if>
-      <available file="${lib}/jackson-core-2.6.7.jar" />
+      <available file="${lib}/jackson-core-2.8.11.jar" />
       <else>
-        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.6.7/jackson-core-2.6.7.jar"
-             dest="${lib}/jackson-core-2.6.7.jar" usetimestamp="true"/>
+        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.8.11/jackson-core-2.8.11.jar"
+             dest="${lib}/jackson-core-2.8.11.jar" usetimestamp="true"/>
      </else>
    </if>
     <if>
-      <available file="${lib}/jackson-databind-2.6.7.jar" />
+      <available file="${lib}/jackson-databind-2.8.11.jar" />
       <else>
-        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.6.7/jackson-databind-2.6.7.jar"
-             dest="${lib}/jackson-databind-2.6.7.jar" usetimestamp="true"/>
+        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.8.11/jackson-databind-2.8.11.jar"
+             dest="${lib}/jackson-databind-2.8.11.jar" usetimestamp="true"/>
      </else>
    </if>
     <if>
-      <available file="${lib}/jackson-annotations-2.6.7.jar" />
+      <available file="${lib}/jackson-annotations-2.8.11.jar" />
       <else>
-        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.6.7/jackson-annotations-2.6.7.jar"
-             dest="${lib}/jackson-annotations-2.6.7.jar" usetimestamp="true"/>
+        <get src="http://central.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.8.11/jackson-annotations-2.8.11.jar"
+             dest="${lib}/jackson-annotations-2.8.11.jar" usetimestamp="true"/>
      </else>
    </if>
     <if>

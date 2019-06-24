@@ -2,15 +2,37 @@ package com.zextras.modules.chat.server.events;
 
 public enum EventType
 {
-  Message, SharedFile,
+  Message,
+  SharedFile,
+  ConversationCreated,
+  ConversationMemberJoined,
+  ConversationMemberLeft,
+  ConversationNameChanged,
+  ConversationTopicChanged,
+  ConversationPictureChanged,
+  MeetingStarted,
+  MeetingEnded,
+  ConversationMemberKicked,
+  ConversationDeleted
   ;
 
   public static EventType fromShort(short typeString)
   {
     switch (typeString)
     {
+      case 0: return Message;
       case 1: return SharedFile;
-      default: return Message;
+      case 2: return ConversationCreated;
+      case 3: return ConversationMemberJoined;
+      case 4: return ConversationMemberLeft;
+      case 5: return ConversationNameChanged;
+      case 6: return ConversationTopicChanged;
+      case 7: return ConversationPictureChanged;
+      case 8: return MeetingStarted;
+      case 9: return MeetingEnded;
+      case 10: return ConversationMemberKicked;
+      case 11: return ConversationDeleted;
+      default: throw new RuntimeException("invalid: "+typeString);
     }
   }
 
@@ -18,8 +40,19 @@ public enum EventType
   {
     switch (type)
     {
+      case Message: return 0;
       case SharedFile: return 1;
-      default: return 0;
+      case ConversationCreated: return 2;
+      case ConversationMemberJoined: return 3;
+      case ConversationMemberLeft: return 4;
+      case ConversationNameChanged: return 5;
+      case ConversationTopicChanged: return 6;
+      case ConversationPictureChanged: return 7;
+      case MeetingStarted: return 8;
+      case MeetingEnded: return 9;
+      case ConversationMemberKicked: return 10;
+      case ConversationDeleted: return 11;
+      default: throw new RuntimeException("invalid: "+type);
     }
   }
 }
